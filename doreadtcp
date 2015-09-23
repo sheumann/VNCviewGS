@@ -1,0 +1,40 @@
+	#define buffTypePointer 0x0000
+    static srBuff theSRBuff;
+    static rrBuff theRRBuff;
+    int tcpErrorCode;
+    void *dataBuffPtr;
+    unsigned long remainingDataLength;
+    unsigned long initialTime;
+
+    dataBuffPtr = data;
+    remainingDataLength = dataLength;
+
+    /* Do read and check for error */
+    initialTime = TickCount();
+    do {
+	    if (TickCount() >= initialTime + 15*60)
+	        return FALSE;
+    	if (TCPIPStatusTCP(hostIpid, &theSRBuff))
+	    	return FALSE;
+    	if (toolerror())
+	    	return FALSE;
+    	if ((theSRBuff.srRcvQueued < dataLength) && (waitForData == FALSE))
+	    	return FALSE;
+    	TCPIPPoll();
+        } while ((theSRBuff.srRcvQueued < dataLength));
+
+    do {
+    	if (TCPIPReadTCP(hostIpid, buffTypePointer, (Ref) dataBuffPtr,
+        		remainingDataLength, &theRRBuff))
+        	return FALSE;
+    	if (toolerror())
+	    	return FALSE;
+
+    	if (theRRBuff.rrBuffCount == remainingDataLength)
+	    	return TRUE;            
+        dataBuffPtr += theRRBuff.rrBuffCount;
+    	remainingDataLength -= theRRBuff.rrBuffCount;
+        TCPIPPoll();
+        } while (theRRBuff.rrMoreFlag);
+	
+   	#undef buffTypeNewHandle

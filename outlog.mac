@@ -1,0 +1,19 @@
+Requested     12 bytes,     12 bytes reported available,     12 bytes returned
+Requested      4 bytes,      4 bytes reported available,      4 bytes returned
+Requested      2 bytes,     24 bytes reported available,      2 bytes returned
+Requested      2 bytes,     25 bytes reported available,      2 bytes returned
+Requested     16 bytes,     23 bytes reported available,     16 bytes returned
+Requested      4 bytes,      7 bytes reported available,      4 bytes returned
+Requested      3 bytes,      3 bytes reported available,      3 bytes returned
+Requested      1 bytes,    416 bytes reported available,      1 bytes returned
+Requested     15 bytes,   1215 bytes reported available,     15 bytes returned
+Requested 118400 bytes, 118536 bytes reported available,  92000 bytes returned
+    Error: rrMoreFlag = 26536, rrPushFlag = 0, rrUrgentFlag = 0
+Requested 118400 bytes, 119792 bytes reported available, 116192 bytes returned
+    Error: rrMoreFlag =  3600, rrPushFlag = 0, rrUrgentFlag = 0
+Requested 118400 bytes, 119136 bytes reported available, 114736 bytes returned
+    Error: rrMoreFlag =  4400, rrPushFlag = 0, rrUrgentFlag = 0
+Requested 118400 bytes, 118992 bytes reported available, 114592 bytes returned
+    Error: rrMoreFlag =  4400, rrPushFlag = 0, rrUrgentFlag = 0
+Requested 118400 bytes, 119312 bytes reported available, 115088 bytes returned
+    Error: rrMoreFlag =  4224, rrPushFlag = 0, rrUrgentFlag = 0

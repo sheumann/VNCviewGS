@@ -1,0 +1,71 @@
+VNCview GS 1.0a1 README
+
+VNCview GS is a VNC client (viewer) for the Apple IIgs.  You can use it to display and interact with the graphical desktop of another computer through your Apple IIgs.
+
+System Requirements
+A (real or emulated) ROM 01 or ROM 3 Apple IIgs
+Apple IIgs System Software 6.0.1
+Marinetti 2.0 or later, with a functional TCP/IP network connection
+Andrew Roughan's Crypto Tool Set (needed for password functionality)
+A computer running a VNC server to which you have access
+Strongly recommended:
+An accelerator
+A high-bandwidth, low-latency network connection from the IIgs to the server
+
+Marinetti can be downloaded from:
+http://www.apple2.org/marinetti/ (stable versions)
+http://sourceforge.net/projects/marinetti (development/beta versions)
+
+The Crypto Tool Set can be downloaded from:
+http://home.ozonline.com.au/klajr/apple/crypto.html
+
+VNCview GS will generally perform best when connected to the VNC server through a high-bandwidth, low-latency network connection.  A IIgs connected to the network via a high-speed network connection such as a LANceGS and a server connected to your LAN will probably provide the best performance.
+
+Usage
+To start VNCview GS, simply run the "VNCview.GS" program.  The New VNC Connection dialog box will be displayed, allowing you to configure and start a VNC connection.
+
+Usually, you need to enter the VNC server (using a hostname or IP address and a VNC display number, as in other VNC programs) and a password.  Some servers may not require a password, but most do and it is probably advisable to set up your own servers with a password to provide some security.  Also note that the VNC display number can be omitted if it is 0, and that it can be negative.
+
+You can select a 320x200 color or 640x200 grayscale display mode.  The 320x200 mode better corresponds to the server's normal display, since it displays colors and uses near-square pixels.  640x200 mode will cause greater distortion and does not display colors, but it does allow a larger portion of the server's desktop to be displayed on the IIgs.
+
+Other options are also available.
+"Request shared session" indicates the server should allow multiple clients to connect to it simultaneously.  The server does not have to honor this request.
+"Emulate 3-Button Mouse" causes option-clicks and OA-clicks to be  treated as clicks of the second and third mouse buttons.
+"View Only Mode" allows you to see the server's display but not to send any keyboard, mouse, or clipboard input to the server.
+"Allow Clipboard Transfers from Server" indicates that the server is allowed to send its clipboard contents, which will be transferred to the IIgs clipboard.
+
+When you have configured your new VNC connection, simply click "Connect," and if all goes well you will be connected to the VNC server.  You can interact with it with the mouse and keyboard and scroll your view of its display.  The option and Open-Apple keys are sent as "alt" and "meta," respectively; their exact interpretation depends on the server.  Select "Close" or "Quit" in the file menu when you are done with the connection.
+
+Menu Items
+Apple->About VNCview GS...: Displays information about the program
+File->New Connection: Allows you to configure and establish a new connection
+File->Close: Closes current window or connection.  You can connect again afterward.
+File->Quit: Quits VNCview GS, closing any open connection
+Edit->Undo: Only used by NDAs
+Edit->Cut/Copy/Paste/Clear: Used in New VNC Connection window input boxes and NDAs
+Edit->Show Clipboard: Displays the current contents of the IIgs clipboard
+Edit->Send Clipboard: Transfers the contents of the IIgs clipboard to the server
+
+VNC Server Interoperability
+VNCview GS should be able to connect with any VNC server that fully implements the RFB protocol as published by RealVNC Ltd. or its predecessors, though in practice it seems to work better with some servers than with others.  Here is a list of some VNC servers for widespread platforms; many others are also available.
+
+Microsoft Windows & *nix (X11): RealVNC, http://www.realvnc.com/
+Mac OS X: OSXvnc, http://www.redstonesoftware.com/vnc.html
+Classic Mac OS: ChromiVNC, http://www.chromatix.uklinux.net/vnc/
+
+Troubleshooting
+If you are experiencing problems, it may be helpful to try removing, rearranging, or even adding system extensions.  This may eliminate assorted problems associated with Marinetti and its interaction with other components of the system.  Upgrading to the latest version of Marinetti (3.0b1 as of this writing) may also be helpful.
+
+If these steps fail to resolve your problems or if you have other questions, comments, or bug reports, I can be contacted at SHeumann@myrealbox.com.
+
+Please be aware that VNCview GS is alpha-quality software.  It generally works for me, but it has not been extensively tested in diverse environments, and it is not feature-complete (features that I hope to implement in the future include optional protocol elements that should improve speed and responsiveness).
+
+License
+This program, "VNCview GS," is copyright (C) 2002-2004 Stephen Heumann.  All rights reserved.  This program contains material from the ORCA/C Run-Time Libraries, copyright 1987-1996 by Byte Works, Inc.  Used with permission.
+
+Redistribution and use, with or without modification, are permitted provided that the following conditions are met:
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software.
+2. Altered versions must be plainly marked as such, and must not be misrepresented as being the original software.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENT DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
