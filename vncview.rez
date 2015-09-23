@@ -66,6 +66,9 @@
 #define txtTransfers		23
 #define chkEmul3Btn		18
 #define chkViewOnly		19
+#define txtPreferredEncoding	24
+#define radRaw			25
+#define radHextile		26
 
 /*- Tools ------------------------------------------------------*/
 
@@ -356,7 +359,7 @@ resource rMenuItem (fileQuit+noKB) {    /* Quit menu item */
 
 resource rAlertString (1) {
    "93:"
-   "VNCview GS 1.0a1\n"
+   "VNCview GS 1.0a2\n"
    "Copyright \$A9 2002\$D12004 by Stephen Heumann\n"
    "\n"
    "This program contains material from the ORCA/C Run-Time Libraries, "
@@ -369,7 +372,7 @@ resource rAlertString (1) {
 resource rVersion (1) {
 	{
 	        1,0,0,		/* Version number */
-                alpha, 1,     /* Release version */
+                alpha, 2,     /* Release version */
                 },
         verUS,			/* Region code */
         "VNCview GS",		/* Title */
@@ -601,7 +604,7 @@ resource rWindParam1 (NCWindow+winNewConnection) {
         {0,0},				/* page vertical, horizontal */
         0,				/* wInfoRefCon */
         0,				/* wInfoHeight */
-        {42,162,170,478},		/* wPosition */
+        {40,162,181,478},		/* wPosition */
         infront,			/* wPlane */
         NCWindow+winNewConnection,	/* wStorage */
         $0009				/* wInVerb */
@@ -626,11 +629,14 @@ resource rControlList (NCWindow+winNewConnection) {{
                 NCWindow+txtTransfers,
                 NCWindow+chkEmul3Btn,
                 NCWindow+chkViewOnly,
+                NCWindow+txtPreferredEncoding,
+                NCWindow+radRaw,
+                NCWindow+radHextile,
         }};
 
 resource rControlTemplate (NCWindow+btnConnect) {
 	btnConnect,			/* Control ID */
-        {108,217,0,0},			/* Control Rect */
+        {121,217,0,0},			/* Control Rect */
         SimpleButtonControl {{
 	    	$0001,			/* flags */
             	$3002,			/* more flags */
@@ -644,7 +650,7 @@ resource rPString (NCWindow+btnConnect) {"Connect"};
                   
 resource rControlTemplate (NCWindow+btnCancel) {
 	btnCancel,			/* Control ID */
-        {108,128,0,0},			/* Control Rect */
+        {121,128,0,0},			/* Control Rect */
         SimpleButtonControl {{
 	        $0000,			/* flags */
                 $3002,			/* more flags */
@@ -856,6 +862,45 @@ resource rControlTemplate (NCWindow+chkViewOnly) {
         };
 resource rPString (NCWindow+chkViewOnly) {"View Only Mode"};
 
+resource rControlTemplate (NCWindow+txtPreferredEncoding) {
+	txtPreferredEncoding,
+	{104,3,91,310},
+        statTextControl {{
+	        $0004,
+                $1002,
+                0,
+                NCWindow+txtPreferredEncoding	/* Title ref */
+	        }};
+        };
+resource rTextForLETextBox2 (NCWindow+txtPreferredEncoding) {"Preferred Encoding:"};
+
+resource rControlTemplate (NCWindow+radRaw) {
+	radRaw,
+	{104,155,0,0},
+        RadioControl {{
+	        $0003,
+                $1002,
+                0,
+                NCWindow+radRaw,	/* Title ref */
+	        1			/* initial value */
+                }};
+        };
+resource rPString (NCWindow+radRaw) {"Raw"};
+
+resource rControlTemplate (NCWindow+radHextile) {
+	radHextile,
+	{104,220,0,0},
+        RadioControl {{
+	        $0003,
+                $1002,
+                0,
+                NCWindow+radHextile,	/* Title ref */
+	        0			/* initial value */
+                }};
+        };
+resource rPString (NCWindow+radHextile) {"Hextile"};
+
+
 /*- TCP/IP Connection Status window resources ----------------------*/
 
 resource rWindParam1 (1002) {
@@ -922,7 +967,7 @@ resource rWindParam1 (1004) {
         };
 
 resource rWindColor (1) {
-	0x00F0,
+	0x0000,
         0x0FA0,
         0x020F,
         0xF0AA,

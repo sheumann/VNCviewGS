@@ -16,6 +16,7 @@ extern BOOLEAN requestSharedSession;
 extern BOOLEAN allowClipboardTransfers;
 extern BOOLEAN emulate3ButtonMouse;
 extern BOOLEAN viewOnlyMode;
+extern BOOLEAN useHextile;
 extern BOOLEAN localPointer;
 extern unsigned long deleteKeysym;
 extern char vncServer[257];

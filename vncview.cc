@@ -59,6 +59,10 @@
 #define txtTransfers		23
 #define chkEmul3Btn			18
 #define chkViewOnly			19
+#define txtPreferredEncoding	24
+#define radRaw				25
+#define radHextile			26
+
 
 BOOLEAN done = FALSE;           /* are we done, yet? */
 EventRecord myEvent;            /* event record for menu mode */
@@ -72,6 +76,7 @@ BOOLEAN requestSharedSession = TRUE;
 BOOLEAN allowClipboardTransfers = TRUE;
 BOOLEAN emulate3ButtonMouse = TRUE;
 BOOLEAN viewOnlyMode = FALSE;
+BOOLEAN useHextile = FALSE;
 char vncServer[257];
 char vncPassword[10];
 
@@ -222,6 +227,8 @@ void HandleControl (void) {
        	case txtTransfers:	allowClipboardTransfers = !allowClipboardTransfers;
         					SetCtlValueByID(allowClipboardTransfers,
 								newConnWindow, chkClipboard);			break;
+        case radRaw:		useHextile = FALSE;							break;
+        case radHextile:	useHextile = TRUE;							break;
         };
 	}
 

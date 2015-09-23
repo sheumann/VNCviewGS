@@ -587,6 +587,7 @@ BOOLEAN FinishVNCHandshaking (void) {
 #define screenTooBigError	2010
 	unsigned char sharedFlag;
 	unsigned long serverNameLen;
+    unsigned long encodingInfoSize;
     struct PixelFormat {
 		    unsigned char messageType;
             unsigned char padding1;
@@ -624,13 +625,13 @@ BOOLEAN FinishVNCHandshaking (void) {
             unsigned char padding;
             unsigned int  numberOfEncodings;
             unsigned long firstEncoding;
-            //unsigned long secondEncoding;
+            unsigned long secondEncoding;
             } encodings = {
 		            2,				/* Message Type - SetEncodings */
                     0,				/* padding */
-                    SwapBytes2(1),	/* number of encodings */
-                    SwapBytes4(1)	/* first encoding: CopyRect */
-                    //SwapBytes4(5)	/* second encoding: Hextile */
+                    0,				/* number of encodings  - set below */
+                    SwapBytes4(1),	/* first encoding: CopyRect */
+                    SwapBytes4(5)	/* second encoding: Hextile */
                     /* Per the spec, raw encoding is supported even though
                      * it is not listed here explicitly.
                      */
@@ -679,7 +680,16 @@ BOOLEAN FinishVNCHandshaking (void) {
     if (toolerror())
 	    return FALSE;
 
-    if (TCPIPWriteTCP(hostIpid, &encodings.messageType, sizeof(encodings),
+    if (useHextile) {
+	    encodings.numberOfEncodings = SwapBytes2(2);
+        encodingInfoSize = sizeof(encodings);
+    } else {
+	    /* No Hextile */
+	    encodings.numberOfEncodings = SwapBytes2(1);
+        encodingInfoSize = sizeof(encodings) - 4;
+    }
+
+    if (TCPIPWriteTCP(hostIpid, &encodings.messageType, encodingInfoSize,
     				TRUE, FALSE))
 	    return FALSE;
     if (toolerror())

@@ -1,4 +1,4 @@
-VNCview GS 1.0a1 README
+VNCview GS 1.0a2 README
 
 VNCview GS is a VNC client (viewer) for the Apple IIgs.  You can use it to display and interact with the graphical desktop of another computer through your Apple IIgs.
 
@@ -29,12 +29,14 @@ Usually, you need to enter the VNC server (using a hostname or IP address and a 
 You can select a 320x200 color or 640x200 grayscale display mode.  The 320x200 mode better corresponds to the server's normal display, since it displays colors and uses near-square pixels.  640x200 mode will cause greater distortion and does not display colors, but it does allow a larger portion of the server's desktop to be displayed on the IIgs.
 
 Other options are also available.
-"Request shared session" indicates the server should allow multiple clients to connect to it simultaneously.  The server does not have to honor this request.
+"Request shared session" indicates the server should allow multiple clients to connect to it simultaneously.  The server is not required to honor this request.
 "Emulate 3-Button Mouse" causes option-clicks and OA-clicks to be  treated as clicks of the second and third mouse buttons.
 "View Only Mode" allows you to see the server's display but not to send any keyboard, mouse, or clipboard input to the server.
 "Allow Clipboard Transfers from Server" indicates that the server is allowed to send its clipboard contents, which will be transferred to the IIgs clipboard.
 
-When you have configured your new VNC connection, simply click "Connect," and if all goes well you will be connected to the VNC server.  You can interact with it with the mouse and keyboard and scroll your view of its display.  The option and Open-Apple keys are sent as "alt" and "meta," respectively; their exact interpretation depends on the server.  Select "Close" or "Quit" in the file menu when you are done with the connection.
+The "Preferred Encoding" is the method that will be used to represent pixels on the server's display when sending them to the IIgs; the available options are Raw and Hextile.  The Raw encoding sends lines of pixel values to the IIgs, while Hextile represents the display as a collection of small rectangular areas.  One of these methods will likely be faster than the other in your configuration; the best way to tell which is faster for you is to try out both.  In general, Hextile encoding is best for low-bandwidth connections like dial-up modems, while Ethernet and other relatively high-bandwidth connections may give better performance with the Raw encoding.  Some servers may not support Hextile encoding, in which case Raw will be used regardless of this setting.  VNCview GS also supports the "CopyRect" encoding regardless of this setting; it should always be faster than both Raw and Hextile but can only be used in limited circumstances.
+
+When you have configured your new VNC connection, simply click "Connect," and if all goes well you will be connected to the VNC server.  You can interact with it with the mouse and keyboard and scroll your view of its display.  The option and Open-Apple keys are sent as "alt" and "meta," respectively; their exact interpretation depends on the server.  Keyboard shortcuts for menu items are disabled when connected so that these key combinations can be sent to the server.  Select "Close" or "Quit" in the File menu when you are done with the connection.
 
 Menu Items
 Apple->About VNCview GS...: Displays information about the program
@@ -50,15 +52,23 @@ VNC Server Interoperability
 VNCview GS should be able to connect with any VNC server that fully implements the RFB protocol as published by RealVNC Ltd. or its predecessors, though in practice it seems to work better with some servers than with others.  Here is a list of some VNC servers for widespread platforms; many others are also available.
 
 Microsoft Windows & *nix (X11): RealVNC, http://www.realvnc.com/
-Mac OS X: OSXvnc, http://www.redstonesoftware.com/vnc.html
-Classic Mac OS: ChromiVNC, http://www.chromatix.uklinux.net/vnc/
+Mac OS (9 and X): OS9vnc / OSXvnc, http://www.redstonesoftware.com/vnc.html
 
 Troubleshooting
 If you are experiencing problems, it may be helpful to try removing, rearranging, or even adding system extensions.  This may eliminate assorted problems associated with Marinetti and its interaction with other components of the system.  Upgrading to the latest version of Marinetti (3.0b1 as of this writing) may also be helpful.
 
 If these steps fail to resolve your problems or if you have other questions, comments, or bug reports, I can be contacted at SHeumann@myrealbox.com.
 
-Please be aware that VNCview GS is alpha-quality software.  It generally works for me, but it has not been extensively tested in diverse environments, and it is not feature-complete (features that I hope to implement in the future include optional protocol elements that should improve speed and responsiveness).
+Please be aware that VNCview GS is alpha-quality software.  It generally works for me, but it has not been extensively tested in diverse environments, and it is not necessarily feature-complete.
+
+Version History
+1.0a2
+Hextile encoding support added
+Faster display update when scrolling while using Raw encoding
+Bug causing problems with 2nd and subsequent connections fixed
+
+1.0a1
+First public release
 
 License
 This program, "VNCview GS," is copyright (C) 2002-2004 Stephen Heumann.  All rights reserved.  This program contains material from the ORCA/C Run-Time Libraries, copyright 1987-1996 by Byte Works, Inc.  Used with permission.

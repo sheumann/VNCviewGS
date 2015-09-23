@@ -18,6 +18,8 @@
 #include <stdlib.h>
 #include <event.h>
 
+#define winHeight 174			/* Height of VNC session window */
+
 unsigned int fbHeight;
 unsigned int fbWidth;
 
@@ -55,16 +57,19 @@ BOOLEAN extraByteAdvance;
 #define SubrectsColoured	0x10
 	
 #define hexWaitingForSubencoding		1
-#define hexWaitingForBackground			2
-#define hexWaitingForForeground			3
-#define hexWaitingForAnySubrects		4
-#define hexWaitingForSubrect	 		5
-#define hexWaitingForRawData			6
+#define hexWaitingForMoreInfo			2
+#define hexWaitingForSubrect	 		4
+#define hexWaitingForRawData			8
+
+GrafPortPtr hexPort = NULL;
 
 GrafPortPtr vncWindow;
 
 /* Data on state of raw rectangle drawing routines */
-unsigned long n;
+unsigned long n;                /* Offset (bytes) into pixel map being drawn */
+BOOLEAN checkBounds = FALSE;	/* Adjust drawing to stay in bounds */
+unsigned int lineBytes;			/* Number of bytes in a line of GS pixels */
+            
 /* On the next 2 structs, only certain values are permanently zero.
  * Others are changed later.
  */
@@ -92,6 +97,8 @@ void VNCRedraw (void) {
     			(**updateRgnHndl).rgnBBox.v1,
 				(**updateRgnHndl).rgnBBox.h2 - (**updateRgnHndl).rgnBBox.h1,
 				(**updateRgnHndl).rgnBBox.v2 - (**updateRgnHndl).rgnBBox.v1);
+
+    checkBounds = TRUE;
     }
 #pragma databank 0
 
@@ -107,6 +114,8 @@ void ChangeResolution(int rez) {
 	    pixTransTbl = coltab320;
     else							/* 640 mode */
 	    pixTransTbl = coltab640;
+
+    srcLocInfo.portSCB = (hRez == 640) ? 0x87 : 0x00;
 
     /* Check if we need to change modes */
     masterSCB = GetMasterSCB();
@@ -157,7 +166,6 @@ void ChangeResolution(int rez) {
 void InitVNCWindow(void) {
 #define wrNum640 1003
 #define wrNum320 1004
-
 	ChangeResolution(hRez);
     vncWindow = NewWindow2(NULL, 0, VNCRedraw, NULL, 0x02,
     							(hRez == 640) ? wrNum640 : wrNum320,
@@ -168,6 +176,7 @@ void InitVNCWindow(void) {
 
 	/* We also take the opportunity here to initialize the rectangle info. */
     numRects = 0;
+    displayInProgress = FALSE;
 
 #undef wrNum320
 #undef wrNum640
@@ -239,7 +248,6 @@ void DoFBUpdate (void) {
     rectHeight = SwapBytes2(dataPtr[4]);
     rectEncoding = SwapBytes4(*(unsigned long *)(dataPtr + 5));
 	HUnlock(readBufferHndl);
-    //printf("New Rect: X = %u, Y = %u, Width = %u, Height = %u\n", rectX, rectY, rectWidth, rectHeight);
     }
 
 /* The server should never send a color map, since we don't use a mapped
@@ -429,23 +437,66 @@ void NextRect (void) {
 
 		contentOrigin = GetContentOrigin(vncWindow);
 		SendFBUpdateRequest(TRUE, contentOriginPtr->h, contentOriginPtr->v,
-    						(hRez == 640) ? 614 : 302, 174);
+    						(hRez == 640) ? 614 : 302, winHeight);
 	    }
     }                         
+
+/* Ends drawing of a raw rectangle when it is complete or aborted
+ * because the rectangle is not visible.
+ */
+void StopRawDrawing (void) {
+	HUnlock(readBufferHndl);
+    free(destPtr);
+
+    displayInProgress = FALSE;
+
+    NextRect();										/* Prepare for next rect */
+}
 
 /* Draw one or more lines from a raw rectangle
  */
 void RawDraw (void) {      
     unsigned int i;			/* Loop indices */
 	unsigned char *dataPtr;
-
+                           
     /* For use with GetContentOrigin() */
 	unsigned long contentOrigin;
    	Point * contentOriginPtr = (void *) &contentOrigin;
 
-
     SetPort(vncWindow);							/* Drawing in VNC window */
     dataPtr = (unsigned char *) *readBufferHndl;
+
+    /* Check if what we're drawing is visible, and skip any invisible part
+     * by skipping some lines or completely aborting drawing the rectangle.
+     */
+    if (checkBounds) {
+		Rect drawingRect;
+
+		contentOrigin = GetContentOrigin(vncWindow);
+        drawingRect.h1 = rectX - contentOriginPtr->h;
+        drawingRect.h2 = rectX - contentOriginPtr->h + rectWidth;
+        drawingRect.v1 = rectY - contentOriginPtr->v + drawingLine;
+        drawingRect.v2 = rectY - contentOriginPtr->v + rectHeight;
+
+        if (!RectInRgn(&drawingRect, GetVisHandle())) {
+	    	StopRawDrawing();
+            return;
+            }
+        else if (rectY + drawingLine < contentOriginPtr->v) {
+            n += (unsigned long)lineBytes *
+            	 (contentOriginPtr->v - rectY - drawingLine);
+	        drawingLine = contentOriginPtr->v - rectY;
+	
+        	if (drawingLine >= rectHeight) {	/* Sanity check */
+	        	StopRawDrawing();
+            	return;
+            	}
+            }
+        else if (rectY + rectHeight - 1 > contentOriginPtr->v + winHeight)
+	        rectHeight = contentOriginPtr->v + winHeight - rectY + 1;
+
+        checkBounds = FALSE;
+        }
 
    	for (i = 0; i < rectWidth; i++) {
         if (hRez == 640) {
@@ -512,19 +563,13 @@ void RawDraw (void) {
      * the next one.
      */
 
-    HUnlock(readBufferHndl);
-    free(destPtr);
-
-    displayInProgress = FALSE;
-
-    NextRect();										/* Prepare for next rect */
+    StopRawDrawing();
 }
 
 /* Process rectangle data in raw encoding and write it to screen.
  */
 void DoRawRect (void) {
     unsigned long bufferLength;
-    unsigned int lineBytes;		/* Number of bytes in a line of GS pixels */
 
     /* Try to read data */
 	if (! DoReadTCP ((unsigned long) rectWidth*rectHeight))
@@ -562,11 +607,10 @@ void DoRawRect (void) {
     memset(destPtr, 0, bufferLength);
     n = 0;
 
-    srcLocInfo.portSCB = (hRez == 640) ? 0x87 : 0x00;
     srcLocInfo.ptrToPixImage = destPtr;
     srcLocInfo.width = lineBytes;
     srcLocInfo.boundsRect.v2 = rectHeight;
-    /* Since the lines are rounded up to integral numbers of byter, this
+    /* Since the lines are rounded up to integral numbers of bytes, this
      * padding must be accounted for here.
      */
     if (hRez == 640) {
@@ -589,6 +633,7 @@ void DoRawRect (void) {
 
 	displayInProgress = TRUE;
     drawingLine = 0;			/* Drawing first line of rect */
+    checkBounds = TRUE;			/* Flag to check bounds when drawing 1st line */
     HLock(readBufferHndl);		/* Lock handle just once for efficiency */
     }
 
@@ -648,56 +693,138 @@ void HexNextTile (void) {
 	    hexXTileNum = 0;
         }
 
-    hexTileWidth = (hexYTileNum == hexXTiles - 1) ?
+    hexTileWidth = (hexXTileNum == hexXTiles - 1) ?
     	rectWidth - 16 * (hexXTiles - 1) : 16;
     hexTileHeight = (hexYTileNum == hexYTiles - 1) ?
     	rectHeight - 16 * (hexYTiles - 1) : 16;
+
 	}
 
-/* The macro below is used in HexDispatch() */
+void HexRawDraw (Point *contentOriginPtr, int rectWidth, int rectHeight) {      
+    unsigned int i, j;			/* Loop indices */
+    unsigned int n = 0;
+	unsigned char *dataPtr;
+    unsigned char pixels[128];
+
+    static Rect srcRect = {0,0,0,0};
+
+    dataPtr = (unsigned char *) *readBufferHndl;
+
+    if ((hRez==640 && (rectWidth & 0x03)) || (hRez==320 && (rectWidth & 0x01)))
+            extraByteAdvance = TRUE;
+    else
+            extraByteAdvance = FALSE;
+
+    for (j = 0; j < rectHeight; j++) {
+	   	for (i = 0; i < rectWidth; i++) {
+    	    if (hRez == 640) {
+	    		switch (i & 0x03) {
+	        		case 0x00:			/* pixels 0, 4, 8, ... */
+			    		pixels[n] = pixTransTbl[ *(dataPtr +
+                    			(unsigned long) j*rectWidth + i)
+                        	    ] & 0xC0;
+	           	        break;
+    	       		case 0x01:			/* pixels 1, 5, 9, ... */
+			    		pixels[n] += pixTransTbl[ *(dataPtr +
+            	           		(unsigned long) j*rectWidth + i)
+		        	            ] & 0x30;
+                    	break;
+					case 0x02:      	/* pixels 2, 6, 10, ... */
+				    	pixels[n] += pixTransTbl[ *(dataPtr +
+        	               		(unsigned long) j*rectWidth + i)
+								] & 0x0C;
+           	    	    break;
+	           		case 0x03:			/* pixels 3, 7, 11, ... */
+			    		pixels[n] += pixTransTbl[ *(dataPtr +
+        	               		(unsigned long) j*rectWidth + i)
+								] & 0x03;
+                	    n++;
+	                } /* switch */
+    	       	} /* if */
+        	else {			/* 320 mode */
+            	switch(i & 0x01) {
+                	case 0x00:		/* pixels 0, 2, 4, ... */
+						pixels[n] = pixTransTbl[ *(dataPtr +
+                       			(unsigned long) j*rectWidth + i)
+                            	] & 0xF0;
+	                       break;
+    	            case 0x01:		/* pixels 1, 3, 5, ... */
+        	           	pixels[n] += pixTransTbl[ *(dataPtr +
+            	           		(unsigned long) j*rectWidth + i)
+                	            ] & 0x0F;
+                    	n++;
+	                } /* switch */
+		        } /* else */
+       		} /* i loop */
+
+	    /* When not ending a line on a byte boundary, the index isn't updated,
+    	 * so we do it here.
+	     */
+    	if (extraByteAdvance)
+	    	n++;
+    	} /* j loop */
+
+    srcLocInfo.ptrToPixImage = (void *) pixels;                     
+    srcLocInfo.boundsRect.v2 = rectHeight;
+    /* Since the lines are rounded up to integral numbers of bytes, this
+     * padding must be accounted for here.
+     */
+    if (hRez == 640) {
+    	switch (rectWidth & 0x03) {
+	    	case 0x00:	srcLocInfo.boundsRect.h2 = rectWidth;
+			            srcLocInfo.width = rectWidth/4;				break;
+	        case 0x01:	srcLocInfo.boundsRect.h2 = rectWidth+3;	
+            			srcLocInfo.width = rectWidth/4 + 1;			break;
+    	    case 0x02:	srcLocInfo.boundsRect.h2 = rectWidth+2;		
+            			srcLocInfo.width = rectWidth/4 + 1;			break;
+       		case 0x03:	srcLocInfo.boundsRect.h2 = rectWidth+1;
+			            srcLocInfo.width = rectWidth/4 + 1;
+        	}
+        }
+    else { /* hRez == 320 */
+    	switch (rectWidth & 0x01) {
+	    	case 0x00:	srcLocInfo.boundsRect.h2 = rectWidth;
+            			srcLocInfo.width = rectWidth/2;				break;
+	        case 0x01:	srcLocInfo.boundsRect.h2 = rectWidth+1;
+			            srcLocInfo.width = rectWidth/2 + 1;
+        	}
+        }	
+
+    srcRect.v2 = hexTileHeight;                                     
+    srcRect.h2 = hexTileWidth;                                      
+
+    PPToPort(&srcLocInfo, &srcRect,								
+     	rectX + hexXTileNum * 16 - contentOriginPtr->h,             
+        rectY + hexYTileNum * 16 - contentOriginPtr->v, modeCopy);
+}
+
+/* The macros below are used in HexDispatch() */
 #define HexDispatch_NextTile()	do {								\
-	/* Draw the tile */						  						\
-    srcRect.v2 = hexTileHeight;                                     \
-    srcRect.h2 = hexTileWidth;                                      \
-    srcLocInfo.ptrToPixImage = (void *) pixels;                     \
-                                                                    \
-    contentOrigin = GetContentOrigin(vncWindow);                    \
-                                                                    \
-	/*PPToPort(&srcLocInfo, &srcRect,									\
-    	rectX + hexXTileNum * 16 - contentOriginPtr->h,             \
-      	rectY + hexYTileNum * 16 - contentOriginPtr->v, modeCopy);  \
-	  */                                                              \
     HexNextTile();                                                  \
+    HUnlock(readBufferHndl);										\
     /* Set up for next time */                                      \
     status = hexWaitingForSubencoding;                              \
     bytesNeeded = 1;                                                \
     return;								                            \
-    } while (0)                                                     
+    } while (0)
 
-#define HexDispatch_DrawBackground()	do {					\
-	SetSolidPenPat(/*hexBackground*/0xaaaa);        \
-    contentOrigin = GetContentOrigin(vncWindow); \
-    drawingRect.h1 = rectX + hexXTileNum * 16 - contentOriginPtr->h;   \
-    drawingRect.v1 = rectY + hexYTileNum * 16 - contentOriginPtr->v;    \
-    drawingRect.h2 = rectX + hexXTileNum * 16 - contentOriginPtr->h + hexTileWidth;    \
-    drawingRect.v2 = rectY + hexYTileNum * 16 - contentOriginPtr->v + hexTileHeight;  \
-    PaintRect(&drawingRect);                                              \
-	/* This paints more pixels than necessary for small tiles	\
-     * but that causes no harm and may be more efficient than   \
-     * doing the multipication every time.                      \
-     */                                                         \
-    /*tileBytes = (hRez == 320) ? 128 : 64;						\
-    for (i = 0; i < tileBytes; i++)            					\
-	     pixels[0][i] = hexBackground;  */                        \
-    } while (0);
+#define HexDispatch_DrawRect(color, X, Y, width, height)	do {		\
+	SetSolidPenPat((color));   \
+    drawingRect.h1 = rectX + hexXTileNum * 16 + (X) - contentOriginPtr->h;   \
+    drawingRect.v1 = rectY + hexYTileNum * 16 + (Y) - contentOriginPtr->v;    \
+    drawingRect.h2 = rectX + hexXTileNum * 16 + (X) + (width) - contentOriginPtr->h; \
+    drawingRect.v2 = rectY + hexYTileNum * 16 + (Y) + (height) - contentOriginPtr->v; \
+    PaintRect(&drawingRect);                                          \
+	} while (0)
 
+#define HexDispatch_DrawBackground() \
+	HexDispatch_DrawRect(hexBackground, 0, 0, hexTileWidth, hexTileHeight)
 
 void HexDispatch (void) {
 	static unsigned char status = hexWaitingForSubencoding;
     static unsigned long bytesNeeded = 1;
-    static char subencoding;
+    static unsigned char subencoding;
     static unsigned int numSubrects;
-    static unsigned char pixels[8][16];
     int i;
     /* For use with GetContentOrigin() */
 	unsigned long contentOrigin;
@@ -705,92 +832,85 @@ void HexDispatch (void) {
     int tileBytes;
     unsigned int srX, srY, srWidth, srHeight;
     Rect drawingRect;
+    static unsigned char pixels[128];
+    unsigned char *dataPtr;
+
+    contentOrigin = GetContentOrigin(vncWindow);
+    SetPort(vncWindow);
 
     /* If we don't have the next bit of needed data yet, return. */
     while (DoReadTCP(bytesNeeded)) {
-	    HLock(readBufferHndl);
+        HLock(readBufferHndl);
+        dataPtr = *(unsigned char **) readBufferHndl;
    		/* If we're here, readBufferHndl contains bytesNeeded bytes of data. */
     	switch (status) {
 	    	case hexWaitingForSubencoding:
-	        	subencoding = **(unsigned char **)readBufferHndl;
+                subencoding = *dataPtr;
 	        	if (subencoding & Raw) {
 	            	bytesNeeded = hexTileWidth * hexTileHeight;
-	                status = hexWaitingForRawData;
+                    status = hexWaitingForRawData;
     	            }
 	    	    else {
-					if (subencoding & BackgroundSpecified) {		
-        				bytesNeeded = 1;	                        
-        				status = hexWaitingForBackground;           
-	        			}
-                    else {
-	                    HexDispatch_DrawBackground();
-				    	if (subencoding & ForegroundSpecified) {   
-				        	bytesNeeded = 1;                            
-				        	status = hexWaitingForForeground;           
-			    	    	}                                           
-		    			else if (subencoding & AnySubrects) {           
-						    bytesNeeded = 1;                            
-					        status = hexWaitingForAnySubrects;          
-					        }
-                		else
-                			HexDispatch_NextTile();
+	                bytesNeeded = 0;
+                	if (subencoding & BackgroundSpecified)		
+        				bytesNeeded++;	                        
+				    if (subencoding & ForegroundSpecified)   
+				       	bytesNeeded++;                            
+		    		if (subencoding & AnySubrects)           
+					    bytesNeeded++;                            
+                	else if (bytesNeeded == 0) {
+	                    /* No more data - just draw background */
+                        HexDispatch_DrawBackground();
+                		HexDispatch_NextTile();
                         }
-	                }
-    	        break;
-        	case hexWaitingForRawData:
-	        	/* FIXME - Draw raw data */
-	            HexDispatch_NextTile();
-    	        break;
-			case hexWaitingForBackground:
-		    	hexBackground = pixTransTbl[**(unsigned char **)readBufferHndl];
-                HexDispatch_DrawBackground();
-			    if (subencoding & ForegroundSpecified) {   
-			        bytesNeeded = 1;                            
-		    	    status = hexWaitingForForeground;           
-		        	}                                           
-	   			else if (subencoding & AnySubrects) {           
-				    bytesNeeded = 1;                            
-			        status = hexWaitingForAnySubrects;          
-		    	    }		
-	            else
-		            HexDispatch_NextTile();
-	    	    break;
-			case hexWaitingForForeground:
-		        hexForeground = pixTransTbl[**(unsigned char **)readBufferHndl];
-        	    if (subencoding & AnySubrects) {           
-				    bytesNeeded = 1;                            
-		        	status = hexWaitingForAnySubrects;          
-			        }
-    	        else
-	    	        HexDispatch_NextTile();
-            	break;
-			case hexWaitingForAnySubrects:
-		        numSubrects = **(unsigned char **) readBufferHndl;
-        	    if (numSubrects) {
-	        	    status = hexWaitingForSubrect;
-                	bytesNeeded = (subencoding & SubrectsColoured) ? 3 : 2;
-	                }
-    	        else
-	    	        HexDispatch_NextTile();
-            	break;
-			case hexWaitingForSubrect:
-    	        if (subencoding & SubrectsColoured) {
-	    	        hexForeground = pixTransTbl[**(unsigned char **)readBufferHndl];
+                    status = hexWaitingForMoreInfo;
                     }
-                srX = (**(unsigned char **) readBufferHndl) >> 4;
-                srY = (**(unsigned char **) readBufferHndl) & 0x0F;
-                srWidth = (*(*(unsigned char **) readBufferHndl + 1)) >> 4 + 1;
-                srHeight = (*(*(unsigned char **) readBufferHndl + 1)) & 0x04 + 1;
-    	        numSubrects--;
-        	    if (numSubrects) {
-            	    bytesNeeded = (subencoding & SubrectsColoured) ? 3 : 2;
+    	        break;
+
+        	case hexWaitingForRawData:
+	        	HexRawDraw(contentOriginPtr, hexTileWidth, hexTileHeight);
+                HexDispatch_NextTile();
+    	        break;
+
+            case hexWaitingForMoreInfo:
+				if (subencoding & BackgroundSpecified) {
+			    	hexBackground = pixTransTbl[*(dataPtr++)];
                 	}
-	            else
-		            HexDispatch_NextTile();
+				if (subencoding & ForegroundSpecified) {
+                    hexForeground = pixTransTbl[*(dataPtr++)];
+            	    }
+				if (subencoding & AnySubrects) {
+			        numSubrects = *dataPtr;
+        		    if (numSubrects) {
+	        		    status = hexWaitingForSubrect;
+                		bytesNeeded = numSubrects * ((subencoding & SubrectsColoured) ? 3 : 2);
+	                	break;
+                        }
+	    	        else
+		    	        HexDispatch_NextTile();
+            	    }
+                else {	/* no subrects */
+	                HexDispatch_DrawBackground();
+                    HexDispatch_NextTile();
+                	}
+
+			case hexWaitingForSubrect: {
+            	HexDispatch_DrawBackground();
+                while (numSubrects-- > 0) {
+	            	if (subencoding & SubrectsColoured) {
+	    	        	hexForeground = pixTransTbl[*(dataPtr++)];
+                    	}
+	                srX = *dataPtr >> 4;
+    	            srY = *(dataPtr++) & 0x0F;
+        	        srWidth = (*dataPtr >> 4) + 1;
+            	    srHeight = (*(dataPtr++) & 0x0F) + 1;
+                	HexDispatch_DrawRect(hexForeground, srX, srY, srWidth, srHeight);
+    	            }
+        	    HexDispatch_NextTile();
+	            }
         	}
         	HUnlock(readBufferHndl);
         }
-
 	}
 
 /* Called when we initially get a Hextile rect; set up to process it */
@@ -809,10 +929,6 @@ void DoHextileRect (void) {
     	rectHeight - 16 * (hexYTiles - 1) : 16;
 
     /* Set up for Hextile drawing */
-    srcLocInfo.portSCB = (hRez == 640) ? 0x87 : 0x00;    
-    srcLocInfo.width = (hRez == 640) ? 4 : 8;                       
-    srcLocInfo.boundsRect.h2 = 16;                                  
-    srcLocInfo.boundsRect.v2 = 16;                       
     srcRect.v1 = 0;                                                 
     srcRect.h1 = 0;                                                
 
