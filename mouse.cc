@@ -153,25 +153,26 @@ void DoCursor (void) {
     unsigned int outBytes640;
     unsigned long outBytes320;
 
-    bitmaskLineBytes = (rectWidth + 7) / 8;
+    bitmaskLineBytes = ((unsigned long)rectWidth + 7) / 8;
 
-    if (!DoReadTCP(rectWidth*rectHeight + bitmaskLineBytes*rectHeight))
+    if (!DoReadTCP((unsigned long)rectWidth * rectHeight + bitmaskLineBytes * rectHeight))
         return; /* Try again later */
 
     HLock(readBufferHndl);
 
     cursorPixels = (unsigned char *)(*readBufferHndl);
-    bitmask = (unsigned char *)(*readBufferHndl) + rectWidth*rectHeight;
+    bitmask = (unsigned char *)(*readBufferHndl) + (unsigned long)rectWidth * rectHeight;
 
     if (hRez == 640)
-        lineWords = (rectWidth + 7) / 8 + 1;
+        lineWords = ((unsigned long)rectWidth + 7) / 8 + 1;
     else /* hRez == 320 */
-        lineWords = (rectWidth + 3) / 4 + 1;
+        lineWords = ((unsigned long)rectWidth + 3) / 4 + 1;
 
-    /* Don't overflow loop indices, and don't use ridiculously large cursors.
-     * (Is there a limit to the cursor sizes QuickDraw II can handle?)     */
-    if ((lineWords > 16) || (rectHeight > 128)) {
+    /* Don't overflow loop indices, and don't use really large cursors.
+     * (Is there a limit to the cursor sizes QuickDraw II can handle?) */
+    if (lineWords > 16 || rectHeight > 128 || rectWidth == 0 || rectHeight == 0) {
         InitCursor();
+        cursor = NULL;
         goto done;
     }
 
@@ -285,12 +286,8 @@ void DoCursor (void) {
       }
     }
 
-    HUnlock(readBufferHndl);
-
     if (GetCursorAdr() == oldCursor)
         SetCursor(cursor);
-    if (oldCursor)
-        free(oldCursor);
 
 #if 0
     /***************/
@@ -310,11 +307,6 @@ void DoCursor (void) {
     }
     for (k = cursorImage + j; k < cursorImage + j + 4; k = k + 1)
         fprintf(foo, "%02X ", *k);
-    //for (j = 0; j < bitmaskLineBytes*rectHeight; j++) {
-    //    fprintf(foo, "%02X", *(bitmask + j));
-    //    if ((j+1) % bitmaskLineBytes == 0)
-    //        fprintf(foo, "\n");
-    //}
     fprintf(foo, "\n");
     fclose(foo);
     }
@@ -322,6 +314,8 @@ void DoCursor (void) {
 #endif
 
 done:
+    HUnlock(readBufferHndl);
+    free(oldCursor);
     displayInProgress = FALSE;
     NextRect();             /* Prepare for next rect */
 }
