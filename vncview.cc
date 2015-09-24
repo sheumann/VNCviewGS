@@ -97,7 +97,7 @@ char vncPassword[10];
 void DrawContents (void) {
     PenNormal();                    /* use a "normal" pen */
     DrawControls(GetPort());        /* draw controls in window */
-    }
+}
 
 #pragma databank 0
 
@@ -111,7 +111,7 @@ void DoAbout (void) {
     AlertWindow(awCString+awResource, NULL, alertID);
 
     #undef alertID
-    }
+}
 
 /***************************************************************
 * DoNewConnection - Show the New Connection window
@@ -124,7 +124,7 @@ void DoNewConnection (void) {
     MakeThisCtlTarget(GetCtlHandleFromID(newConnWindow, linServer));
     ShowWindow(newConnWindow);
     SelectWindow(newConnWindow);
-    }
+}
 
 /***************************************************************
 * DoClose - Close the frontmost window/connection
@@ -135,7 +135,7 @@ void DoNewConnection (void) {
 void DoClose (GrafPortPtr wPtr) {
     if (wPtr == newConnWindow) {
         HideWindow(wPtr);
-        }
+    }
     else if (wPtr && vncConnected) {    /* Close VNC session window */
         CloseWindow(wPtr);
         CloseTCPConnection();
@@ -146,9 +146,9 @@ void DoClose (GrafPortPtr wPtr) {
         if (cursor) {
             InitCursor();
             free(cursor);
-            }
-        };
-    }
+        }
+    };
+}
 
 /***************************************************************
 * DoLEEdit - Handle edit menu items for LineEdit controls
@@ -170,22 +170,22 @@ void DoLEEdit (int editAction) {
         switch (editAction) {
             case editCut:   if (id == linServer) {
                                 LECut((LERecHndl) GetCtlTitle(ctl));
-                                };              
+                            };              
                             LEToScrap();
                             break;
             case editCopy:  if (id == linServer) {
                                 LECopy((LERecHndl) GetCtlTitle(ctl));
-                                };              
+                            };              
                             LEToScrap();
                             break;
             case editPaste: LEPaste((LERecHndl) GetCtlTitle(ctl));  
                             break;
             case editClear: LEDelete((LERecHndl) GetCtlTitle(ctl));     
                             break;
-            };
         };
+    };
     SetPort(port);
-    }
+}
 
 /***************************************************************
 * HandleMenu - Initialize the menu bar.
@@ -209,9 +209,9 @@ void HandleMenu (void) {
         case editClear:                 DoLEEdit(editClear);            break;
         case editShowClipboard:         ShowClipboard(0x8000, 0);       break;
         case editSendClipboard:         DoSendClipboard();              break;
-        }
-    HiliteMenu(FALSE, menuNum);             /* unhighlight the menu */
     }
+    HiliteMenu(FALSE, menuNum);             /* unhighlight the menu */
+}
 
 /***************************************************************
 * HandleControl - Handle a control press in the New Conn. window
@@ -240,8 +240,8 @@ void HandleControl (void) {
                                 newConnWindow, chkClipboard);           break;
         case radRaw:        useHextile = FALSE;                         break;
         case radHextile:    useHextile = TRUE;                          break;
-        };
-    }
+    };
+}
 
 /***************************************************************
 * InitMenus - Initialize the menu bar.
@@ -267,7 +267,7 @@ void InitMenus (int offset) {
     menuOffset = offset;                    /* So we can tell which menu is active */
 
     #undef menuID
-    }
+}
 
 /***************************************************************
 * CheckMenus - Check the menus to see if they should be dimmed
@@ -293,7 +293,7 @@ void CheckMenus (void) {
             EnableMItem(editCopy);
             EnableMItem(editPaste);
             EnableMItem(editClear);
-            }
+        }
         else if (activeWindow == newConnWindow) { /* New Connection window */
             EnableMItem(fileClose);
             DisableMItem(editUndo);
@@ -301,15 +301,15 @@ void CheckMenus (void) {
             EnableMItem(editCopy);
             EnableMItem(editPaste);
             EnableMItem(editClear);
-            }
+        }
         else if (activeWindow == vncWindow) {
             DisableMItem(editUndo);
             DisableMItem(editCopy);
             DisableMItem(editCut);
             DisableMItem(editPaste);
             DisableMItem(editClear);
-            }
         }
+    }
     else {                      /* no editable window on top */
         DisableMItem(fileClose);
         DisableMItem(editUndo);
@@ -317,7 +317,7 @@ void CheckMenus (void) {
         DisableMItem(editCopy);
         DisableMItem(editPaste);
         DisableMItem(editClear);
-        };
+    };
 
     if (vncConnected) {             /* VNC connection present */
         DisableMItem(fileNewConnection);
@@ -326,11 +326,11 @@ void CheckMenus (void) {
             DisableMItem(editSendClipboard);
         else
             EnableMItem(editSendClipboard);
-        }
+    }
     else {
         DisableMItem(editSendClipboard);
-        }
     }
+}
 
 /* InitScreen - Set up color tables and SCBs to appropriate values
  */
@@ -338,13 +338,13 @@ void InitScreen (void) {
     static ColorTable gray640Colors = {
         0x0000, 0x0555, 0x0AAA, 0x0FFF, 0x0000, 0x0555, 0x0AAA, 0x0FFF,
         0x0000, 0x0555, 0x0AAA, 0x0FFF, 0x0000, 0x0555, 0x0AAA, 0x0FFF
-        };  
+    };  
 
         /* Apple menu uses color tables 1 through 6 */
         SetColorTable(7, &gray640Colors);
         SetAllSCBs(0x87);                   /* 640 mode with gray640Colors */
         InitPalette();                      /* Restore Apple Menu colors */
-    }
+}
 
 void Quit (void) {
     /* Done with event loop - now quitting */
@@ -367,7 +367,7 @@ void Quit (void) {
     /* is not "permanent," i.e. started when the system boots up.  */
     if (TCPIPGetConnectStatus() && (!TCPIPGetBootConnectFlag()))
         if (AlertWindow(awResource+awButtonLayout, NULL, disconnectTCPIPAlert))
-            {
+        {
             WaitCursor();
             /* Must use force flag below because Marinetti will still count
              * our ipid as logged in (proventing non-forced disconnect)
@@ -375,7 +375,7 @@ void Quit (void) {
             TCPIPDisconnect(TRUE, &DisplayConnectStatus);
             if (connectStatusWindowPtr != NULL)
                 CloseWindow(connectStatusWindowPtr);
-            }
+        }
 
     UnloadScrap();                          /* Save scrap to disk */
 
@@ -383,7 +383,7 @@ void Quit (void) {
     UnloadOneTool(54);
     ShutDownTools(1, startStopParm);        /* shut down the tools */
     exit(0);
-    }
+}
 
 /***************************************************************
 * Main - Initial startup function
@@ -399,7 +399,7 @@ int main (void) {
     if (toolerror() != 0) {
         GrafOff();
         SysFailMgr(toolerror(), "\pCould not start tools: ");
-        }
+    }
 
     readBufferHndl = NewHandle(1, userid(), 0, NULL);
     
@@ -409,7 +409,7 @@ int main (void) {
         InitCursor();                   /* Activate pointer cursor */
         AlertWindow(awResource, NULL, noMarinettiError);
         Quit();                         /* Can't proceed, so just quit */
-        }
+    }
     else                                /* Marinetti loaded successfully */
         TCPIPStartUp();                 /* ... so activate it now */
 
@@ -418,14 +418,14 @@ int main (void) {
         InitCursor();
         AlertWindow(awResource, NULL, outOfMemoryError);
         Quit();
-        }
+    }
 
     if (!AllocateBigColorTables()) {
         SysBeep();
         InitCursor();
         AlertWindow(awResource, NULL, outOfMemoryError);
         Quit();
-        }
+    }
 
     InitScreen();                       /* Set up color tables */
 
@@ -464,13 +464,13 @@ int main (void) {
                                 break;
             case keyDownEvt:
             case autoKeyEvt:    ProcessKeyEvent();
-            }
+        }
         if (vncConnected)
             ConnectedEventLoop();
         else if (colorTablesComplete == FALSE)
             if (MakeBigColorTables(256))
                 colorTablesComplete = TRUE;
-        }
+    }
 
         Quit();
-    }
+}

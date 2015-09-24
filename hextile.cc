@@ -56,16 +56,16 @@ void HexNextTile (void) {
             displayInProgress = FALSE;
             NextRect();
             return;
-            }                      
+        }                      
         hexXTileNum = 0;
-        }
+    }
 
     hexTileWidth = (hexXTileNum == hexXTiles - 1) ?
         rectWidth - 16 * (hexXTiles - 1) : 16;
     hexTileHeight = (hexYTileNum == hexYTiles - 1) ?
         rectHeight - 16 * (hexYTiles - 1) : 16;
 
-    }
+}
 
 void HexRawDraw (Point *contentOriginPtr, int rectWidth, int rectHeight) {      
     unsigned int i, j;          /* Loop indices */
@@ -106,8 +106,8 @@ void HexRawDraw (Point *contentOriginPtr, int rectWidth, int rectHeight) {
                                 (unsigned long) j*rectWidth + i)
                                 ] & 0x03;
                         n++;
-                    } /* switch */
-                } /* if */
+                } /* switch */
+            } /* if */
             else {          /* 320 mode */
                 switch(i & 0x01) {
                     case 0x00:      /* pixels 0, 2, 4, ... */
@@ -120,16 +120,16 @@ void HexRawDraw (Point *contentOriginPtr, int rectWidth, int rectHeight) {
                                 (unsigned long) j*rectWidth + i)
                                 ] & 0x0F;
                         n++;
-                    } /* switch */
-                } /* else */
-            } /* i loop */
+                } /* switch */
+            } /* else */
+        } /* i loop */
 
         /* When not ending a line on a byte boundary, the index isn't updated,
          * so we do it here.
          */
         if (extraByteAdvance)
             n++;
-        } /* j loop */
+    } /* j loop */
 
     srcLocInfo.ptrToPixImage = (void *) pixels;                     
     srcLocInfo.boundsRect.v2 = rectHeight;
@@ -146,16 +146,16 @@ void HexRawDraw (Point *contentOriginPtr, int rectWidth, int rectHeight) {
                         srcLocInfo.width = rectWidth/4 + 1;         break;
             case 0x03:  srcLocInfo.boundsRect.h2 = rectWidth+1;
                         srcLocInfo.width = rectWidth/4 + 1;
-            }
         }
+    }
     else { /* hRez == 320 */
         switch (rectWidth & 0x01) {
             case 0x00:  srcLocInfo.boundsRect.h2 = rectWidth;
                         srcLocInfo.width = rectWidth/2;             break;
             case 0x01:  srcLocInfo.boundsRect.h2 = rectWidth+1;
                         srcLocInfo.width = rectWidth/2 + 1;
-            }
-        }   
+        }
+    }   
 
     srcRect.v2 = hexTileHeight;                                     
     srcRect.h2 = hexTileWidth;                                      
@@ -173,7 +173,7 @@ void HexRawDraw (Point *contentOriginPtr, int rectWidth, int rectHeight) {
     status = hexWaitingForSubencoding;                              \
     bytesNeeded = 1;                                                \
     return;                                                         \
-    } while (0)
+} while (0)
 
 #define HexDispatch_DrawRect(color, X, Y, width, height)    do {        \
     SetSolidPenPat((color));   \
@@ -182,7 +182,7 @@ void HexRawDraw (Point *contentOriginPtr, int rectWidth, int rectHeight) {
     drawingRect.h2 = rectX + hexXTileNum * 16 + (X) + (width) - contentOriginPtr->h; \
     drawingRect.v2 = rectY + hexYTileNum * 16 + (Y) + (height) - contentOriginPtr->v; \
     PaintRect(&drawingRect);                                          \
-    } while (0)
+} while (0)
 
 #define HexDispatch_DrawBackground() \
     HexDispatch_DrawRect(hexBackground, 0, 0, hexTileWidth, hexTileHeight)
@@ -216,7 +216,7 @@ void HexDispatch (void) {
                 if (subencoding & Raw) {
                     bytesNeeded = hexTileWidth * hexTileHeight;
                     status = hexWaitingForRawData;
-                    }
+                }
                 else {
                     bytesNeeded = 0;
                     if (subencoding & BackgroundSpecified)      
@@ -229,9 +229,9 @@ void HexDispatch (void) {
                         /* No more data - just draw background */
                         HexDispatch_DrawBackground();
                         HexDispatch_NextTile();
-                        }
-                    status = hexWaitingForMoreInfo;
                     }
+                    status = hexWaitingForMoreInfo;
+                }
                 break;
 
             case hexWaitingForRawData:
@@ -242,43 +242,43 @@ void HexDispatch (void) {
             case hexWaitingForMoreInfo:
                 if (subencoding & BackgroundSpecified) {
                     hexBackground = pixTransTbl[*(dataPtr++)];
-                    }
+                }
                 if (subencoding & ForegroundSpecified) {
                     hexForeground = pixTransTbl[*(dataPtr++)];
-                    }
+                }
                 if (subencoding & AnySubrects) {
                     numSubrects = *dataPtr;
                     if (numSubrects) {
                         status = hexWaitingForSubrect;
                         bytesNeeded = numSubrects * ((subencoding & SubrectsColoured) ? 3 : 2);
                         break;
-                        }
+                    }
                     else
                         HexDispatch_NextTile();
-                    }
+                }
                 else {  /* no subrects */
                     HexDispatch_DrawBackground();
                     HexDispatch_NextTile();
-                    }
+                }
 
             case hexWaitingForSubrect: {
                 HexDispatch_DrawBackground();
                 while (numSubrects-- > 0) {
                     if (subencoding & SubrectsColoured) {
                         hexForeground = pixTransTbl[*(dataPtr++)];
-                        }
+                    }
                     srX = *dataPtr >> 4;
                     srY = *(dataPtr++) & 0x0F;
                     srWidth = (*dataPtr >> 4) + 1;
                     srHeight = (*(dataPtr++) & 0x0F) + 1;
                     HexDispatch_DrawRect(hexForeground, srX, srY, srWidth, srHeight);
-                    }
-                HexDispatch_NextTile();
                 }
+                HexDispatch_NextTile();
             }
-            HUnlock(readBufferHndl);
         }
+            HUnlock(readBufferHndl);
     }
+}
 
 /* Called when we initially get a Hextile rect; set up to process it */
 void DoHextileRect (void) {
@@ -298,4 +298,4 @@ void DoHextileRect (void) {
     /* Set up for Hextile drawing */
     srcRect.v1 = 0;                                                 
     srcRect.h1 = 0;                                                
-    }
+}

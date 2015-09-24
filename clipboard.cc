@@ -38,11 +38,11 @@ void DoServerCutText (void) {
     if (! DoWaitingReadTCP (3)) {   /* Read & ignore padding */
         DoClose(vncWindow);
         return;
-        }
+    }
     if (! DoWaitingReadTCP (4)) {
         DoClose(vncWindow);
         return;
-        }
+    }
     HLock(readBufferHndl);
     textLen = SwapBytes4((unsigned long) **readBufferHndl);
     HUnlock(readBufferHndl);
@@ -50,7 +50,7 @@ void DoServerCutText (void) {
     if (! DoWaitingReadTCP(textLen)) {
         DoClose(vncWindow);
         return;
-        };
+    };
     if (allowClipboardTransfers) {
         ZeroScrap();
         HLock(readBufferHndl);
@@ -64,8 +64,8 @@ void DoServerCutText (void) {
         PutScrap(textLen, textScrap, (Pointer) *readBufferHndl);
         /* Potential errors (e.g. out of memory) ignored */
         HUnlock(readBufferHndl);
-        }
     }
+}
     
 void DoSendClipboard (void) {
     static struct clientCutText {
@@ -73,7 +73,7 @@ void DoSendClipboard (void) {
         unsigned char padding1;
         unsigned int  padding2;
         unsigned long length;
-        } clientCutTextStruct = { 6 /* Message type 6 */ };
+    } clientCutTextStruct = { 6 /* Message type 6 */ };
 
     Handle scrapHandle;
     unsigned long i;
@@ -112,6 +112,6 @@ void DoSendClipboard (void) {
 
         end:
         DisposeHandle(scrapHandle);
-        }
     }
+}
 

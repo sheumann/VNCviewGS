@@ -38,10 +38,10 @@ void SendKeyEvent (BOOLEAN keyDownFlag, unsigned long key)
         unsigned char keyDownFlag;
         unsigned int  padding;
         unsigned long key;
-        } keyEvent = {  4 /* Message Type 4 */,
-                        0,
-                        0  /* Zero the padding */
-                        };
+    } keyEvent = {  4 /* Message Type 4 */,
+                    0,
+                    0  /* Zero the padding */
+    };
                         
     keyEvent.keyDownFlag = !!keyDownFlag;
     keyEvent.key = SwapBytes4(key);
@@ -83,8 +83,8 @@ void ProcessKeyEvent (void)
             case 0x77:  key = 0xFF57;   break;  /* End */
             case 0x74:  key = 0xFF55;   break;  /* Page Up */
             case 0x79:  key = 0xFF56;   break;  /* Page Down */
-            }
         }
+    }
 
     if (key == 0x7f)
         key = 0xFF08;   /* Delete -> BackSpace */
@@ -98,7 +98,7 @@ void ProcessKeyEvent (void)
                 key += 0x40;   /* Undo effect of control on upper-case char. */
             else
                 key += 0x60;   /* Undo effect of control */
-            }
+        }
         else switch (key) {
             case 0x1B:  key = 0xFF1B;   break;  /* Escape */
             case 0x09:  key = 0xFF09;   break;  /* Tab */
@@ -108,8 +108,8 @@ void ProcessKeyEvent (void)
             case 0x15:  key = 0xFF53;   break;  /* Right arrow */
             case 0x0A:  key = 0xFF54;   break;  /* Down arrow */
             case 0x18:  key = 0xFF0B;   break;  /* Clear / NumLock -> Clear */
-            }
         }
+    }
 
     /* Test if we seem to have a valid character and return if we don't.
        This should never return, unless there are bugs in this routine or

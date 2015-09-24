@@ -39,7 +39,7 @@ void DoPointerEvent (void) {
         unsigned char buttonMask;
         unsigned int xPos;
         unsigned int yPos;
-        } pointerEventStruct = { 5 /* message type */ };
+    } pointerEventStruct = { 5 /* message type */ };
 
     Point mouseCoords;
     unsigned long contentOrigin;
@@ -65,7 +65,7 @@ void DoPointerEvent (void) {
         if (cursor && GetCursorAdr() == cursor)
             InitCursor();
         return;
-        }
+    }
 
     GlobalToLocal(&mouseCoords);
 
@@ -85,17 +85,17 @@ void DoPointerEvent (void) {
             if (myEvent.modifiers & optionKey) {
                 pointerEventStruct.buttonMask = 0x02;
                 key1 = 0xFFE9;
-                }
+            }
             if (myEvent.modifiers & appleKey) {
                 pointerEventStruct.buttonMask |= 0x04;
                 key2 = 0xFFE7;
-                }
             }
+        }
 
         /* If no modifiers, just send a normal left click. */
         if (pointerEventStruct.buttonMask == 0x00)
             pointerEventStruct.buttonMask = 0x01;
-    }
+}
     if ((myEvent.modifiers & btn1State) == 0x00)    /* If 2nd (right)    */
         pointerEventStruct.buttonMask |= 0x04;      /* button is pressed */
 
@@ -217,7 +217,7 @@ void DoCursor (void) {
                 ((bitmaskByte & 0x01) << 27) + ((bitmaskByte & 0x01) << 26) +
                 ((bitmaskByte & 0x01) << 25) + ((bitmaskByte & 0x01) << 24);
           *((unsigned long *)maskLine + j) = outBytes320;
-          }
+        }
         *((unsigned int *)maskLine + lineWords - 1) = 0;
 
         for (n = 0; n < rectWidth/2; n++) {
@@ -225,17 +225,17 @@ void DoCursor (void) {
           *(imageLine + n) += coltab320[*(dataPtr++)] & 0x0F;
           *(imageLine + n) ^= 0xFF;     /* Reverse color */
           *(imageLine + n) &= *(maskLine + n);
-          }
+        }
         if (rectWidth % 2) {
           *(imageLine + n)  = coltab320[*(dataPtr++)] & 0xF0;
           *(imageLine + n) ^= 0xFF;     /* Reverse color */
           *(imageLine + n) &= *(maskLine + n);
           n++;
-          }
+        }
         *(imageLine + n) = 0;
         *((unsigned int *)imageLine + lineWords - 1) = 0;
-        }
       }
+    }
     else { /* hRez == 640 */
       for (line = 0; line < rectHeight; line++) {   /* for each line ... */
         maskLine = cursorMask + line * lineWords * 2;
@@ -250,7 +250,7 @@ void DoCursor (void) {
                 ((bitmaskByte & 0x0C) << 11) + ((bitmaskByte & 0x06) << 10) +
                 ((bitmaskByte & 0x03) <<  9) + ((bitmaskByte & 0x01) <<  8);
           *((unsigned int *)maskLine + j) = outBytes640;
-          }
+        }
         *((unsigned int *)maskLine + lineWords - 1) = 0;
      
         for (n = 0; n < lineWords * 2 - 4; n++) {
@@ -260,7 +260,7 @@ void DoCursor (void) {
           *(imageLine + n) += coltab640[*(dataPtr++)] & 0x03;
           *(imageLine + n) ^= 0xFF;     /* Reverse color */
           *(imageLine + n) &= *(maskLine + n);
-          }
+        }
         *(imageLine + n) = 0;
         j = cursorPixels + rectWidth * (line + 1) - dataPtr;
         if (j-- > 0) {
@@ -271,15 +271,15 @@ void DoCursor (void) {
               *(imageLine + n) += coltab640[*(dataPtr++)] & 0x0C;
               if (j-- > 0) {
                 *(imageLine + n) += coltab640[*(dataPtr++)] & 0x03;
-                }
               }
             }
           }
+        }
         *(imageLine + n) ^= 0xFF;       /* Reverse color */
         *(imageLine + n) &= *(maskLine + n);
         *(unsigned int *)(imageLine + n + 1) = 0;
-        }
       }
+    }
 
     HUnlock(readBufferHndl);
 
@@ -302,20 +302,20 @@ void DoCursor (void) {
         fprintf(foo, "%02X", *(cursorImage + j));
         if ((j+1) % (lineWords * 2) == 0)
             fprintf(foo, "\n");
-        }
+    }
     for (k = cursorImage + j; k < cursorImage + j + 4; k = k + 1)
         fprintf(foo, "%02X ", *k);
     //for (j = 0; j < bitmaskLineBytes*rectHeight; j++) {
     //    fprintf(foo, "%02X", *(bitmask + j));
     //    if ((j+1) % bitmaskLineBytes == 0)
     //        fprintf(foo, "\n");
-    //    }
+    //}
     fprintf(foo, "\n");
     fclose(foo);
-    }
+}
     /***************/
 #endif
 
     displayInProgress = FALSE;
     NextRect();             /* Prepare for next rect */
-    }
+}

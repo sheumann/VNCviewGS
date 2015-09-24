@@ -79,7 +79,7 @@ void VNCRedraw (void) {
                 (**updateRgnHndl).rgnBBox.v2 - (**updateRgnHndl).rgnBBox.v1);
 
     checkBounds = TRUE;
-    }
+}
 #pragma databank 0
 
 /* Change Super Hi-Res display to the specified resolution (640 or 320).
@@ -107,7 +107,7 @@ void ChangeResolution(int rez) {
     if (        ( (masterSCB & 0x80) && (rez == 640)) ||
                 (!(masterSCB & 0x80) && (rez == 320)) ) {
         return; /* Already in right mode, so don't change things */
-        }
+    }
 
     /* Perform the basic procedure described in IIgs TN #4 */
     CloseAllNDAs();
@@ -136,14 +136,14 @@ void ChangeResolution(int rez) {
         MoveControl(25, 87, GetCtlHandleFromID(newConnWindow, txtGray));
         MoveControl(134, 91, GetCtlHandleFromID(newConnWindow, txtTransfers));
         MoveWindow(2, 42, newConnWindow);
-        }
+    }
     else {
         MoveControl(35, 64, GetCtlHandleFromID(newConnWindow, txtColor));
         MoveControl(35, 87, GetCtlHandleFromID(newConnWindow, txtGray));
         MoveControl(144, 91, GetCtlHandleFromID(newConnWindow, txtTransfers));
         MoveWindow(162, 42, newConnWindow);
-        }
     }
+}
 
 /* Display the VNC session window, first changing to the appropriate
  * resolution (as specified by the user) if necessary.
@@ -162,11 +162,11 @@ void InitVNCWindow(void) {
     if (fbWidth < winWidth) {
         winWidth = fbWidth;
         resize = TRUE;
-        }
+    }
     if (fbHeight < winHeight) {
         winHeight = fbHeight;
         resize = TRUE;
-        }
+    }
     if (resize)
         SizeWindow(winWidth, winHeight, vncWindow);
 
@@ -182,7 +182,7 @@ void InitVNCWindow(void) {
 
 #undef wrNum320
 #undef wrNum640
-    }
+}
 
 /* Send a request to the VNC server to update the information for a portion of
  * the frame buffer.
@@ -197,7 +197,7 @@ void SendFBUpdateRequest (BOOLEAN incremental, unsigned int x, unsigned int y,
             unsigned int  y;
             unsigned int  width;
             unsigned int  height;
-            } fbUpdateRequest = {3 /* Message type 3 */};
+    } fbUpdateRequest = {3 /* Message type 3 */};
 
     fbUpdateRequest.incremental = !!incremental;
     fbUpdateRequest.x = SwapBytes2(x);
@@ -208,7 +208,7 @@ void SendFBUpdateRequest (BOOLEAN incremental, unsigned int x, unsigned int y,
     TCPIPWriteTCP(hostIpid, &fbUpdateRequest.messageType,
                     sizeof(fbUpdateRequest), TRUE, FALSE);
     /* No error checking here -- Can't respond to one usefully. */
-    }
+}
 
 
 /* Start responding to a FramebufferUpdate from the server
@@ -220,7 +220,7 @@ void DoFBUpdate (void) {
         DoClose(vncWindow);
         //printf("Closing in DoFBUpdate\n");
         return;
-        }
+    }
     HLock(readBufferHndl);
     dataPtr = (unsigned int *) (((char *) (*readBufferHndl)) + 1);
     numRects = SwapBytes2(dataPtr[0]);                  /* Get data */
@@ -230,7 +230,7 @@ void DoFBUpdate (void) {
     rectHeight = SwapBytes2(dataPtr[4]);
     rectEncoding = SwapBytes4(*(unsigned long *)(dataPtr + 5));
     HUnlock(readBufferHndl);
-    }
+}
 
 /* The server should never send a color map, since we don't use a mapped
  * representation for pixel values.  If a malfunctioning server tries to
@@ -249,8 +249,8 @@ void DoSetColourMapEntries (void) {
     HUnlock(readBufferHndl);
     for (; numColors > 0; numColors--) {
         DoWaitingReadTCP(6);
-        }
     }
+}
 
 
 /* Here when we're done processing one rectangle and ready to start the next.
@@ -266,7 +266,7 @@ void NextRect (void) {
             //printf("Closing in NextRect\n");
             DoClose(vncWindow);
             return;
-            }
+        }
         HLock(readBufferHndl);
         dataPtr = (unsigned int *) ((char *) (*readBufferHndl));
         rectX = SwapBytes2(dataPtr[0]);
@@ -276,7 +276,7 @@ void NextRect (void) {
         rectEncoding = SwapBytes4(*(unsigned long *)(dataPtr + 4));
         HUnlock(readBufferHndl);
         //printf("New Rect: X = %u, Y = %u, Width = %u, Height = %u\n", rectX, rectY, rectWidth, rectHeight);
-        }
+    }
     else {                          /* No more rectangles from last update */
         unsigned long contentOrigin;
         Point * contentOriginPtr = (void *) &contentOrigin;
@@ -284,8 +284,8 @@ void NextRect (void) {
         contentOrigin = GetContentOrigin(vncWindow);
         SendFBUpdateRequest(TRUE, contentOriginPtr->h, contentOriginPtr->v,
                             winWidth, winHeight);
-        }
-    }                         
+    }
+}                         
     
 void ConnectedEventLoop (void) {
     unsigned char messageType;
@@ -307,8 +307,8 @@ void ConnectedEventLoop (void) {
                                 return;
             default:            DoClose(vncWindow);
                                 return;
-            }
         }
+    }
     else if (numRects) {
         switch (rectEncoding) {
             case encodingHextile:
@@ -331,8 +331,8 @@ void ConnectedEventLoop (void) {
                                 //printf("Closing due to bad rectangle encoding %lu\n", rectEncoding);
                                 //printf("rectX = %u, rectY = %u, rectWidth = %u, rectHeight = %u\n", rectX, rectY, rectWidth, rectHeight);
                                 return;
-            }
         }
+    }
     else if (DoReadTCP(1)) {            /* Read message type byte */
         HLock(readBufferHndl);
         messageType = ((unsigned char) **readBufferHndl);
@@ -351,8 +351,8 @@ void ConnectedEventLoop (void) {
                                             FALSE);
                                         DoClose(vncWindow);
                                         return;
-            }
         }
     }
+}
 
 

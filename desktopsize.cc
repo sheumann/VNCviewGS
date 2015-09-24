@@ -46,7 +46,7 @@ void DoDesktopSize (void) {
     if ((fbWidth > 16384) || (fbHeight > 16384)) {
         AlertWindow(awResource, NULL, screenTooBigError);
         DoClose(vncWindow);
-        }
+    }
 
     oldWinHeight = winHeight;
     oldWinWidth = winWidth;
@@ -67,11 +67,11 @@ void DoDesktopSize (void) {
     if (contentOriginPtr->h + winWidth > fbWidth) {
         newX = fbWidth - winWidth;
         changeOrigin = TRUE;
-        }
+    }
     if (contentOriginPtr->v + winHeight > fbHeight) {
         newY = fbHeight - winHeight;
         changeOrigin = TRUE;
-        }
+    }
     SetContentOrigin2(1, newX, newY, vncWindow);
 
     SetDataSize(fbWidth, fbHeight, vncWindow);
@@ -80,5 +80,5 @@ void DoDesktopSize (void) {
     displayInProgress = FALSE;
 
     NextRect();             /* Prepare for next rect */
-    }
+}
 

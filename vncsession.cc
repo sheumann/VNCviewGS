@@ -80,7 +80,7 @@ void DoConnect (void) {
         MakeBigColorTables(65536);
         colorTablesComplete = TRUE;
         CloseConnectStatusWindow();
-        }
+    }
 
     /* Get server & password */
     
@@ -92,13 +92,13 @@ void DoConnect (void) {
         SysBeep();
         AlertWindow(awResource, NULL, noTCPIPConnectionError);
         return;
-        }
+    }
 
     if (GetIpid() == FALSE) {
         SysBeep();
         AlertWindow(awResource, NULL, badGetIpidError);
         return;
-        }
+    }
 
     if (DoVNCHandshaking() == FALSE) {
         SetHandleSize(1,readBufferHndl);
@@ -110,7 +110,7 @@ void DoConnect (void) {
         else
             alerted = FALSE;
         return;
-        }
+    }
     if (FinishVNCHandshaking() == FALSE) {
         SetHandleSize(1,readBufferHndl);
         CloseConnectStatusWindow();
@@ -118,7 +118,7 @@ void DoConnect (void) {
         AlertWindow(awResource, NULL, badOptionNegotiationError);
         SysBeep();
         return;
-        }
+    }
 
     InitVNCWindow();
 
@@ -131,7 +131,7 @@ void DoConnect (void) {
     myEvent.wmTaskMask = 0x001D79FE;  /* don't let TaskMaster process keys */
     InitMenus(noKB);
     vncConnected = TRUE;
-    }
+}
 
 /*******************************************************************
 * DisplayConnectStatus - Display modal dialog with status information
@@ -149,7 +149,7 @@ void DisplayConnectStatus(char *statusString, BOOLEAN cancelMessage) {
     if (connectStatusWindowPtr == NULL) {
         connectStatusWindowPtr = NewWindow2(NULL, NULL, NULL, NULL,
                                             0x02, wrNum, rWindParam1);
-        }
+    }
 
     if (connectStatusWindowPtr != NULL) {   /* Only draw if window was */
         if (GetMasterSCB() & 0x0080)                    /* If in 640 mode... */
@@ -165,13 +165,13 @@ void DisplayConnectStatus(char *statusString, BOOLEAN cancelMessage) {
         if (cancelMessage) {
             MoveTo(bigRect.h1, 24);
             DrawStringWidth(0x0002, cancelStr, bigRect.h2 - bigRect.h1);
-            }
-        SetPort(oldPort);
         }
+        SetPort(oldPort);
+    }
 
     #undef wrNum
     #undef cancelStr
-    }
+}
 
 /***********************************************************************
 * DisplayConnectStatusFromTool - Can be passed to Marinetti
@@ -180,7 +180,7 @@ void DisplayConnectStatus(char *statusString, BOOLEAN cancelMessage) {
 #pragma toolparms   1   /* Use tool-style stack model */
 void DisplayConnectStatusFromTool (char *statusString) {
     DisplayConnectStatus(statusString, TRUE);
-    }
+}
 #pragma toolparms   0   /* Use ORCA stack model */
 #pragma databank    0   /* Must restore data bank register on exit */
 
@@ -191,8 +191,8 @@ void CloseConnectStatusWindow (void) {
     if (connectStatusWindowPtr != NULL) {
         CloseWindow(connectStatusWindowPtr);
         connectStatusWindowPtr = NULL;
-        }
     }
+}
 
 /***********************************************************************
 * ConnectTCPIP - Try to establish a TCP/IP connection through Marinetti
@@ -208,7 +208,7 @@ BOOLEAN ConnectTCPIP (void)
             connected = TRUE;
         CloseConnectStatusWindow();
         InitCursor();
-        }
+    }
     else                                    /* Already connected */
         return TRUE;
 
@@ -242,7 +242,7 @@ BOOLEAN GetIpid (void)
     if (vncServer[i] == ':') {
         vncServer[0] = i - 1;
         vncServer[i] = 0;
-            }
+    }
 
     /* If it's an IP address, then put it in the record */
     if (TCPIPValidateIPString(vncServer))
@@ -259,14 +259,14 @@ BOOLEAN GetIpid (void)
             if (TickCount() >= initialTime + 15*60)
                 break;
             TCPIPPoll();                        /* Call TCPIPPoll() so that  */
-            }                                   /* Marinetti can process data */
+        }                                   /* Marinetti can process data */
         CloseConnectStatusWindow();
         InitCursor();
         if (dnrInfo.DNRstatus == DNR_OK)
             hostInfo.cvtIPAddress == dnrInfo.DNRIPaddress;
         else
             return FALSE;
-        }
+    }
 
     hostIpid = TCPIPLogin(userid(), hostInfo.cvtIPAddress, (int) hostPort,
                             0x0010 /* minimize latency */,
@@ -281,7 +281,7 @@ BOOLEAN GetIpid (void)
     return FALSE;      
 
     #undef baseDisplayNum
-    }                   
+}                   
 
 
 /* Read data, waiting for up to 15 seconds for the data to be ready */
@@ -292,10 +292,10 @@ BOOLEAN DoWaitingReadTCP(unsigned long dataLength) {
     stopTime = TickCount() + 15 * 60;
     do {
         result = DoReadTCP(dataLength);
-        } while (result == FALSE && TickCount() < stopTime);
+    } while (result == FALSE && TickCount() < stopTime);
 
     return result;
-    }
+}
 
 
 /* Fix things when TCPIPReadTCP returns less data than it's supposed to */
@@ -322,10 +322,10 @@ BOOLEAN ReadFixup (unsigned long requested, unsigned long returned) {
 
         returned += theRRBuff.rrBuffCount;
 
-        } while (returned < requested);
+    } while (returned < requested);
 
     return TRUE;
-    }
+}
 
 /**********************************************************************
 * DoReadTCP() - Issue TCPIPReadTCP() call w/ appropriate parameters
@@ -355,7 +355,7 @@ BOOLEAN DoReadTCP (unsigned long dataLength) {
         return ReadFixup(dataLength, theRRBuff.rrBuffCount);
 
     return TRUE;
-    }
+}
 
 
 /**********************************************************************
@@ -386,20 +386,20 @@ BOOLEAN DoVNCHandshaking (void) {
         AlertWindow(awResource, NULL, badRFBVersionAlert);
         alerted = TRUE;
         return FALSE;
-        }
+    }
     HUnlock(readBufferHndl);
 
     strcpy(versionString, RFBVERSIONSTR);
     if (TCPIPWriteTCP(hostIpid, versionString, 12, TRUE, FALSE)) {
         return FALSE;
-        }
+    }
     if (toolerror()) {
         return FALSE;
-        }
+    }
 
     if (! DoWaitingReadTCP(4)) {                /* Read authentication type */
         return FALSE;
-        }
+    }
     HLock(readBufferHndl);
     switch ((unsigned long) (**readBufferHndl)) {
         case vncConnectionFailed:   HUnlock(readBufferHndl);
@@ -427,7 +427,7 @@ BOOLEAN DoVNCHandshaking (void) {
                                                 connectionFailedAlert);
                                         alerted = TRUE;
                                         HUnlock(readBufferHndl);
-                                        }
+                                    }
                                     return FALSE;
         case vncNoAuthentication:   break;
         case vncVNCAuthentication:  if (DoDES())
@@ -439,14 +439,14 @@ BOOLEAN DoVNCHandshaking (void) {
                                             badAuthTypeAlert);
                                     alerted = TRUE;
                                     return FALSE;
-        }
+    }
 
     HUnlock(readBufferHndl);
     return TRUE;
     #undef connectionFailedAlert
     #undef badRFBVersionAlert
     #undef badAuthTypeAlert
-    }
+}
 
 /**********************************************************************
 * DoDES() - Try to do DES (aka VNC) authentication
@@ -472,7 +472,7 @@ BOOLEAN DoDES (void) {
                                 x ^= (x >> 2) & 0x04;   /* 4 -> 2 */    \
                                 x &= 0xef;              /* Clear 4 */   \
                                 x ^= (x >> 3) & 0x10;   /* 7 -> 4 */    \
-                                } while (0)
+                            } while (0)
     #define statusOK        SwapBytes4(0)
     #define statusFailed    SwapBytes4(1)
     #define statusTooMany   SwapBytes4(2)
@@ -492,17 +492,17 @@ BOOLEAN DoDES (void) {
             AlertWindow(awResource, NULL, noCryptoError);
             alerted = TRUE;
             return FALSE;
-            }
+        }
 
         dpSpace = NewHandle(0x0100, userid(),
                 attrLocked|attrFixed|attrNoCross|attrBank, 0x00000000);
         CryptoStartUp((Word) *dpSpace);
-        }
+    }
 
     if (! (DoWaitingReadTCP(16))) {
         success = FALSE;
         goto UnloadCrypto;
-        }
+    }
 
     /* Pad password with nulls, as per VNC precedent */
     for (i=vncPassword[0]+1; i<=8; i++)
@@ -539,35 +539,35 @@ BOOLEAN DoDES (void) {
         {
         success = FALSE;
         goto UnloadCrypto;
-        }
+    }
     if (toolerror()) {
         success = FALSE;
         goto UnloadCrypto;
-        }
+    }
     if (! (DoWaitingReadTCP(4))) {
         success = FALSE;    
         goto UnloadCrypto;
-        }
+    }
 
     HLock(readBufferHndl);
     if ((**readBufferHndl) == statusOK) {
         success = TRUE;
         goto UnloadCrypto;
-        }
+    }
     else if ((**readBufferHndl) == statusFailed) {
         InitCursor();
         AlertWindow(awResource, NULL, authFailedError);
         alerted = TRUE;
         success = FALSE;
         goto UnloadCrypto;
-        }
+    }
     else if ((**readBufferHndl) == statusTooMany) {
         InitCursor();
         AlertWindow(awResource, NULL, authTooManyError);
         alerted = TRUE;
         success = FALSE;
         goto UnloadCrypto;
-        }       
+    }       
     /* else */
         success = FALSE;
 
@@ -579,14 +579,14 @@ BOOLEAN DoDES (void) {
         CryptoShutDown();                       /* Shut down Crypto tool set */
         DisposeHandle(dpSpace);
         UnloadOneTool(129);
-        }
+    }
     return success;
 
 #undef statusOK
 #undef statusFailed
 #undef statusTooMany
 #undef SwitchBits
-    }
+}
 
 /**********************************************************************
 * FinishVNCHandshaking() - Complete VNC protocol initialization
@@ -612,7 +612,7 @@ BOOLEAN FinishVNCHandshaking (void) {
             unsigned char blueShift;
             unsigned char padding3;
             unsigned int  padding4;
-            } pixelFormat = {   
+    } pixelFormat = {   
                     0               /* message type - SetPixelFormat */,
                     0,0             /* padding */,
                     8               /* bpp */,
@@ -626,7 +626,7 @@ BOOLEAN FinishVNCHandshaking (void) {
                     3               /* green-shift */,
                     6               /* blue-shift */,
                     0,0             /* padding */
-                };
+    };
 
     struct Encodings {
             unsigned char messageType;
@@ -636,7 +636,7 @@ BOOLEAN FinishVNCHandshaking (void) {
             unsigned long secondEncoding;
             unsigned long thirdEncoding;
             unsigned long fourthEncoding;
-            } encodings = {
+    } encodings = {
                     2,              /* Message Type - SetEncodings */
                     0,              /* padding */
                     0,              /* number of encodings  - set below */
@@ -647,7 +647,7 @@ BOOLEAN FinishVNCHandshaking (void) {
                     /* Per the spec, raw encoding is supported even though
                      * it is not listed here explicitly.
                      */
-                };
+    };
 
     DisplayConnectStatus("\pNegotiating protocol options...", FALSE);
 
@@ -673,7 +673,7 @@ BOOLEAN FinishVNCHandshaking (void) {
     if ((fbWidth > 16384) || (fbHeight > 16384)) {
         AlertWindow(awResource, NULL, screenTooBigError);
         return FALSE;
-        }
+    }
 
     /* Ignore server's pixel format and display name */
     if (! DoWaitingReadTCP(16))
@@ -709,7 +709,7 @@ BOOLEAN FinishVNCHandshaking (void) {
 
         return TRUE;
 #undef screenTooBigError
-    }   
+}   
 
 
 /**********************************************************************
@@ -722,7 +722,7 @@ void CloseTCPConnection (void) {
     do {
         TCPIPPoll();
         TCPIPLogout(hostIpid);
-        } while (toolerror() == terrSOCKETOPEN);
+    } while (toolerror() == terrSOCKETOPEN);
     CloseConnectStatusWindow();
     InitCursor();
-    }
+}

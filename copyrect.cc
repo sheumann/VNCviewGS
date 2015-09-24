@@ -60,7 +60,7 @@ void DoCopyRect (void) {
         SendFBUpdateRequest(FALSE, rectX, rectY, rectWidth, rectHeight);
         displayInProgress = FALSE;
         return;
-        }
+    }
 
     /* We can use the window pointer as a LocInfo pointer because it starts
      * with a grafPort structure, which in turn starts with a LocInfo structure.
@@ -71,5 +71,5 @@ void DoCopyRect (void) {
     displayInProgress = FALSE;
 
     NextRect();                                     /* Prepare for next rect */
-    }
+}
 
