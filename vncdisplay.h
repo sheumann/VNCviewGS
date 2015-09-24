@@ -10,14 +10,14 @@ extern unsigned int rectWidth;
 extern unsigned int rectHeight;
 extern unsigned long rectEncoding;
 
-#define encodingRaw			0
-#define encodingCopyRect	1
-#define encodingRRE			2
-#define encodingCoRRE		4
-#define encodingHextile		5
-#define encodingZRLE		16
-#define encodingCursor		0xffffff11
-#define encodingDesktopSize	0xffffff21
+#define encodingRaw         0
+#define encodingCopyRect    1
+#define encodingRRE         2
+#define encodingCoRRE       4
+#define encodingHextile     5
+#define encodingZRLE        16
+#define encodingCursor      0xffffff11
+#define encodingDesktopSize 0xffffff21
 
 extern GrafPortPtr vncWindow;
 
@@ -34,12 +34,12 @@ extern struct LocInfo srcLocInfo;
 extern Rect srcRect;
 extern unsigned char *pixTransTbl;
 
-extern BOOLEAN checkBounds;	/* Adjust drawing to stay in bounds */
+extern BOOLEAN checkBounds; /* Adjust drawing to stay in bounds */
 
 void InitVNCWindow (void);
 
 void SendFBUpdateRequest (BOOLEAN /*incremental*/, unsigned int /*x*/,
-		unsigned int /*y*/, unsigned int /*width*/, unsigned int /*height*/);
+        unsigned int /*y*/, unsigned int /*width*/, unsigned int /*height*/);
 
 void ConnectedEventLoop (void);
 

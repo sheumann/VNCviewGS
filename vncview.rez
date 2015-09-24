@@ -6,69 +6,69 @@
 
 /*- Constants --------------------------------------------------*/
 
-#define appleMenu     		1
-#define fileMenu      		2
-#define editMenu      		3
-#define editUndo      		250
-#define editCut       		251
-#define editCopy      		252
-#define editPaste     		253
-#define editClear     		254
-#define editSendClipboard	262
-#define editShowClipboard	261
+#define appleMenu               1
+#define fileMenu                2
+#define editMenu                3
+#define editUndo                250
+#define editCut                 251
+#define editCopy                252
+#define editPaste               253
+#define editClear               254
+#define editSendClipboard       262
+#define editShowClipboard       261
 #define fileNewConnection       260
-#define fileClose     		255
-#define fileQuit      		256
-#define appleAbout    		257
+#define fileClose               255
+#define fileQuit                256
+#define appleAbout              257
 
-#define noKB			100
+#define noKB                    100
 
-#define noMarinettiError	2001
-#define outOfMemoryError	2002
+#define noMarinettiError        2001
+#define outOfMemoryError        2002
 
-#define disconnectTCPIPAlert	2003
-#define connectionFailedAlert	2004
-#define noCryptoError		2005
-#define authFailedError		2006
-#define authTooManyError	2007
-#define badRFBVersionAlert	2008
-#define badAuthTypeAlert	2009
-#define screenTooBigError	2010
-#define noTCPIPConnectionError	2011
-#define badGetIpidError		2012
-#define badOptionNegotiationError	2013
-#define badHandshakingError	2014
-#define badReadTCPError		2015
+#define disconnectTCPIPAlert    2003
+#define connectionFailedAlert   2004
+#define noCryptoError           2005
+#define authFailedError         2006
+#define authTooManyError        2007
+#define badRFBVersionAlert      2008
+#define badAuthTypeAlert        2009
+#define screenTooBigError       2010
+#define noTCPIPConnectionError  2011
+#define badGetIpidError         2012
+#define badOptionNegotiationError       2013
+#define badHandshakingError     2014
+#define badReadTCPError         2015
 
-#define linedColors   		1
+#define linedColors             1
 
-#define NCWindow		1000	/* Offset for "New Connection" 	*/
-					/* window and its controls	*/
+#define NCWindow                1000    /* Offset for "New Connection"  */
+                                        /* window and its controls      */
 
-#define VNCWindow		3000
+#define VNCWindow               3000
 
-#define winNewConnection	1
-#define btnConnect		1
-#define btnCancel		2
-#define linServer		3
-#define txtServer		4
-#define txtServerInfo		5
-#define txtPassword		6
-#define linPassword		7
-#define txtDisplay		8
-#define rectDisplay		9
-#define txtColor		10
-#define txtGray			11
-#define rad320			12
-#define rad640			13
-#define chkShared		16
-#define chkClipboard		17
-#define txtTransfers		23
-#define chkEmul3Btn		18
-#define chkViewOnly		19
-#define txtPreferredEncoding	24
-#define radRaw			25
-#define radHextile		26
+#define winNewConnection        1
+#define btnConnect              1
+#define btnCancel               2
+#define linServer               3
+#define txtServer               4
+#define txtServerInfo           5
+#define txtPassword             6
+#define linPassword             7
+#define txtDisplay              8
+#define rectDisplay             9
+#define txtColor                10
+#define txtGray                 11
+#define rad320                  12
+#define rad640                  13
+#define chkShared               16
+#define chkClipboard            17
+#define txtTransfers            23
+#define chkEmul3Btn             18
+#define chkViewOnly             19
+#define txtPreferredEncoding    24
+#define radRaw                  25
+#define radHextile              26
 
 /*- Tools ------------------------------------------------------*/
 
@@ -204,7 +204,7 @@ resource rMenuItem (editSendClipboard) {
    editSendClipboard
    };
 
-resource rMenuItem (fileNewConnection) {	/* New menu item */
+resource rMenuItem (fileNewConnection) {        /* New menu item */
    fileNewConnection,                   /* menu item ID */
    "N","n",                             /* key equivalents */
    0,                                   /* check character */
@@ -217,7 +217,7 @@ resource rMenuItem (fileClose) {        /* Close menu item */
    "W","w",                             /* key equivalents */
    0,                                   /* check character */
    refIsResource*itemTitleRefShift      /* flags */
-	+ fDivider,
+        + fDivider,
    fileClose                            /* menu item title resource ID */
    };
 
@@ -248,11 +248,11 @@ resource rPString (editCopy, noCrossBank)   {"Copy"};
 resource rPString (editPaste, noCrossBank)  {"Paste"};
 resource rPString (editClear, noCrossBank)  {"Clear"};
 resource rPString (editShowClipboard, noCrossBank)
-					    {"Show Clipboard"};
+                                            {"Show Clipboard"};
 resource rPString (editSendClipboard, noCrossBank)
-					    {"Send Clipboard"};
+                                            {"Send Clipboard"};
 resource rPString (fileNewConnection, noCrossBank)
-					    {"New Connection..."};
+                                            {"New Connection..."};
 resource rPString (fileClose, noCrossBank)  {"Close"};
 resource rPString (fileQuit, noCrossBank)   {"Quit"};
 resource rPString (appleAbout, noCrossBank) {"About VNCview GS..."};
@@ -330,7 +330,7 @@ resource rMenuItem (editPaste+noKB) {   /* Paste menu item */
    editPaste                            /* menu item title resource ID */
    };
 
-resource rMenuItem (fileNewConnection+noKB) {	/* New menu item */
+resource rMenuItem (fileNewConnection+noKB) {   /* New menu item */
    fileNewConnection,                   /* menu item ID */
    "","",                               /* key equivalents */
    0,                                   /* check character */
@@ -343,7 +343,7 @@ resource rMenuItem (fileClose+noKB) {   /* Close menu item */
    "","",                               /* key equivalents */
    0,                                   /* check character */
    refIsResource*itemTitleRefShift      /* flags */
-	+ fDivider,
+        + fDivider,
    fileClose                            /* menu item title resource ID */
    };
 
@@ -370,26 +370,26 @@ resource rAlertString (1) {
 /*- Resources used by Finder, etc. -----------------------------*/
 
 resource rVersion (1) {
-	{
-	        1,0,0,		/* Version number */
+        {
+                1,0,0,          /* Version number */
                 beta, 1,     /* Release version */
                 },
-        verUS,			/* Region code */
-        "VNCview GS",		/* Title */
+        verUS,                  /* Region code */
+        "VNCview GS",           /* Title */
         "Copyright \$A9 2002\$D12004\n"
         "by Stephen Heumann"
         };
 
 resource rBundle (1, preload, nospecialmemory) {
-	1,	/* Icon ID */
-        1,	/* rBundle ID */
-        {	/* OneDoc structure to match the program */
-	        {
-		        $81,
+        1,      /* Icon ID */
+        1,      /* rBundle ID */
+        {       /* OneDoc structure to match the program */
+                {
+                        $81,
                         {0},
                         {1},
                         {2}
-	                },
+                        },
                 $00000005,
                 matchFileType {{$B3}},
                 empty {},
@@ -403,172 +403,172 @@ resource rBundle (1, preload, nospecialmemory) {
                 empty {},
                 empty {},
                 empty {}
-	        }
+                }
         };
 
 resource rIcon (1, preload, nospecialmemory) {
-	$8000,
-	22,
-	24,
-	$"000000000000000000000000"
-	$"0F8EFF00F0FF00F0F0FFFFF0"
+        $8000,
+        22,
+        24,
+        $"000000000000000000000000"
+        $"0F8EFF00F0FF00F0F0FFFFF0"
         $"0F45FF0F000F0F00F0FFFFF0"
         $"000000000000000000000000"
         $"0F99FF00FFF0F00FFFFFF0F0"
-	$"0F99FF0F0F00F0FFFFFFF030"
+        $"0F99FF0F0F00F0FFFFFFF030"
         $"0000000000000000000000F0"
         $"0999999999999999999990F0"
         $"099FFFF000F0F00FFF999030"
-	$"09FFFFFFFFFFFFFFFFF99030"
+        $"09FFFFFFFFFFFFFFFFF99030"
         $"09F88FFFFF88F1111FF99030"
         $"09FF88FFF88FF1FFF1F99030"
         $"09FF88FFF88FF1FFF1F99030"
-	$"09FFF88F88FFFFFFFFF99030"
+        $"09FFF88F88FFFFFFFFF99030"
         $"09FFF88F88FFFF4444F99030"
         $"09FFFF888FFFF4FFFFF99030"
         $"09FFFF888FFFF4FFFFF99030"
-	$"09FFFFF8FFFFFF4444F99030"
+        $"09FFFFF8FFFFFF4444F99030"
         $"09FFFFFFFFFFFFFFFFF990F0"
         $"000000000000000000000000"
         $"0F3FFFFFF33333333333F0F0"
         $"000000000000000000000000",
-	$"FFFFFFFFFFFFFFFFFFFFFFFF"
         $"FFFFFFFFFFFFFFFFFFFFFFFF"
         $"FFFFFFFFFFFFFFFFFFFFFFFF"
         $"FFFFFFFFFFFFFFFFFFFFFFFF"
-	$"FFFFFFFFFFFFFFFFFFFFFFFF"
         $"FFFFFFFFFFFFFFFFFFFFFFFF"
         $"FFFFFFFFFFFFFFFFFFFFFFFF"
         $"FFFFFFFFFFFFFFFFFFFFFFFF"
-	$"FFFFFFFFFFFFFFFFFFFFFFFF"
         $"FFFFFFFFFFFFFFFFFFFFFFFF"
         $"FFFFFFFFFFFFFFFFFFFFFFFF"
         $"FFFFFFFFFFFFFFFFFFFFFFFF"
-	$"FFFFFFFFFFFFFFFFFFFFFFFF"
         $"FFFFFFFFFFFFFFFFFFFFFFFF"
         $"FFFFFFFFFFFFFFFFFFFFFFFF"
         $"FFFFFFFFFFFFFFFFFFFFFFFF"
-	$"FFFFFFFFFFFFFFFFFFFFFFFF"
         $"FFFFFFFFFFFFFFFFFFFFFFFF"
         $"FFFFFFFFFFFFFFFFFFFFFFFF"
         $"FFFFFFFFFFFFFFFFFFFFFFFF"
-	$"FFFFFFFFFFFFFFFFFFFFFFFF"
+        $"FFFFFFFFFFFFFFFFFFFFFFFF"
+        $"FFFFFFFFFFFFFFFFFFFFFFFF"
+        $"FFFFFFFFFFFFFFFFFFFFFFFF"
+        $"FFFFFFFFFFFFFFFFFFFFFFFF"
+        $"FFFFFFFFFFFFFFFFFFFFFFFF"
+        $"FFFFFFFFFFFFFFFFFFFFFFFF"
         $"FFFFFFFFFFFFFFFFFFFFFFFF"
 };
 
 resource rIcon (2, preload, nospecialmemory) {
-	0x8000,
-	8,
-	8,
-	$"F8F8F11F"
-	$"F8F8F1F1"
-	$"F8F8F1F1"
-	$"F8F8FFFF"
-	$"F8F8FF44"
-	$"F8F8F4FF"
-	$"FF8FF4FF"
-	$"FF8FFF44",
-	$"0F0F0FF0"
-	$"0F0F0F0F" 
-	$"0F0F0F0F" 
-	$"0F0F0000" 
-	$"0F0F00FF" 
-	$"0F0F0F00" 
-	$"00F00F00" 
-	$"00F000FF" 
+        0x8000,
+        8,
+        8,
+        $"F8F8F11F"
+        $"F8F8F1F1"
+        $"F8F8F1F1"
+        $"F8F8FFFF"
+        $"F8F8FF44"
+        $"F8F8F4FF"
+        $"FF8FF4FF"
+        $"FF8FFF44",
+        $"0F0F0FF0"
+        $"0F0F0F0F" 
+        $"0F0F0F0F" 
+        $"0F0F0000" 
+        $"0F0F00FF" 
+        $"0F0F0F00" 
+        $"00F00F00" 
+        $"00F000FF" 
 };
                           
 
 /*- Error handler ----------------------------------------------*/
 
 resource rAlertString (noMarinettiError) {
-	"42:"
-	"Could not load the Marinetti TCP/IP stack. Please ensure that "
-	"you have Marinetti 2.0 or later installed on this computer."
-	":^#5\$00";
-	};
+        "42:"
+        "Could not load the Marinetti TCP/IP stack. Please ensure that "
+        "you have Marinetti 2.0 or later installed on this computer."
+        ":^#5\$00";
+        };
 
 resource rAlertString (noCryptoError) {
-	"42:"
+        "42:"
         "Could not load the Crypto tool set.  Please install the crypto "
         "tool set version 1.0 or later to use passwords in VNCview GS."
         ":^#6\$00";
         };
 
 resource rAlertString (outOfMemoryError) {
-	"42:"
-	"Could not allocate sufficient memory.  Please reduce memory "
-	"usage and run VNCview GS again."
-	":^#5\$00";
-	};
+        "42:"
+        "Could not allocate sufficient memory.  Please reduce memory "
+        "usage and run VNCview GS again."
+        ":^#5\$00";
+        };
 
 resource rAlertString  (disconnectTCPIPAlert) {
-	"20:"
+        "20:"
         "Do you want to disconnect your TCP/IP connection?"
         ":^#3:#2\$00";
         };
 
 resource rAlertString (authFailedError) {
-	"52:"
+        "52:"
         "Authentication failed.  Please re-type your password and try again."
         ":^#6\$00";
         };
 
 resource rAlertString (authTooManyError) {
-	"72:"
-	"Authentication has failed too many times.  Please check that you are "
+        "72:"
+        "Authentication has failed too many times.  Please check that you are "
         "using the correct password and wait a while before connecting again."
         ":^#6\$00";
         };
 
 resource rAlertString (connectionFailedAlert) {
-	"92;"
+        "92;"
         "Connection failed:\n"
         "*0"
         ";^#6\$00";
         };
 
 resource rAlertString (badRFBVersionAlert) {
-	"42:"
+        "42:"
         "The server reported an RFB protocal version incompatible with VNCview "
         "GS or is not an RFB server."
         ":^#6\$00";
         };
 
 resource rAlertString (badAuthTypeAlert) {
-	"42:"
+        "42:"
         "The connection failed because the server requested an authentication "
         "type not recognized by VNCview GS."
         ":^#6\$00";
         };
 
 resource rAlertString (noTCPIPConnectionError) {
-	"32:"
+        "32:"
         "A TCP/IP connection could not be established."
         ":^#6\$00";
         };
 
 resource rAlertString (badGetIpidError) {
-	"42:"
+        "42:"
         "There was an error while resolving the hostname you provided or "
         "preparing to connect to it."
         ":^#6\$00";
         };
 
 resource rAlertString (badOptionNegotiationError) {
-	"32:"
+        "32:"
         "There was an error while negotiating protocol options."
         ":^#6\$00";
         };
 
 resource rAlertString (badHandshakingError) {
-	"32:"
+        "32:"
         "There was an error while establishing a VNC connection with the server."
         ":^#6\$00";
         };
                                         
 resource rAlertString (screenTooBigError) {
-	"72:"
+        "72:"
         "The server's framebuffer resolution is too big for VNCview GS.  "
         "VNCview GS does not support resolutions greater than 16,384 by 16,384."
         ":^#6\$00";
@@ -576,7 +576,7 @@ resource rAlertString (screenTooBigError) {
 
 #if 0
 resource rAlertString (badReadTCPError) {
-	"72:"
+        "72:"
         "The TCP/IP stack did not return the amount of data expected.  This "
         "may be indicative of a bug in Marinetti or in the VNC server software."
         ":^#6\$00";
@@ -584,7 +584,7 @@ resource rAlertString (badReadTCPError) {
 #endif
 
 resource rAlertString (10000) {
-	"72:"
+        "72:"
         "*0"
         ":^#6\$00";
         };
@@ -592,28 +592,28 @@ resource rAlertString (10000) {
 /*- New VNC Connection window resources ----------------------------------*/
 
 resource rWindParam1 (NCWindow+winNewConnection) {
-	fTitle+fClose+fFlex+fMove,	/* wFrameBits */
-        nil,				/* wTitle */
-        0,				/* wRefCon */
-        {0,0,0,0},			/* ZoomRect */
-        nil,				/* wColor ID */
-        {0,0},				/* Origin */
-        {0,0},				/* data size */
-        {0,0},				/* max height-width */
-        {0,0},				/* scroll vertical, horizontal */
-        {0,0},				/* page vertical, horizontal */
-        0,				/* wInfoRefCon */
-        0,				/* wInfoHeight */
-        {40,162,181,478},		/* wPosition */
-        infront,			/* wPlane */
-        NCWindow+winNewConnection,	/* wStorage */
-        $0009				/* wInVerb */
+        fTitle+fClose+fFlex+fMove,      /* wFrameBits */
+        nil,                            /* wTitle */
+        0,                              /* wRefCon */
+        {0,0,0,0},                      /* ZoomRect */
+        nil,                            /* wColor ID */
+        {0,0},                          /* Origin */
+        {0,0},                          /* data size */
+        {0,0},                          /* max height-width */
+        {0,0},                          /* scroll vertical, horizontal */
+        {0,0},                          /* page vertical, horizontal */
+        0,                              /* wInfoRefCon */
+        0,                              /* wInfoHeight */
+        {40,162,181,478},               /* wPosition */
+        infront,                        /* wPlane */
+        NCWindow+winNewConnection,      /* wStorage */
+        $0009                           /* wInVerb */
         };
 
 resource rControlList (NCWindow+winNewConnection) {{
-	        NCWindow+btnConnect,
+                NCWindow+btnConnect,
                 NCWindow+btnCancel,
-	        NCWindow+linServer,
+                NCWindow+linServer,
                 NCWindow+txtServer,
                 NCWindow+txtServerInfo,
                 NCWindow+txtPassword,
@@ -635,267 +635,267 @@ resource rControlList (NCWindow+winNewConnection) {{
         }};
 
 resource rControlTemplate (NCWindow+btnConnect) {
-	btnConnect,			/* Control ID */
-        {121,217,0,0},			/* Control Rect */
+        btnConnect,                     /* Control ID */
+        {121,217,0,0},                  /* Control Rect */
         SimpleButtonControl {{
-	    	$0001,			/* flags */
-            	$3002,			/* more flags */
-            	0,				/* refcon */
-            	NCWindow+btnConnect,	/* Title Ref */
-            	nil,			/* color table ref */
-            	{"\$0D","\$0D",0,0}	/* key equivalents (esc) */
-            	}};
+                $0001,                  /* flags */
+                $3002,                  /* more flags */
+                0,                              /* refcon */
+                NCWindow+btnConnect,    /* Title Ref */
+                nil,                    /* color table ref */
+                {"\$0D","\$0D",0,0}     /* key equivalents (esc) */
+                }};
         };
 resource rPString (NCWindow+btnConnect) {"Connect"};
                   
 resource rControlTemplate (NCWindow+btnCancel) {
-	btnCancel,			/* Control ID */
-        {121,128,0,0},			/* Control Rect */
+        btnCancel,                      /* Control ID */
+        {121,128,0,0},                  /* Control Rect */
         SimpleButtonControl {{
-	        $0000,			/* flags */
-                $3002,			/* more flags */
-                0,			/* refcon */
-                NCWindow+btnCancel,	/* Title Ref */
-                nil,			/* color table ref */
-                {"\$1B","\$1B",0,0}	/* key equivalents (esc) */
+                $0000,                  /* flags */
+                $3002,                  /* more flags */
+                0,                      /* refcon */
+                NCWindow+btnCancel,     /* Title Ref */
+                nil,                    /* color table ref */
+                {"\$1B","\$1B",0,0}     /* key equivalents (esc) */
                 }};
         };
 resource rPString (NCWindow+btnCancel) {"Cancel"};
 
 resource rControlTemplate (NCWindow+linServer) {
-	linServer,
+        linServer,
         {4,87,16,310},
         editLineControl {{
-	        $0000,
+                $0000,
                 $7000,
-                0,			
+                0,                      
                 255,                    /* Max Size */
                 0                       /* text ref */
                 }};
         };
 
 resource rControlTemplate (NCWindow+txtServer) {
-	txtServer,
-	{5,3,15,86},
+        txtServer,
+        {5,3,15,86},
         statTextControl {{
-	        $0004,
+                $0004,
                 $1002,
                 0,
-                NCWindow+txtServer	/* Title ref */
-	        }};
+                NCWindow+txtServer      /* Title ref */
+                }};
         };
 resource rTextForLETextBox2 (NCWindow+txtServer) {"VNC Server:"};
 
 resource rControlTemplate (NCWindow+txtServerInfo) {
-	txtServerInfo,
-	{16,0,26,316},
+        txtServerInfo,
+        {16,0,26,316},
         statTextControl {{
-	        $0000,
+                $0000,
                 $1002,
                 0,
-                NCWindow+txtServerInfo	/* Title ref */
-	        }};
+                NCWindow+txtServerInfo  /* Title ref */
+                }};
         };
 resource rTextForLETextBox2 (NCWindow+txtServerInfo) {
-	"\$01J\$01\$00Use \$01S\$03\$00host:display\$01S\$00\$00 "
+        "\$01J\$01\$00Use \$01S\$03\$00host:display\$01S\$00\$00 "
         "(or \$01S\$03\$00host\$01S\$00\$00 for display 0)."
         };
 
 resource rControlTemplate (NCWindow+txtPassword) {
-	txtPassword,
-	{29,15,38,86},
+        txtPassword,
+        {29,15,38,86},
         statTextControl {{
-	        $0004,
+                $0004,
                 $1002,
                 0,
-                NCWindow+txtPassword	/* Title ref */
-	        }};
+                NCWindow+txtPassword    /* Title ref */
+                }};
         };
 resource rTextForLETextBox2 (NCWindow+txtPassword) {"Password:"};
 
 resource rControlTemplate (NCWindow+linPassword) {
-	linPassword,
+        linPassword,
         {28,87,39,310},
         editLineControl {{
-	        $0000,
+                $0000,
                 $7000,
-                0,			
-                8,	                /* Max Size */
+                0,                      
+                8,                      /* Max Size */
                 0,                      /* text ref */
-                $D7			/* password character */
+                $D7                     /* password character */
                 }};
         };
 
 resource rControlTemplate (NCWindow+txtDisplay) {
-	txtDisplay,
-	{43,13,52,73},
+        txtDisplay,
+        {43,13,52,73},
         statTextControl {{
-	        $0000,
+                $0000,
                 $1002,
                 0,
-                NCWindow+txtDisplay	/* Title ref */
-	        }};
+                NCWindow+txtDisplay     /* Title ref */
+                }};
         };
 resource rTextForLETextBox2 (NCWindow+txtDisplay) {" Display "};
 
 resource rControlTemplate (NCWindow+rectDisplay) {
-	NCWindow+rectDisplay,
-	{47,3,100,111},
+        NCWindow+rectDisplay,
+        {47,3,100,111},
         rectangleControl {{
-	        $FF01,
+                $FF01,
                 $1000,
                 0
-	        }};
+                }};
         };
 
 resource rControlTemplate (NCWindow+rad320) {
-	rad320,
-	{55,10,0,0},
+        rad320,
+        {55,10,0,0},
         RadioControl {{
-	        $0002,
+                $0002,
                 $1002,
                 0,
-                NCWindow+rad320,	/* Title ref */
-	        1			/* initial value */
+                NCWindow+rad320,        /* Title ref */
+                1                       /* initial value */
                 }};
         };
 resource rPString (NCWindow+rad320) {"320 x 200"};
 
 resource rControlTemplate (NCWindow+txtColor) {
-	txtColor,
-	{64,35,73,90},
+        txtColor,
+        {64,35,73,90},
         statTextControl {{
-	        $000C,
+                $000C,
                 $1002,
                 0,
-                NCWindow+txtColor	/* Title ref */
+                NCWindow+txtColor       /* Title ref */
                 }};
         };
 resource rTextForLETextBox2 (NCWindow+txtColor) {"Color"};
 
 resource rControlTemplate (NCWindow+rad640) {
-	rad640,
-	{78,10,0,0},
+        rad640,
+        {78,10,0,0},
         RadioControl {{
-	        $0002,
+                $0002,
                 $1002,
                 0,
-                NCWindow+rad640,	/* Title ref */
-	        0			/* initial value */
+                NCWindow+rad640,        /* Title ref */
+                0                       /* initial value */
                 }};
         };
 resource rPString (NCWindow+rad640) {"640 x 200"};
 
 resource rControlTemplate (NCWindow+txtGray) {
-	txtGray,
-	{87,35,96,109},
+        txtGray,
+        {87,35,96,109},
         statTextControl {{
-	        $000C,
+                $000C,
                 $1002,
                 0,
-                NCWindow+txtGray	/* Title ref */
+                NCWindow+txtGray        /* Title ref */
                 }};
         };
 resource rTextForLETextBox2 (NCWindow+txtGray) {"Grayscale"};
 
 resource rControlTemplate (NCWindow+chkShared) {
-	chkShared,
-	{43,117,0,0},
+        chkShared,
+        {43,117,0,0},
         CheckControl {{
-	        $0000,
+                $0000,
                 $1002,
                 0,
-                NCWindow+chkShared,	/* Title ref */
-	        1			/* initial value */
+                NCWindow+chkShared,     /* Title ref */
+                1                       /* initial value */
                 }};
         };
 resource rPString (NCWindow+chkShared) {"Request Shared Session"};
 
 resource rControlTemplate (NCWindow+chkClipboard) {
-	chkClipboard,
-	{82,117,0,0},
+        chkClipboard,
+        {82,117,0,0},
         CheckControl {{
-	        $0000,
+                $0000,
                 $1002,
                 0,
-                NCWindow+chkClipboard,	/* Title ref */
-	        1			/* initial value */
+                NCWindow+chkClipboard,  /* Title ref */
+                1                       /* initial value */
                 }};
         };
 resource rPString (NCWindow+chkClipboard) {"Allow Clipboard"};
 
 resource rControlTemplate (NCWindow+txtTransfers) {
-	txtTransfers,
-	{91,144,100,310},
+        txtTransfers,
+        {91,144,100,310},
         statTextControl {{
-	        $000C,
+                $000C,
                 $1002,
                 0,
-                NCWindow+txtTransfers	/* Title ref */
+                NCWindow+txtTransfers   /* Title ref */
                 }};
         };
 resource rTextForLETextBox2 (NCWindow+txtTransfers) {"Transfers from Server"};
 
 resource rControlTemplate (NCWindow+chkEmul3Btn) {
-	chkEmul3Btn,
-	{56,117,0,0},
+        chkEmul3Btn,
+        {56,117,0,0},
         CheckControl {{
-	        $0000,
+                $0000,
                 $1002,
                 0,
-                NCWindow+chkEmul3Btn,	/* Title ref */
-	        1			/* initial value */
+                NCWindow+chkEmul3Btn,   /* Title ref */
+                1                       /* initial value */
                 }};
         };
 resource rPString (NCWindow+chkEmul3Btn) {"Emulate 3-Button Mouse"};
 
 resource rControlTemplate (NCWindow+chkViewOnly) {
-	chkViewOnly,
-	{69,117,0,0},
+        chkViewOnly,
+        {69,117,0,0},
         CheckControl {{
-	        $0000,
+                $0000,
                 $1002,
                 0,
-                NCWindow+chkViewOnly,	/* Title ref */
-	        0			/* initial value */
+                NCWindow+chkViewOnly,   /* Title ref */
+                0                       /* initial value */
                 }};
         };
 resource rPString (NCWindow+chkViewOnly) {"View Only Mode"};
 
 resource rControlTemplate (NCWindow+txtPreferredEncoding) {
-	txtPreferredEncoding,
-	{104,3,91,310},
+        txtPreferredEncoding,
+        {104,3,91,310},
         statTextControl {{
-	        $0004,
+                $0004,
                 $1002,
                 0,
-                NCWindow+txtPreferredEncoding	/* Title ref */
-	        }};
+                NCWindow+txtPreferredEncoding   /* Title ref */
+                }};
         };
 resource rTextForLETextBox2 (NCWindow+txtPreferredEncoding) {"Preferred Encoding:"};
 
 resource rControlTemplate (NCWindow+radRaw) {
-	radRaw,
-	{104,155,0,0},
+        radRaw,
+        {104,155,0,0},
         RadioControl {{
-	        $0003,
+                $0003,
                 $1002,
                 0,
-                NCWindow+radRaw,	/* Title ref */
-	        1			/* initial value */
+                NCWindow+radRaw,        /* Title ref */
+                1                       /* initial value */
                 }};
         };
 resource rPString (NCWindow+radRaw) {"Raw"};
 
 resource rControlTemplate (NCWindow+radHextile) {
-	radHextile,
-	{104,220,0,0},
+        radHextile,
+        {104,220,0,0},
         RadioControl {{
-	        $0003,
+                $0003,
                 $1002,
                 0,
-                NCWindow+radHextile,	/* Title ref */
-	        0			/* initial value */
+                NCWindow+radHextile,    /* Title ref */
+                0                       /* initial value */
                 }};
         };
 resource rPString (NCWindow+radHextile) {"Hextile"};
@@ -904,22 +904,22 @@ resource rPString (NCWindow+radHextile) {"Hextile"};
 /*- TCP/IP Connection Status window resources ----------------------*/
 
 resource rWindParam1 (1002) {
-	fVis + fAlert,			/* wFrameBits */
-        nil,				/* wTitle */
-        0,				/* wRefCon */
-        {0,0,0,0},			/* ZoomRect */
-        nil,				/* wColor ID */
-        {0,0},				/* Origin */
-        {0,0},				/* data size */
-        {0,0},				/* max height-width */
-        {0,0},				/* scroll vertical, horizontal */
-        {0,0},				/* page vertical, horizontal */
-        0,				/* wInfoRefCon */
-        0,				/* wInfoHeight */
-        {85,169,115,471},		/* wPosition */
-        infront,			/* wPlane */
-        nil,				/* wStorage */
-        $0000				/* wInVerb */
+        fVis + fAlert,                  /* wFrameBits */
+        nil,                            /* wTitle */
+        0,                              /* wRefCon */
+        {0,0,0,0},                      /* ZoomRect */
+        nil,                            /* wColor ID */
+        {0,0},                          /* Origin */
+        {0,0},                          /* data size */
+        {0,0},                          /* max height-width */
+        {0,0},                          /* scroll vertical, horizontal */
+        {0,0},                          /* page vertical, horizontal */
+        0,                              /* wInfoRefCon */
+        0,                              /* wInfoHeight */
+        {85,169,115,471},               /* wPosition */
+        infront,                        /* wPlane */
+        nil,                            /* wStorage */
+        $0000                           /* wInVerb */
         };
 
 resource rPString(10002) {"Press \$11. to cancel."};
@@ -928,46 +928,46 @@ resource rPString(10002) {"Press \$11. to cancel."};
 
 /* 640 mode */
 resource rWindParam1 (1003) {
-	fRScroll + fBScroll + fVis + fCtlTie + fGrow,	/* wFrameBits */
-        nil,				/* wTitle */
-        0,				/* wRefCon */
-        {0,0,0,0},			/* ZoomRect */
-        1,				/* wColor ID */
-        {0,0},				/* Origin */
-        {0,0},				/* data size */
-        {0,0},				/* max height-width */
-        {8,8},				/* scroll vertical, horizontal */
-        {0,608},			/* page vertical, horizontal */
-        0,				/* wInfoRefCon */
-        0,				/* wInfoHeight */
-        {13,1,187,614},			/* wPosition */
-        infront,			/* wPlane */
-        nil,				/* wStorage */
-        $0800				/* wInVerb */
+        fRScroll + fBScroll + fVis + fCtlTie + fGrow,   /* wFrameBits */
+        nil,                            /* wTitle */
+        0,                              /* wRefCon */
+        {0,0,0,0},                      /* ZoomRect */
+        1,                              /* wColor ID */
+        {0,0},                          /* Origin */
+        {0,0},                          /* data size */
+        {0,0},                          /* max height-width */
+        {8,8},                          /* scroll vertical, horizontal */
+        {0,608},                        /* page vertical, horizontal */
+        0,                              /* wInfoRefCon */
+        0,                              /* wInfoHeight */
+        {13,1,187,614},                 /* wPosition */
+        infront,                        /* wPlane */
+        nil,                            /* wStorage */
+        $0800                           /* wInVerb */
         };
 
 /* 320 mode */
 resource rWindParam1 (1004) {
-	fRScroll + fBScroll + fVis + fCtlTie + fGrow,	/* wFrameBits */
-        nil,				/* wTitle */
-        0,				/* wRefCon */
-        {0,0,0,0},			/* ZoomRect */
-        1,				/* wColor ID */
-        {0,0},				/* Origin */
-        {0,0},				/* data size */
-        {0,0},				/* max height-width */
-        {8,8},				/* scroll vertical, horizontal */
-        {0,0},				/* page vertical, horizontal */
-        0,				/* wInfoRefCon */
-        0,				/* wInfoHeight */
-        {13,1,187,303},			/* wPosition */
-        infront,			/* wPlane */
-        nil,				/* wStorage */
-        $0800				/* wInVerb */
+        fRScroll + fBScroll + fVis + fCtlTie + fGrow,   /* wFrameBits */
+        nil,                            /* wTitle */
+        0,                              /* wRefCon */
+        {0,0,0,0},                      /* ZoomRect */
+        1,                              /* wColor ID */
+        {0,0},                          /* Origin */
+        {0,0},                          /* data size */
+        {0,0},                          /* max height-width */
+        {8,8},                          /* scroll vertical, horizontal */
+        {0,0},                          /* page vertical, horizontal */
+        0,                              /* wInfoRefCon */
+        0,                              /* wInfoHeight */
+        {13,1,187,303},                 /* wPosition */
+        infront,                        /* wPlane */
+        nil,                            /* wStorage */
+        $0800                           /* wInVerb */
         };
 
 resource rWindColor (1) {
-	0x0000,
+        0x0000,
         0x0FA0,
         0x020F,
         0xF0AA,

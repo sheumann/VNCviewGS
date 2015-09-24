@@ -29,29 +29,29 @@
 #include "raw.h"
 #include "hextile.h"
 
-unsigned char * cursor = NULL;	/* Cursor from server */
+unsigned char * cursor = NULL;  /* Cursor from server */
 
 /* Send a DoPointerEvent reflecting the status of the mouse to the server */
 /* This routine also maintains the appropriate cursor when using local cursor */
 void DoPointerEvent (void) {
-	static struct {
-	    unsigned char messageType;
+    static struct {
+        unsigned char messageType;
         unsigned char buttonMask;
         unsigned int xPos;
         unsigned int yPos;
         } pointerEventStruct = { 5 /* message type */ };
 
     Point mouseCoords;
-	unsigned long contentOrigin;
+    unsigned long contentOrigin;
     Point * contentOriginPtr = (void *) &contentOrigin;
     RegionHndl contentRgnHndl;
     unsigned int oldButtonMask;
     GrafPortPtr winPtr;
-    unsigned long key1 = 0x0000;	  /* Keys to release & re-press, if any */
+    unsigned long key1 = 0x0000;      /* Keys to release & re-press, if any */
     unsigned long key2 = 0x0000;
 
     if (viewOnlyMode)
-	    return;
+        return;
 
     mouseCoords = myEvent.where;
 
@@ -61,15 +61,15 @@ void DoPointerEvent (void) {
      * updates if it isn't.
      */
     if (FindWindow(&winPtr, myEvent.where.h, myEvent.where.v) != wInContent ||
-	    		winPtr != vncWindow) {
-    	if (cursor && GetCursorAdr() == cursor)
-	    	InitCursor();
-		return;
+                winPtr != vncWindow) {
+        if (cursor && GetCursorAdr() == cursor)
+            InitCursor();
+        return;
         }
 
     GlobalToLocal(&mouseCoords);
 
-	contentOrigin = GetContentOrigin(vncWindow);
+    contentOrigin = GetContentOrigin(vncWindow);
     mouseCoords.h += contentOriginPtr->h;
     mouseCoords.v += contentOriginPtr->v;
 
@@ -80,51 +80,51 @@ void DoPointerEvent (void) {
     oldButtonMask = pointerEventStruct.buttonMask;
     pointerEventStruct.buttonMask = 0x00;
 
-    if ((myEvent.modifiers & btn0State) == 0x00) {	/* Mouse button pressed */
-		if (emulate3ButtonMouse) {
-   	    	if (myEvent.modifiers & optionKey) {
-	        	pointerEventStruct.buttonMask = 0x02;
-	            key1 = 0xFFE9;
-    	        }
-        	if (myEvent.modifiers & appleKey) {
-	        	pointerEventStruct.buttonMask |= 0x04;
-	            key2 = 0xFFE7;
-    	        }
-        	}
+    if ((myEvent.modifiers & btn0State) == 0x00) {  /* Mouse button pressed */
+        if (emulate3ButtonMouse) {
+            if (myEvent.modifiers & optionKey) {
+                pointerEventStruct.buttonMask = 0x02;
+                key1 = 0xFFE9;
+                }
+            if (myEvent.modifiers & appleKey) {
+                pointerEventStruct.buttonMask |= 0x04;
+                key2 = 0xFFE7;
+                }
+            }
 
-	    /* If no modifiers, just send a normal left click. */
-    	if (pointerEventStruct.buttonMask == 0x00)
-    		pointerEventStruct.buttonMask = 0x01;
+        /* If no modifiers, just send a normal left click. */
+        if (pointerEventStruct.buttonMask == 0x00)
+            pointerEventStruct.buttonMask = 0x01;
     }
-    if ((myEvent.modifiers & btn1State) == 0x00)  	/* If 2nd (right)    */
-	    pointerEventStruct.buttonMask |= 0x04;    	/* button is pressed */
+    if ((myEvent.modifiers & btn1State) == 0x00)    /* If 2nd (right)    */
+        pointerEventStruct.buttonMask |= 0x04;      /* button is pressed */
 
     /* Don't waste bandwidth by sending update if mouse hasn't changed.
      * This may occasionally result in an initial mouse update not being
      * sent.  If this occurs, the user can simply move the mouse slightly
      * in order to send it.
      */
-    if ( 		(pointerEventStruct.xPos == mouseCoords.h) &&
-		 		(pointerEventStruct.yPos == mouseCoords.v) &&
+    if (        (pointerEventStruct.xPos == mouseCoords.h) &&
+                (pointerEventStruct.yPos == mouseCoords.v) &&
                 (pointerEventStruct.buttonMask == oldButtonMask) )
-	    return;
+        return;
 
-	pointerEventStruct.xPos = mouseCoords.h;
+    pointerEventStruct.xPos = mouseCoords.h;
     pointerEventStruct.yPos = mouseCoords.v;
 
     if (key1)
-	    SendKeyEvent(FALSE, key1);
+        SendKeyEvent(FALSE, key1);
     if (key2)
-	    SendKeyEvent(FALSE, key2);
+        SendKeyEvent(FALSE, key2);
 
     TCPIPWriteTCP(hostIpid, (Pointer) &pointerEventStruct.messageType,
-    				sizeof(pointerEventStruct), TRUE, FALSE);
+                    sizeof(pointerEventStruct), TRUE, FALSE);
     /* Can't do useful error checking here */
 
     if (key1)
-	    SendKeyEvent(TRUE, key1);
+        SendKeyEvent(TRUE, key1);
     if (key2)
-	    SendKeyEvent(TRUE, key2);
+        SendKeyEvent(TRUE, key2);
 
     //printf("Sent mouse update: x = %u, y = %u\n", mouseCoords.h, mouseCoords.v);
     //printf("                   xPos = %x, yPos = %x, buttons = %x\n", pointerEventStruct.xPos, pointerEventStruct.yPos, (int) pointerEventStruct.buttonMask);
@@ -134,7 +134,7 @@ void DoPointerEvent (void) {
      */
 
     if (cursor && GetCursorAdr() != cursor)
-	    SetCursor(cursor);
+        SetCursor(cursor);
 }
 
 void DoCursor (void) {
@@ -147,16 +147,16 @@ void DoCursor (void) {
     unsigned int *hotSpotYPtr, *hotSpotXPtr;
     unsigned long bitmaskByte;
     unsigned long bitmaskLineBytes, lineWords;
-    unsigned int line, n, j;	/* Loop counters */
+    unsigned int line, n, j;    /* Loop counters */
     unsigned char *maskLine, *imageLine;
-    unsigned char *oldCursor = cursor;	/* So we can free() it later */
+    unsigned char *oldCursor = cursor;  /* So we can free() it later */
     unsigned int outBytes640;
     unsigned long outBytes320;
 
     bitmaskLineBytes = (rectWidth + 7) / 8;
 
     if (!DoReadTCP(rectWidth*rectHeight + bitmaskLineBytes*rectHeight))
-	    return;	/* Try again later */
+        return; /* Try again later */
 
     HLock(readBufferHndl);
 
@@ -164,17 +164,17 @@ void DoCursor (void) {
     bitmask = (unsigned char *)(*readBufferHndl) + rectWidth*rectHeight;
 
     if (hRez == 640)
-    	lineWords = (rectWidth + 7) / 8 + 1;
+        lineWords = (rectWidth + 7) / 8 + 1;
     else /* hRez == 320 */
         lineWords = (rectWidth + 3) / 4 + 1;
 
     cursor = malloc(8 + 4 * lineWords * rectHeight);
     /* Sub-optimal error handling */
     if (cursor == NULL)
-	    return;
+        return;
     /* Don't overflow loop indices */
-    if ((lineWords > UINT_MAX) || (rectHeight > UINT_MAX))	
-	    return;
+    if ((lineWords > UINT_MAX) || (rectHeight > UINT_MAX))  
+        return;
     cursorHeightPtr = (unsigned int *)(void *)cursor;
     cursorWidthPtr  = cursorHeightPtr + 1;
     cursorImage     = cursor + 4;
@@ -193,16 +193,16 @@ void DoCursor (void) {
     dataPtr = cursorPixels;
 
     if (hRez == 320) {
-      for (line = 0; line < rectHeight; line++) {	/* for each line ... */
+      for (line = 0; line < rectHeight; line++) {   /* for each line ... */
         maskLine = cursorMask + line * lineWords * 2;
         imageLine = cursorImage + line * lineWords * 2;
 
-	   	for (j = 0; j < bitmaskLineBytes; j++) {
+        for (j = 0; j < bitmaskLineBytes; j++) {
           bitmaskByte = *(bitmask + line*bitmaskLineBytes + j);
           outBytes320 =
-            	((bitmaskByte & 0x80)      ) + ((bitmaskByte & 0x80) >>  1) +
+                ((bitmaskByte & 0x80)      ) + ((bitmaskByte & 0x80) >>  1) +
                 ((bitmaskByte & 0x80) >>  2) + ((bitmaskByte & 0x80) >>  3) +
-               	((bitmaskByte & 0x40) >>  3) + ((bitmaskByte & 0x40) >>  4) +
+                ((bitmaskByte & 0x40) >>  3) + ((bitmaskByte & 0x40) >>  4) +
                 ((bitmaskByte & 0x40) >>  5) + ((bitmaskByte & 0x40) >>  6) +
                 ((bitmaskByte & 0x20) << 10) + ((bitmaskByte & 0x20) <<  9) +
                 ((bitmaskByte & 0x20) <<  8) + ((bitmaskByte & 0x20) <<  7) +
@@ -223,12 +223,12 @@ void DoCursor (void) {
         for (n = 0; n < rectWidth/2; n++) {
           *(imageLine + n)  = coltab320[*(dataPtr++)] & 0xF0;
           *(imageLine + n) += coltab320[*(dataPtr++)] & 0x0F;
-          *(imageLine + n) ^= 0xFF;	    /* Reverse color */
+          *(imageLine + n) ^= 0xFF;     /* Reverse color */
           *(imageLine + n) &= *(maskLine + n);
           }
         if (rectWidth % 2) {
-	      *(imageLine + n)  = coltab320[*(dataPtr++)] & 0xF0;
-          *(imageLine + n) ^= 0xFF;	    /* Reverse color */
+          *(imageLine + n)  = coltab320[*(dataPtr++)] & 0xF0;
+          *(imageLine + n) ^= 0xFF;     /* Reverse color */
           *(imageLine + n) &= *(maskLine + n);
           n++;
           }
@@ -237,16 +237,16 @@ void DoCursor (void) {
         }
       }
     else { /* hRez == 640 */
-	  for (line = 0; line < rectHeight; line++) {	/* for each line ... */
+      for (line = 0; line < rectHeight; line++) {   /* for each line ... */
         maskLine = cursorMask + line * lineWords * 2;
         imageLine = cursorImage + line * lineWords * 2;
 
         for (j = 0; j < bitmaskLineBytes; j++) {      
           bitmaskByte = *(bitmask + line*bitmaskLineBytes + j);
           outBytes640 =
-		        ((bitmaskByte & 0x80)      ) + ((bitmaskByte & 0xC0) >>  1) + 
-		        ((bitmaskByte & 0x60) >>  2) + ((bitmaskByte & 0x30) >>  3) +  
-		     	((bitmaskByte & 0x10) >>  4) + ((bitmaskByte & 0x08) << 12) +
+                ((bitmaskByte & 0x80)      ) + ((bitmaskByte & 0xC0) >>  1) + 
+                ((bitmaskByte & 0x60) >>  2) + ((bitmaskByte & 0x30) >>  3) +  
+                ((bitmaskByte & 0x10) >>  4) + ((bitmaskByte & 0x08) << 12) +
                 ((bitmaskByte & 0x0C) << 11) + ((bitmaskByte & 0x06) << 10) +
                 ((bitmaskByte & 0x03) <<  9) + ((bitmaskByte & 0x01) <<  8);
           *((unsigned int *)maskLine + j) = outBytes640;
@@ -258,7 +258,7 @@ void DoCursor (void) {
           *(imageLine + n) += coltab640[*(dataPtr++)] & 0x30;
           *(imageLine + n) += coltab640[*(dataPtr++)] & 0x0C;
           *(imageLine + n) += coltab640[*(dataPtr++)] & 0x03;
-          *(imageLine + n) ^= 0xFF;	    /* Reverse color */
+          *(imageLine + n) ^= 0xFF;     /* Reverse color */
           *(imageLine + n) &= *(maskLine + n);
           }
         *(imageLine + n) = 0;
@@ -275,7 +275,7 @@ void DoCursor (void) {
               }
             }
           }
-        *(imageLine + n) ^= 0xFF;	    /* Reverse color */
+        *(imageLine + n) ^= 0xFF;       /* Reverse color */
         *(imageLine + n) &= *(maskLine + n);
         *(unsigned int *)(imageLine + n + 1) = 0;
         }
@@ -283,10 +283,10 @@ void DoCursor (void) {
 
     HUnlock(readBufferHndl);
 
-	if (GetCursorAdr() == oldCursor)
-    	SetCursor(cursor);
+    if (GetCursorAdr() == oldCursor)
+        SetCursor(cursor);
     if (oldCursor)
-	    free(oldCursor);
+        free(oldCursor);
 
 #if 0
     /***************/
@@ -297,18 +297,18 @@ void DoCursor (void) {
                  rectWidth, rectHeight, rectX, rectY);
     fprintf(foo, "\n");
     for (k = cursor; k < cursorImage; k++)
-	    fprintf(foo, "%02X ", *k);
+        fprintf(foo, "%02X ", *k);
     for (j = 0; j < lineWords * rectHeight * 4; j++) {
-	    fprintf(foo, "%02X", *(cursorImage + j));
+        fprintf(foo, "%02X", *(cursorImage + j));
         if ((j+1) % (lineWords * 2) == 0)
-	        fprintf(foo, "\n");
+            fprintf(foo, "\n");
         }
     for (k = cursorImage + j; k < cursorImage + j + 4; k = k + 1)
-	    fprintf(foo, "%02X ", *k);
+        fprintf(foo, "%02X ", *k);
     //for (j = 0; j < bitmaskLineBytes*rectHeight; j++) {
     //    fprintf(foo, "%02X", *(bitmask + j));
     //    if ((j+1) % bitmaskLineBytes == 0)
-	//        fprintf(foo, "\n");
+    //        fprintf(foo, "\n");
     //    }
     fprintf(foo, "\n");
     fclose(foo);

@@ -31,21 +31,21 @@
 
 void DoCopyRect (void) {
     /* For use with GetContentOrigin() */
-	unsigned long contentOrigin;
-   	Point * contentOriginPtr = (void *) &contentOrigin;
-	
+    unsigned long contentOrigin;
+    Point * contentOriginPtr = (void *) &contentOrigin;
+    
     Rect srcRect;
-    unsigned int *dataPtr;				/* Pointer to TCP data that was read */
+    unsigned int *dataPtr;              /* Pointer to TCP data that was read */
 
     //printf("Processing CopyRect rectangle\n");
 
-	if (! DoReadTCP ((unsigned long) 4))
-		return;										/* Not ready yet; wait */
+    if (! DoReadTCP ((unsigned long) 4))
+        return;                                     /* Not ready yet; wait */
 
     contentOrigin = GetContentOrigin(vncWindow);
 
     HLock(readBufferHndl);
-	dataPtr = (unsigned int *) ((char *) (*readBufferHndl));
+    dataPtr = (unsigned int *) ((char *) (*readBufferHndl));
     srcRect.h1 = SwapBytes2(dataPtr[0]) - contentOriginPtr->h;
     srcRect.v1 = SwapBytes2(dataPtr[1]) - contentOriginPtr->v;
     HUnlock(readBufferHndl);
@@ -57,7 +57,7 @@ void DoCopyRect (void) {
        to send the update using some other encoding.
      */
     if (!RectInRgn(&srcRect, GetVisHandle())) {
-	    SendFBUpdateRequest(FALSE, rectX, rectY, rectWidth, rectHeight);
+        SendFBUpdateRequest(FALSE, rectX, rectY, rectWidth, rectHeight);
         displayInProgress = FALSE;
         return;
         }
@@ -65,11 +65,11 @@ void DoCopyRect (void) {
     /* We can use the window pointer as a LocInfo pointer because it starts
      * with a grafPort structure, which in turn starts with a LocInfo structure.
      */
-	PPToPort((struct LocInfo *) vncWindow, &srcRect,
-    		rectX - contentOriginPtr->h, rectY - contentOriginPtr->v, modeCopy);
+    PPToPort((struct LocInfo *) vncWindow, &srcRect,
+            rectX - contentOriginPtr->h, rectY - contentOriginPtr->v, modeCopy);
 
     displayInProgress = FALSE;
 
-    NextRect();										/* Prepare for next rect */
+    NextRect();                                     /* Prepare for next rect */
     }
 

@@ -98,8 +98,8 @@ BOOLEAN MakeBigColorTables (unsigned int iters)
 {
     static unsigned int i = 0;
     unsigned int iMax = i + iters;
-    if (iMax < i)	/* Deal with wraparound */
-	iMax = 0;
+    if (iMax < i)       /* Deal with wraparound */
+        iMax = 0;
 
     /* The addressing scheme here depends on the IIgs's little-endianness */
     do {
@@ -110,9 +110,9 @@ BOOLEAN MakeBigColorTables (unsigned int iters)
     } while (i != iMax);
 
     if (iMax == 0)
-	return TRUE;	/* Done */
+        return TRUE;    /* Done */
     else
-    	return FALSE;   /* In progress */
+        return FALSE;   /* In progress */
 }
 
 #if 0

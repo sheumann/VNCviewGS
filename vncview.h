@@ -22,9 +22,9 @@ extern unsigned long deleteKeysym;
 extern char vncServer[257];
 extern char vncPassword[10];
 
-extern EventRecord myEvent;		/* Event Record for TaskMaster */
-extern BOOLEAN vncConnected;		/* Is the GS desktop active */
-extern BOOLEAN colorTablesComplete;	/* Are the color tables complete */
+extern EventRecord myEvent;             /* Event Record for TaskMaster */
+extern BOOLEAN vncConnected;            /* Is the GS desktop active */
+extern BOOLEAN colorTablesComplete;     /* Are the color tables complete */
 
 extern void DoClose (GrafPortPtr wPtr);
 extern void DrawContents (void);

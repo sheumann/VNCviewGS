@@ -32,15 +32,15 @@
 /* Update the Scrap Manager clipboard with new data sent from server.
  */
 void DoServerCutText (void) {
-	unsigned long textLen;
+    unsigned long textLen;
     unsigned long i;
 
-	if (! DoWaitingReadTCP (3)) {	/* Read & ignore padding */
-		DoClose(vncWindow);
+    if (! DoWaitingReadTCP (3)) {   /* Read & ignore padding */
+        DoClose(vncWindow);
         return;
         }
-	if (! DoWaitingReadTCP (4)) {
-		DoClose(vncWindow);
+    if (! DoWaitingReadTCP (4)) {
+        DoClose(vncWindow);
         return;
         }
     HLock(readBufferHndl);
@@ -48,65 +48,65 @@ void DoServerCutText (void) {
     HUnlock(readBufferHndl);
 
     if (! DoWaitingReadTCP(textLen)) {
-	    DoClose(vncWindow);
+        DoClose(vncWindow);
         return;
         };
-	if (allowClipboardTransfers) {
+    if (allowClipboardTransfers) {
         ZeroScrap();
         HLock(readBufferHndl);
                     
         /* Convert lf->cr; Use pointer arithmetic so we can go over 64k */
         for (i = 0; i < textLen; i++)
-	        if (*((*(char **)readBufferHndl)+i) == '\n')
+            if (*((*(char **)readBufferHndl)+i) == '\n')
                 *((*(char **)readBufferHndl)+i) = '\r';
 
-        			/* Below function call requires <scrap.h> to be fixed */
+                    /* Below function call requires <scrap.h> to be fixed */
         PutScrap(textLen, textScrap, (Pointer) *readBufferHndl);
         /* Potential errors (e.g. out of memory) ignored */
         HUnlock(readBufferHndl);
         }
     }
-	
+    
 void DoSendClipboard (void) {
-	static struct clientCutText {
-	    unsigned char messageType;
+    static struct clientCutText {
+        unsigned char messageType;
         unsigned char padding1;
         unsigned int  padding2;
         unsigned long length;
-       	} clientCutTextStruct = { 6 /* Message type 6 */ };
+        } clientCutTextStruct = { 6 /* Message type 6 */ };
 
     Handle scrapHandle;
     unsigned long i;
 
-	/* Only proceed if we're connected to the server and not view-only */
-	if (vncConnected && !viewOnlyMode) {
-		clientCutTextStruct.length = GetScrapSize(textScrap);
+    /* Only proceed if we're connected to the server and not view-only */
+    if (vncConnected && !viewOnlyMode) {
+        clientCutTextStruct.length = GetScrapSize(textScrap);
 
         if (clientCutTextStruct.length == 0)
-	        return;
-	
+            return;
+    
         clientCutTextStruct.length = SwapBytes4(clientCutTextStruct.length);
-       	
+        
         scrapHandle = NewHandle(1, userid(), 0x0000, NULL);
         GetScrap(scrapHandle, textScrap);
         if (toolerror())
-	        goto end;						/* abort if error */
-    	if (TCPIPWriteTCP(hostIpid, &clientCutTextStruct.messageType,
-    				sizeof(clientCutTextStruct), FALSE, FALSE))
-		    goto end;						/* abort if error */
+            goto end;                       /* abort if error */
+        if (TCPIPWriteTCP(hostIpid, &clientCutTextStruct.messageType,
+                    sizeof(clientCutTextStruct), FALSE, FALSE))
+            goto end;                       /* abort if error */
         if (toolerror())
-	        goto end;
-	
-	    clientCutTextStruct.length = SwapBytes4(clientCutTextStruct.length);
+            goto end;
+    
+        clientCutTextStruct.length = SwapBytes4(clientCutTextStruct.length);
 
         HLock(scrapHandle);
         /* Convert cr->lf; Use pointer arithmetic so we can go over 64k */
         for (i = 0; i < clientCutTextStruct.length; i++)
-	        if (*((*(char **)scrapHandle)+i) == '\r')
+            if (*((*(char **)scrapHandle)+i) == '\r')
                 *((*(char **)scrapHandle)+i) = '\n';
 
-		TCPIPWriteTCP(hostIpid, (Pointer) *scrapHandle,
-        			clientCutTextStruct.length, TRUE, FALSE);
+        TCPIPWriteTCP(hostIpid, (Pointer) *scrapHandle,
+                    clientCutTextStruct.length, TRUE, FALSE);
         /* Can't handle errors usefully here */
         HUnlock(scrapHandle);
 

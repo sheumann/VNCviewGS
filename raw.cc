@@ -30,10 +30,10 @@
 #include "hextile.h"
 
 /* Data on state of raw rectangle drawing routines */
-unsigned int lineBytes;			/* Number of bytes in a line of GS pixels */
+unsigned int lineBytes;         /* Number of bytes in a line of GS pixels */
 unsigned long pixels;
 
-unsigned int drawingLine;		/* Line to be drawn while displaying */
+unsigned int drawingLine;       /* Line to be drawn while displaying */
 static BOOLEAN extraByteAdvance;
 
 unsigned char *destPtr;
@@ -42,121 +42,119 @@ unsigned char *destPtr;
  * because the rectangle is not visible.
  */
 void StopRawDrawing (void) {
-	HUnlock(readBufferHndl);
-    free(srcLocInfo.ptrToPixImage);		/* Allocated as destPtr */
+    HUnlock(readBufferHndl);
+    free(srcLocInfo.ptrToPixImage);     /* Allocated as destPtr */
 
     displayInProgress = FALSE;
 
-    NextRect();										/* Prepare for next rect */
+    NextRect();                                     /* Prepare for next rect */
 }
 
-#pragma optimize 95		/* To work around an ORCA/C optimizer bug */
+#pragma optimize 95     /* To work around an ORCA/C optimizer bug */
 
 /* Draw one or more lines from a raw rectangle
  */
 void RawDraw (void) {      
-    unsigned int i;			/* Loop indices */
-	unsigned char *dataPtr;
+    unsigned int i;         /* Loop indices */
+    unsigned char *dataPtr;
     unsigned char *lineDataPtr, *initialLineDataPtr;
     unsigned char *finalDestPtr;
     static EventRecord unusedEventRec;
 
     /* For use with GetContentOrigin() */
-	unsigned long contentOrigin;
-   	Point * contentOriginPtr = (void *) &contentOrigin;
+    unsigned long contentOrigin;
+    Point * contentOriginPtr = (void *) &contentOrigin;
 
-    SetPort(vncWindow);							/* Drawing in VNC window */
+    SetPort(vncWindow);                         /* Drawing in VNC window */
     dataPtr = (unsigned char *) *readBufferHndl;
 
     /* Check if what we're drawing is visible, and skip any invisible part
      * by skipping some lines or completely aborting drawing the rectangle.
      */
     if (checkBounds) {
-		Rect drawingRect;
+        Rect drawingRect;
 
-		contentOrigin = GetContentOrigin(vncWindow);
+        contentOrigin = GetContentOrigin(vncWindow);
         drawingRect.h1 = rectX - contentOriginPtr->h;
         drawingRect.h2 = rectX - contentOriginPtr->h + rectWidth;
         drawingRect.v1 = rectY - contentOriginPtr->v + drawingLine;
         drawingRect.v2 = rectY - contentOriginPtr->v + rectHeight;
 
         if (!RectInRgn(&drawingRect, GetVisHandle())) {
-	    	StopRawDrawing();
+            StopRawDrawing();
             return;
             }
         else if (rectY + drawingLine < contentOriginPtr->v) {
             destPtr += (unsigned long)lineBytes *
-            	 (contentOriginPtr->v - rectY - drawingLine);
-	        drawingLine = contentOriginPtr->v - rectY;
-	
-        	if (drawingLine >= rectHeight) {	/* Sanity check */
-	        	StopRawDrawing();
-            	return;
-            	}
+                 (contentOriginPtr->v - rectY - drawingLine);
+            drawingLine = contentOriginPtr->v - rectY;
+    
+            if (drawingLine >= rectHeight) {    /* Sanity check */
+                StopRawDrawing();
+                return;
+                }
             }
         else if (rectY + rectHeight - 1 > contentOriginPtr->v + winHeight)
-	        rectHeight = contentOriginPtr->v + winHeight - rectY + 1;
+            rectHeight = contentOriginPtr->v + winHeight - rectY + 1;
 
         checkBounds = FALSE;
         }
 
     lineDataPtr = dataPtr + (unsigned long) drawingLine * rectWidth;
-	        
-    do {	/* We short-circuit back to here if there are no events pending */
+            
+    do {    /* We short-circuit back to here if there are no events pending */
 
-    	finalDestPtr = destPtr + lineBytes - 1;
+        finalDestPtr = destPtr + lineBytes - 1;
         if (hRez == 640) {
-	        initialLineDataPtr = lineDataPtr;
-            while (destPtr + 7 < finalDestPtr) {	/* Unrolled loop */
-	            *(destPtr++) = bigcoltab640a[*(unsigned int*)(void*)lineDataPtr]
-						+ bigcoltab640b[*(unsigned int*)(void*)(lineDataPtr+2)];
-                lineDataPtr += 4;
-	            *(destPtr++) = bigcoltab640a[*(unsigned int*)(void*)lineDataPtr]
-						+ bigcoltab640b[*(unsigned int*)(void*)(lineDataPtr+2)];
-                lineDataPtr += 4;
-	            *(destPtr++) = bigcoltab640a[*(unsigned int*)(void*)lineDataPtr]
-						+ bigcoltab640b[*(unsigned int*)(void*)(lineDataPtr+2)];
-                lineDataPtr += 4;
-	            *(destPtr++) = bigcoltab640a[*(unsigned int*)(void*)lineDataPtr]
-						+ bigcoltab640b[*(unsigned int*)(void*)(lineDataPtr+2)];
-                lineDataPtr += 4;
-	            *(destPtr++) = bigcoltab640a[*(unsigned int*)(void*)lineDataPtr]
-						+ bigcoltab640b[*(unsigned int*)(void*)(lineDataPtr+2)];
-                lineDataPtr += 4;
-	            *(destPtr++) = bigcoltab640a[*(unsigned int*)(void*)lineDataPtr]
-						+ bigcoltab640b[*(unsigned int*)(void*)(lineDataPtr+2)];
-                lineDataPtr += 4;
-	            *(destPtr++) = bigcoltab640a[*(unsigned int*)(void*)lineDataPtr]
-						+ bigcoltab640b[*(unsigned int*)(void*)(lineDataPtr+2)];
-                lineDataPtr += 4;
-	            *(destPtr++) = bigcoltab640a[*(unsigned int*)(void*)lineDataPtr]
-						+ bigcoltab640b[*(unsigned int*)(void*)(lineDataPtr+2)];
-                lineDataPtr += 4;
-	            }
-	        while (destPtr < finalDestPtr) {
+            initialLineDataPtr = lineDataPtr;
+            while (destPtr + 7 < finalDestPtr) {    /* Unrolled loop */
                 *(destPtr++) = bigcoltab640a[*(unsigned int*)(void*)lineDataPtr]
-						+ bigcoltab640b[*(unsigned int*)(void*)(lineDataPtr+2)];
+                        + bigcoltab640b[*(unsigned int*)(void*)(lineDataPtr+2)];
                 lineDataPtr += 4;
-	            }
+                *(destPtr++) = bigcoltab640a[*(unsigned int*)(void*)lineDataPtr]
+                        + bigcoltab640b[*(unsigned int*)(void*)(lineDataPtr+2)];
+                lineDataPtr += 4;
+                *(destPtr++) = bigcoltab640a[*(unsigned int*)(void*)lineDataPtr]
+                        + bigcoltab640b[*(unsigned int*)(void*)(lineDataPtr+2)];
+                lineDataPtr += 4;
+                *(destPtr++) = bigcoltab640a[*(unsigned int*)(void*)lineDataPtr]
+                        + bigcoltab640b[*(unsigned int*)(void*)(lineDataPtr+2)];
+                lineDataPtr += 4;
+                *(destPtr++) = bigcoltab640a[*(unsigned int*)(void*)lineDataPtr]
+                        + bigcoltab640b[*(unsigned int*)(void*)(lineDataPtr+2)];
+                lineDataPtr += 4;
+                *(destPtr++) = bigcoltab640a[*(unsigned int*)(void*)lineDataPtr]
+                        + bigcoltab640b[*(unsigned int*)(void*)(lineDataPtr+2)];
+                lineDataPtr += 4;
+                *(destPtr++) = bigcoltab640a[*(unsigned int*)(void*)lineDataPtr]
+                        + bigcoltab640b[*(unsigned int*)(void*)(lineDataPtr+2)];
+                lineDataPtr += 4;
+                *(destPtr++) = bigcoltab640a[*(unsigned int*)(void*)lineDataPtr]
+                        + bigcoltab640b[*(unsigned int*)(void*)(lineDataPtr+2)];
+                lineDataPtr += 4;
+                }
+            while (destPtr < finalDestPtr) {
+                *(destPtr++) = bigcoltab640a[*(unsigned int*)(void*)lineDataPtr]
+                        + bigcoltab640b[*(unsigned int*)(void*)(lineDataPtr+2)];
+                lineDataPtr += 4;
+                }
             /* Final byte to produce */
             *destPtr      = pixTransTbl[*(lineDataPtr++)] & 0xC0;
-	   		for (i = lineDataPtr - initialLineDataPtr; i < rectWidth; i++)
-		    	switch (i & 0x03) {
-           			case 0x01:			/* pixels 1, 5, 9, ... */
-        	   	      	*destPtr     += pixTransTbl[*(lineDataPtr++)] & 0x30;
-                    	break;
-					case 0x02:      	/* pixels 2, 6, 10, ... */
-                    	*destPtr     += pixTransTbl[*(lineDataPtr++)] & 0x0C;
-        	   	        break;
-           			case 0x03:			/* pixels 3, 7, 11, ... */
-		    			*destPtr     += pixTransTbl[*(lineDataPtr++)] & 0x03;
-	                }
+            for (i = lineDataPtr - initialLineDataPtr; i < rectWidth; i++)
+                switch (i & 0x03) {
+                    case 0x01:          /* pixels 1, 5, 9, ... */
+                        *destPtr     += pixTransTbl[*(lineDataPtr++)] & 0x30;
+                        break;
+                    case 0x02:          /* pixels 2, 6, 10, ... */
+                        *destPtr     += pixTransTbl[*(lineDataPtr++)] & 0x0C;
+                        break;
+                    case 0x03:          /* pixels 3, 7, 11, ... */
+                        *destPtr     += pixTransTbl[*(lineDataPtr++)] & 0x03;
+                    }
             destPtr++;
             }
-	    else {			/* 320 mode */
-	        while (destPtr + 7 < finalDestPtr) {	/* Unrolled loop */
-            	*(destPtr++) = bigcoltab320[*(unsigned int*)(void*)lineDataPtr];
-                lineDataPtr += 2;
+        else {          /* 320 mode */
+            while (destPtr + 7 < finalDestPtr) {    /* Unrolled loop */
                 *(destPtr++) = bigcoltab320[*(unsigned int*)(void*)lineDataPtr];
                 lineDataPtr += 2;
                 *(destPtr++) = bigcoltab320[*(unsigned int*)(void*)lineDataPtr];
@@ -171,39 +169,41 @@ void RawDraw (void) {
                 lineDataPtr += 2;
                 *(destPtr++) = bigcoltab320[*(unsigned int*)(void*)lineDataPtr];
                 lineDataPtr += 2;
-	            }
-    		while (destPtr < finalDestPtr) {
+                *(destPtr++) = bigcoltab320[*(unsigned int*)(void*)lineDataPtr];
+                lineDataPtr += 2;
+                }
+            while (destPtr < finalDestPtr) {
                 *(destPtr++) = bigcoltab320[*(unsigned int*)(void*)lineDataPtr];
                 lineDataPtr += 2;
                 }
             /* Final byte to produce */
             *destPtr      = pixTransTbl[*(lineDataPtr++)] & 0xF0;
-	        if (extraByteAdvance)
-	            destPtr++;	/* Not ending on byte boundary - update index */
+            if (extraByteAdvance)
+                destPtr++;  /* Not ending on byte boundary - update index */
             else
-               	*(destPtr++) += pixTransTbl[*(lineDataPtr++)] & 0x0F;
+                *(destPtr++) += pixTransTbl[*(lineDataPtr++)] & 0x0F;
             }
-	        	
-    	drawingLine++;
+                
+        drawingLine++;
 
         if (pixels > 613 && !(drawingLine & 0x03)) {  /* Draw every 4th line */
-        	srcRect.v2 = drawingLine;
-	    	contentOrigin = GetContentOrigin(vncWindow);
-			PPToPort(&srcLocInfo, &srcRect, rectX - contentOriginPtr->h,
-	    		rectY + srcRect.v1 - contentOriginPtr->v, modeCopy);
-        	srcRect.v1 = drawingLine;
-        	}
+            srcRect.v2 = drawingLine;
+            contentOrigin = GetContentOrigin(vncWindow);
+            PPToPort(&srcLocInfo, &srcRect, rectX - contentOriginPtr->h,
+                rectY + srcRect.v1 - contentOriginPtr->v, modeCopy);
+            srcRect.v1 = drawingLine;
+            }
 
         /* Check whether we're done with this rectangle */
         if (drawingLine >= rectHeight) {
-	        /* Draw final rect, if necessary */
-	        if (drawingLine > srcRect.v1) {
-            	srcRect.v2 = drawingLine;
-	    		contentOrigin = GetContentOrigin(vncWindow);
-				PPToPort(&srcLocInfo, &srcRect, rectX - contentOriginPtr->h,
-	    			rectY + srcRect.v1 - contentOriginPtr->v, modeCopy);
-	            }
-	        StopRawDrawing();
+            /* Draw final rect, if necessary */
+            if (drawingLine > srcRect.v1) {
+                srcRect.v2 = drawingLine;
+                contentOrigin = GetContentOrigin(vncWindow);
+                PPToPort(&srcLocInfo, &srcRect, rectX - contentOriginPtr->h,
+                    rectY + srcRect.v1 - contentOriginPtr->v, modeCopy);
+                }
+            StopRawDrawing();
             return;
             }
 
@@ -215,37 +215,37 @@ void RawDraw (void) {
         if (EventAvail(0xFFFF, &unusedEventRec))
             return;
 
-	    SystemTask();	/* Let periodic Desk Accesories do their things */
-        TCPIPPoll();	/* Let Marinetti keep processing data */
+        SystemTask();   /* Let periodic Desk Accesories do their things */
+        TCPIPPoll();    /* Let Marinetti keep processing data */
 
-    	} while (1);
+        } while (1);
 }
 
 #pragma optimize -1
 
 /* Draw one line of Raw data - used if the complete rect isn't yet available */
 void RawDrawLine (void) {
-	unsigned int i;
-	unsigned char *dataPtr;
-	unsigned long contentOrigin;
-   	Point * contentOriginPtr = (void *) &contentOrigin;
+    unsigned int i;
+    unsigned char *dataPtr;
+    unsigned long contentOrigin;
+    Point * contentOriginPtr = (void *) &contentOrigin;
 
     if (hRez == 640) {
-    	if (rectWidth & 0x03)			/* Width not an exact multiple of 4 */
-	    	lineBytes = rectWidth/4 + 1;
-    	else							/* Width is a multiple of 4 */
-	    	lineBytes = rectWidth/4;
+        if (rectWidth & 0x03)           /* Width not an exact multiple of 4 */
+            lineBytes = rectWidth/4 + 1;
+        else                            /* Width is a multiple of 4 */
+            lineBytes = rectWidth/4;
         }
-    else {	/* 320 mode */
-    	if (rectWidth & 0x01)			/* Width not an exact multiple of 2 */
-	    	lineBytes = rectWidth/2 + 1;
-    	else							/* Width is a multiple of 2 */
-	    	lineBytes = rectWidth/2;
+    else {  /* 320 mode */
+        if (rectWidth & 0x01)           /* Width not an exact multiple of 2 */
+            lineBytes = rectWidth/2 + 1;
+        else                            /* Width is a multiple of 2 */
+            lineBytes = rectWidth/2;
         }
 
     destPtr = calloc(lineBytes, 1);
-    if (!destPtr) {						/* Couldn't allocate memory */
-		DoClose(vncWindow);
+    if (!destPtr) {                     /* Couldn't allocate memory */
+        DoClose(vncWindow);
         return;
         }
 
@@ -256,64 +256,64 @@ void RawDrawLine (void) {
      * padding must be accounted for here.
      */
     if (hRez == 640) {
-    	switch (rectWidth & 0x03) {
-	    	case 0x00:	srcLocInfo.boundsRect.h2 = rectWidth;		break;
-	        case 0x01:	srcLocInfo.boundsRect.h2 = rectWidth+3;		break;
-    	    case 0x02:	srcLocInfo.boundsRect.h2 = rectWidth+2;		break;
-       		case 0x03:	srcLocInfo.boundsRect.h2 = rectWidth+1;
-        	}
+        switch (rectWidth & 0x03) {
+            case 0x00:  srcLocInfo.boundsRect.h2 = rectWidth;       break;
+            case 0x01:  srcLocInfo.boundsRect.h2 = rectWidth+3;     break;
+            case 0x02:  srcLocInfo.boundsRect.h2 = rectWidth+2;     break;
+            case 0x03:  srcLocInfo.boundsRect.h2 = rectWidth+1;
+            }
         }
     else {
-    	switch (rectWidth & 0x01) {
-	    	case 0x00:	srcLocInfo.boundsRect.h2 = rectWidth;		break;
-	        case 0x01:	srcLocInfo.boundsRect.h2 = rectWidth+1;
-        	}
-        }	
+        switch (rectWidth & 0x01) {
+            case 0x00:  srcLocInfo.boundsRect.h2 = rectWidth;       break;
+            case 0x01:  srcLocInfo.boundsRect.h2 = rectWidth+1;
+            }
+        }   
 
     /* Don't include padding in the area we will actually copy over */
     srcRect.h2 = rectWidth;
-   	srcRect.v1 = 0;
-	srcRect.v2 = 1;
+    srcRect.v1 = 0;
+    srcRect.v2 = 1;
 
     HLock(readBufferHndl);
     dataPtr = (unsigned char *) *readBufferHndl;
-    SetPort(vncWindow);							/* Drawing in VNC window */
+    SetPort(vncWindow);                         /* Drawing in VNC window */
 
-	if (hRez == 640)
-		for (i = 0; i < rectWidth; /* i is incremented in loop */) {
-		   	switch (i & 0x03) {
-		       	case 0x00:			/* pixels 0, 4, 8, ... */
-			    	*destPtr      = pixTransTbl[dataPtr[i++]] & 0xC0;
-           	        break;
-        		case 0x01:			/* pixels 1, 5, 9, ... */
-		  			*destPtr     += pixTransTbl[dataPtr[i++]] & 0x30;
-                   	break;
-				case 0x02:      	/* pixels 2, 6, 10, ... */
-			    	*destPtr     += pixTransTbl[dataPtr[i++]] & 0x0C;
-           	        break;
-        		case 0x03:			/* pixels 3, 7, 11, ... */
-		   			*(destPtr++) += pixTransTbl[dataPtr[i++]] & 0x03;
-	            }
-    	   	}
-	else			/* 320 mode */
-    	for (i = 0; i < rectWidth; /* i is incremented in loop */) {
-       	    if ((i & 0x01) == 0)		    /* pixels 0, 2, 4, ... */
-				*destPtr      = pixTransTbl[dataPtr[i++]] & 0xF0;
-	        else {					/* pixels 1, 3, 5, ... */
+    if (hRez == 640)
+        for (i = 0; i < rectWidth; /* i is incremented in loop */) {
+            switch (i & 0x03) {
+                case 0x00:          /* pixels 0, 4, 8, ... */
+                    *destPtr      = pixTransTbl[dataPtr[i++]] & 0xC0;
+                    break;
+                case 0x01:          /* pixels 1, 5, 9, ... */
+                    *destPtr     += pixTransTbl[dataPtr[i++]] & 0x30;
+                    break;
+                case 0x02:          /* pixels 2, 6, 10, ... */
+                    *destPtr     += pixTransTbl[dataPtr[i++]] & 0x0C;
+                    break;
+                case 0x03:          /* pixels 3, 7, 11, ... */
+                    *(destPtr++) += pixTransTbl[dataPtr[i++]] & 0x03;
+                }
+            }
+    else            /* 320 mode */
+        for (i = 0; i < rectWidth; /* i is incremented in loop */) {
+            if ((i & 0x01) == 0)            /* pixels 0, 2, 4, ... */
+                *destPtr      = pixTransTbl[dataPtr[i++]] & 0xF0;
+            else {                  /* pixels 1, 3, 5, ... */
                 *(destPtr++) += pixTransTbl[dataPtr[i++]] & 0x0F;
                 }
-	       	}
+            }
 
     HUnlock(readBufferHndl);
-	contentOrigin = GetContentOrigin(vncWindow);
-	PPToPort(&srcLocInfo, &srcRect, rectX - contentOriginPtr->h,
-	   		rectY - contentOriginPtr->v, modeCopy);
-    free(srcLocInfo.ptrToPixImage);		/* Allocated as destPtr */
+    contentOrigin = GetContentOrigin(vncWindow);
+    PPToPort(&srcLocInfo, &srcRect, rectX - contentOriginPtr->h,
+            rectY - contentOriginPtr->v, modeCopy);
+    free(srcLocInfo.ptrToPixImage);     /* Allocated as destPtr */
 
     TCPIPPoll();
 
-    rectHeight--;	/* One less line left to draw */
-    rectY++;		/* Rest of rect starts one line below this */
+    rectHeight--;   /* One less line left to draw */
+    rectY++;        /* Rest of rect starts one line below this */
     }
 
 /* Process rectangle data in raw encoding and write it to screen.
@@ -324,43 +324,43 @@ void DoRawRect (void) {
     pixels = (unsigned long) rectWidth * rectHeight;
 
     /* Try to read data */
-	if (! DoReadTCP (pixels)) {
-	    /* Only support line-by-line drawing if the connection is quite slow;
+    if (! DoReadTCP (pixels)) {
+        /* Only support line-by-line drawing if the connection is quite slow;
          * otherwise it's actually detrimental to overall speed.  The Hextile
          * setting is used as a hint at the connection speed.
          */
-	    if (useHextile && rectHeight > 1 && DoReadTCP ((unsigned long) rectWidth))
-	        RawDrawLine();			/* Some data ready - draw first line */
-        return;							/* Not ready yet; wait */
+        if (useHextile && rectHeight > 1 && DoReadTCP ((unsigned long) rectWidth))
+            RawDrawLine();          /* Some data ready - draw first line */
+        return;                         /* Not ready yet; wait */
         }
 
     /* Here if data is ready to be processed */
 
     if (hRez == 640) {
-    	if (rectWidth & 0x03) {			/* Width not an exact multiple of 4 */
-	    	lineBytes = rectWidth/4 + 1;
+        if (rectWidth & 0x03) {         /* Width not an exact multiple of 4 */
+            lineBytes = rectWidth/4 + 1;
             extraByteAdvance = TRUE;
-        	}
-    	else {							/* Width is a multiple of 4 */
-	    	lineBytes = rectWidth/4;
+            }
+        else {                          /* Width is a multiple of 4 */
+            lineBytes = rectWidth/4;
             extraByteAdvance = FALSE;
-        	}
+            }
         }
-    else {	/* 320 mode */
-    	if (rectWidth & 0x01) {			/* Width not an exact multiple of 2 */
-	    	lineBytes = rectWidth/2 + 1;
+    else {  /* 320 mode */
+        if (rectWidth & 0x01) {         /* Width not an exact multiple of 2 */
+            lineBytes = rectWidth/2 + 1;
             extraByteAdvance  = TRUE;
-        	}
-    	else {							/* Width is a multiple of 2 */
-	    	lineBytes = rectWidth/2;
+            }
+        else {                          /* Width is a multiple of 2 */
+            lineBytes = rectWidth/2;
             extraByteAdvance = FALSE;
-        	}
+            }
         }
 
     bufferLength = lineBytes * rectHeight;
     destPtr = calloc(bufferLength, 1);
-    if (!destPtr) {						/* Couldn't allocate memory */
-		DoClose(vncWindow);
+    if (!destPtr) {                     /* Couldn't allocate memory */
+        DoClose(vncWindow);
         return;
         }
 
@@ -371,26 +371,26 @@ void DoRawRect (void) {
      * padding must be accounted for here.
      */
     if (hRez == 640) {
-    	switch (rectWidth & 0x03) {
-	    	case 0x00:	srcLocInfo.boundsRect.h2 = rectWidth;		break;
-	        case 0x01:	srcLocInfo.boundsRect.h2 = rectWidth+3;		break;
-    	    case 0x02:	srcLocInfo.boundsRect.h2 = rectWidth+2;		break;
-       		case 0x03:	srcLocInfo.boundsRect.h2 = rectWidth+1;
-        	}
+        switch (rectWidth & 0x03) {
+            case 0x00:  srcLocInfo.boundsRect.h2 = rectWidth;       break;
+            case 0x01:  srcLocInfo.boundsRect.h2 = rectWidth+3;     break;
+            case 0x02:  srcLocInfo.boundsRect.h2 = rectWidth+2;     break;
+            case 0x03:  srcLocInfo.boundsRect.h2 = rectWidth+1;
+            }
         }
     else {
-    	switch (rectWidth & 0x01) {
-	    	case 0x00:	srcLocInfo.boundsRect.h2 = rectWidth;		break;
-	        case 0x01:	srcLocInfo.boundsRect.h2 = rectWidth+1;
-        	}
-        }	
+        switch (rectWidth & 0x01) {
+            case 0x00:  srcLocInfo.boundsRect.h2 = rectWidth;       break;
+            case 0x01:  srcLocInfo.boundsRect.h2 = rectWidth+1;
+            }
+        }   
 
     /* Don't include padding in the area we will actually copy over */
     srcRect.h2 = rectWidth;
     srcRect.v1 = 0;
 
-	displayInProgress = TRUE;
-    drawingLine = 0;			/* Drawing first line of rect */
-    checkBounds = TRUE;			/* Flag to check bounds when drawing 1st line */
-    HLock(readBufferHndl);		/* Lock handle just once for efficiency */
- 	}
+    displayInProgress = TRUE;
+    drawingLine = 0;            /* Drawing first line of rect */
+    checkBounds = TRUE;         /* Flag to check bounds when drawing 1st line */
+    HLock(readBufferHndl);      /* Lock handle just once for efficiency */
+    }
