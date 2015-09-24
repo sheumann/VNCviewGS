@@ -635,13 +635,15 @@ BOOLEAN FinishVNCHandshaking (void) {
             unsigned long firstEncoding;
             unsigned long secondEncoding;
             unsigned long thirdEncoding;
+            unsigned long fourthEncoding;
             } encodings = {
 		            2,				/* Message Type - SetEncodings */
                     0,				/* padding */
                     0,				/* number of encodings  - set below */
                     SwapBytes4(0xffffff21),	/* DesktopSize pseudo-encoding */
-                    SwapBytes4(1),	/* first encoding: CopyRect */
-                    SwapBytes4(5)	/* second encoding: Hextile */
+                    SwapBytes4(0xffffff11), /* Cursor pseudo-encoding */
+                    SwapBytes4(1),	/* CopyRect encoding */
+                    SwapBytes4(5)	/* Hextile encoding */
                     /* Per the spec, raw encoding is supported even though
                      * it is not listed here explicitly.
                      */
@@ -691,11 +693,11 @@ BOOLEAN FinishVNCHandshaking (void) {
 	    return FALSE;
 
     if (useHextile) {
-	    encodings.numberOfEncodings = SwapBytes2(3);
+	    encodings.numberOfEncodings = SwapBytes2(4);
         encodingInfoSize = sizeof(encodings);
     } else {
 	    /* No Hextile */
-	    encodings.numberOfEncodings = SwapBytes2(2);
+	    encodings.numberOfEncodings = SwapBytes2(3);
         encodingInfoSize = sizeof(encodings) - 4;
     }
 

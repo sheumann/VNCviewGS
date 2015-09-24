@@ -33,6 +33,9 @@
 #include "vncdisplay.h"
 #include "menus.h"
 #include "colortables.h"
+#include "mouse.h"
+#include "keyboard.h"
+#include "clipboard.h"
 
 #define noMarinettiError		2001
 #define outOfMemoryError		2002
@@ -140,6 +143,10 @@ void DoClose (GrafPortPtr wPtr)	{
         EnableMItem(fileNewConnection);
 		InitMenus(0);        
 		myEvent.wmTaskMask = 0x001F79FF; /* let TaskMaster handle keys again */
+        if (cursor) {
+	        InitCursor();
+            free(cursor);
+            }
 		};
 	}
 
@@ -353,6 +360,8 @@ void Quit (void) {
 	    free(bigcoltab640a);
     if (bigcoltab640b)
 	    free(bigcoltab640b);
+    if (cursor)
+	    free(cursor);
 
 	/* Ask the user if we should disconnect only if the connection */
 	/* is not "permanent," i.e. started when the system boots up.  */
