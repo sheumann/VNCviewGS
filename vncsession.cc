@@ -36,6 +36,7 @@
 #include "vncsession.h"
 #include "vncdisplay.h"
 #include "menus.h"
+#include "colortables.h"
 
 #define linServer	3
 #define linPassword	7
@@ -73,6 +74,13 @@ BOOLEAN alerted = FALSE;
 
 void DoConnect (void) {
 	int i;			/* loop counter */
+
+    if (colorTablesComplete == FALSE) {
+	    DisplayConnectStatus("\pGenerating color tables...", FALSE);
+	    MakeBigColorTables(65536);
+        colorTablesComplete = TRUE;
+        CloseConnectStatusWindow();
+        }
 
 	/* Get server & password */
 	
@@ -626,10 +634,12 @@ BOOLEAN FinishVNCHandshaking (void) {
             unsigned int  numberOfEncodings;
             unsigned long firstEncoding;
             unsigned long secondEncoding;
+            unsigned long thirdEncoding;
             } encodings = {
 		            2,				/* Message Type - SetEncodings */
                     0,				/* padding */
                     0,				/* number of encodings  - set below */
+                    SwapBytes4(0xffffff21),	/* DesktopSize pseudo-encoding */
                     SwapBytes4(1),	/* first encoding: CopyRect */
                     SwapBytes4(5)	/* second encoding: Hextile */
                     /* Per the spec, raw encoding is supported even though
@@ -681,11 +691,11 @@ BOOLEAN FinishVNCHandshaking (void) {
 	    return FALSE;
 
     if (useHextile) {
-	    encodings.numberOfEncodings = SwapBytes2(2);
+	    encodings.numberOfEncodings = SwapBytes2(3);
         encodingInfoSize = sizeof(encodings);
     } else {
 	    /* No Hextile */
-	    encodings.numberOfEncodings = SwapBytes2(1);
+	    encodings.numberOfEncodings = SwapBytes2(2);
         encodingInfoSize = sizeof(encodings) - 4;
     }
 

@@ -32,6 +32,7 @@
 #include "VNCsession.h"
 #include "vncdisplay.h"
 #include "menus.h"
+#include "colortables.h"
 
 #define noMarinettiError		2001
 #define outOfMemoryError		2002
@@ -69,6 +70,9 @@ EventRecord myEvent;            /* event record for menu mode */
 GrafPortPtr newConnWindow;		/* pointer to new connection window */
 BOOLEAN vncConnected = FALSE;	/* are we connected to a VNC host */
 int menuOffset;					/* Indicates which menu bar is active */
+Ref startStopParm;             	/* tool start/shutdown parameter */
+BOOLEAN colorTablesComplete = FALSE;	/* Are the big color tables complete */
+
 
 /* Connection options */
 int hRez = 320;
@@ -190,7 +194,7 @@ void HandleMenu (void) {
 
 		case fileNewConnection:			DoNewConnection();				break;
         case fileClose:   				DoClose(FrontWindow());			break;
-		case fileQuit:      			done = TRUE;					break;
+		case fileQuit:      			Quit();							break;
 
        	case editCut:           		DoLEEdit(editCut);				break;
         case editCopy:          		DoLEEdit(editCopy);				break;
@@ -335,41 +339,42 @@ void InitScreen (void) {
         InitPalette();						/* Restore Apple Menu colors */
     }
 
-#if 0
-void SetupCursor (int rez) {
-    static struct {
-    	Word cursorHeight;
-        Word cursorWidth;
-        Byte cursorImage[];
-        Byte cursorMask[];
-        Word hotSpotY;
-        Word hotSpotX;
-       	} smallCursor = {
-	     	6, 3,
-            {
-			    0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x0F, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x0F, 0xF0, 0x00, 0x00, 0x00, 0x00,
-                0x0F, 0xFF, 0x00, 0x00, 0x00, 0x00,
-                0x0F, 0xFF, 0xF0, 0x00, 0x00, 0x00,
-                0x00, 0xFF, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-    	        },
-            {
-			    0xFF, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0xFF, 0xF0, 0x00, 0x00, 0x00, 0x00,
-                0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,
-                0xFF, 0xFF, 0xF0, 0x00, 0x00, 0x00,
-                0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00,
-                0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00,
-                0x00, 0xFF, 0xF0, 0x00, 0x00, 0x00
-	            },                         
-            1, 1
-	        };
+void Quit (void) {
+    /* Done with event loop - now quitting */
+    if (vncConnected)					/* Disconnect if still connected */
+    	CloseTCPConnection();
 
-	    SetCursor((Pointer) smallCursor);
-     }
-#endif
+    if (readBufferHndl)
+    	DisposeHandle(readBufferHndl);	/* Get rid of TCPIP read buffer hndl */
+
+    if (bigcoltab320)
+	    free(bigcoltab320);
+    if (bigcoltab640a)
+	    free(bigcoltab640a);
+    if (bigcoltab640b)
+	    free(bigcoltab640b);
+
+	/* Ask the user if we should disconnect only if the connection */
+	/* is not "permanent," i.e. started when the system boots up.  */
+	if (TCPIPGetConnectStatus() && (!TCPIPGetBootConnectFlag()))
+		if (AlertWindow(awResource+awButtonLayout, NULL, disconnectTCPIPAlert))
+			{
+            WaitCursor();
+            /* Must use force flag below because Marinetti will still count
+             * our ipid as logged in (proventing non-forced disconnect)
+             * for several minutes after the TCPIPLogout call. */
+            TCPIPDisconnect(TRUE, &DisplayConnectStatus);
+			if (connectStatusWindowPtr != NULL)
+				CloseWindow(connectStatusWindowPtr);
+            }
+
+    UnloadScrap();							/* Save scrap to disk */
+
+	TCPIPShutDown();						/* Shut down Marinetti */
+	UnloadOneTool(54);
+	ShutDownTools(1, startStopParm);        /* shut down the tools */
+    exit(0);
+	}
 
 /***************************************************************
 * Main - Initial startup function
@@ -377,7 +382,6 @@ void SetupCursor (int rez) {
 
 int main (void) {
 	int event;                          /* event type returned by TaskMaster */
-	Ref startStopParm;             	    /* tool start/shutdown parameter */
 
 	#define wrNum 1001					/* New Conn. window resource number */
 
@@ -387,22 +391,31 @@ int main (void) {
 	    GrafOff();
 		SysFailMgr(toolerror(), "\pCould not start tools: ");
         }
-	LoadOneTool(54, 0x200);				/* load Marinetti 2.0+ */
+
+    readBufferHndl = NewHandle(1, userid(), 0, NULL);
+	
+    LoadOneTool(54, 0x200);				/* load Marinetti 2.0+ */
 	if (toolerror()) {		    	    /* Check that Marinetti is available */
     	SysBeep();	                    /* Can't load Marinetti.. */
         InitCursor();					/* Activate pointer cursor */
 		AlertWindow(awResource, NULL, noMarinettiError);
-	    done = TRUE;	                /* Can't proceed, so just quit */
+	    Quit();			                /* Can't proceed, so just quit */
 	    }
 	else		                        /* Marinetti loaded successfully */
 		TCPIPStartUp();	                /* ... so activate it now */
 
-    readBufferHndl = NewHandle(1, userid(), 0, NULL);
     if (toolerror()) {					/* Get handle for TCPIP read buffer */
-	    done = TRUE;
         SysBeep();
         InitCursor();
         AlertWindow(awResource, NULL, outOfMemoryError);
+        Quit();
+        }
+
+    if (!AllocateBigColorTables()) {
+        SysBeep();
+        InitCursor();
+        AlertWindow(awResource, NULL, outOfMemoryError);
+        Quit();
         }
 
     InitScreen();						/* Set up color tables */
@@ -445,31 +458,10 @@ int main (void) {
             }
         if (vncConnected)
 	        ConnectedEventLoop();
+        else if (colorTablesComplete == FALSE)
+	        if (MakeBigColorTables(256))
+	            colorTablesComplete = TRUE;
         }
 
-    /* Done with event loop - now quitting */
-    if (vncConnected)					/* Disconnect if still connected */
-    	CloseTCPConnection();
-
-    DisposeHandle(readBufferHndl);		/* Get rid of TCPIP read buffer hndl */
-
-	/* Ask the user if we should disconnect only if the connection */
-	/* is not "permanent," i.e. started when the system boots up.  */
-	if (TCPIPGetConnectStatus() && (!TCPIPGetBootConnectFlag()))
-		if (AlertWindow(awResource+awButtonLayout, NULL, disconnectTCPIPAlert))
-			{
-            WaitCursor();
-            /* Must use force flag below because Marinetti will still count
-             * our ipid as logged in (proventing non-forced disconnect)
-             * for several minutes after the TCPIPLogout call. */
-            TCPIPDisconnect(TRUE, &DisplayConnectStatus);
-			if (connectStatusWindowPtr != NULL)
-				CloseWindow(connectStatusWindowPtr);
-            }
-
-    UnloadScrap();							/* Save scrap to disk */
-
-	TCPIPShutDown();						/* Shut down Marinetti */
-	UnloadOneTool(54);
-	ShutDownTools(1, startStopParm);        /* shut down the tools */
+        Quit();
 	}

@@ -1,4 +1,4 @@
-VNCview GS 1.0a2 README
+VNCview GS 1.0b1 README
 
 VNCview GS is a VNC client (viewer) for the Apple IIgs.  You can use it to display and interact with the graphical desktop of another computer through your Apple IIgs.
 
@@ -34,7 +34,7 @@ Other options are also available.
 "View Only Mode" allows you to see the server's display but not to send any keyboard, mouse, or clipboard input to the server.
 "Allow Clipboard Transfers from Server" indicates that the server is allowed to send its clipboard contents, which will be transferred to the IIgs clipboard.
 
-The "Preferred Encoding" is the method that will be used to represent pixels on the server's display when sending them to the IIgs; the available options are Raw and Hextile.  The Raw encoding sends lines of pixel values to the IIgs, while Hextile represents the display as a collection of small rectangular areas.  One of these methods will likely be faster than the other in your configuration; the best way to tell which is faster for you is to try out both.  In general, Hextile encoding is best for low-bandwidth connections like dial-up modems, while Ethernet and other relatively high-bandwidth connections may give better performance with the Raw encoding.  Some servers may not support Hextile encoding, in which case Raw will be used regardless of this setting.  VNCview GS also supports the "CopyRect" encoding regardless of this setting; it should always be faster than both Raw and Hextile but can only be used in limited circumstances.
+The "Preferred Encoding" is the method that will be used to represent pixels on the server's display when sending them to the IIgs; the available options are Raw and Hextile.  The Raw encoding sends lines of pixel values to the IIgs, while Hextile represents the display as a collection of small rectangular areas.  One of these methods will likely be faster than the other in your configuration; the best way to tell which is faster for you is to try out both.  In general, Raw encoding is best for relatively high-bandwidth connections like Ethernet, while dial-up modems and other low-bandwidth connections may give better performance with the Hextile encoding.  Some servers may not support Hextile encoding, in which case Raw will be used regardless of this setting.  VNCview GS also supports the "CopyRect" encoding regardless of this setting; it should always be faster than both Raw and Hextile but can only be used in limited circumstances.
 
 When you have configured your new VNC connection, simply click "Connect," and if all goes well you will be connected to the VNC server.  You can interact with it with the mouse and keyboard and scroll your view of its display.  The option and Open-Apple keys are sent as "alt" and "meta," respectively; their exact interpretation depends on the server.  Keyboard shortcuts for menu items are disabled when connected so that these key combinations can be sent to the server.  Select "Close" or "Quit" in the File menu when you are done with the connection.
 
@@ -59,9 +59,12 @@ If you are experiencing problems, it may be helpful to try removing, rearranging
 
 If these steps fail to resolve your problems or if you have other questions, comments, or bug reports, I can be contacted at SHeumann@myrealbox.com.
 
-Please be aware that VNCview GS is alpha-quality software.  It generally works for me, but it has not been extensively tested in diverse environments, and it is not necessarily feature-complete.
-
 Version History
+1.0b1
+Faster display updates when using Raw encoding
+Servers with screen dimensions smaller that the IIgs screen are now supported.
+The server's display can be resized while connected to it (certain servers only)
+
 1.0a2
 Hextile encoding support added
 Faster display update when scrolling while using Raw encoding
@@ -73,7 +76,7 @@ First public release
 License
 This program, "VNCview GS," is copyright (C) 2002-2004 Stephen Heumann.  All rights reserved.  This program contains material from the ORCA/C Run-Time Libraries, copyright 1987-1996 by Byte Works, Inc.  Used with permission.
 
-Redistribution and use, with or without modification, are permitted provided that the following conditions are met:
+VNCview GS is freeware.  Redistribution and use, with or without modification, are permitted provided that the following conditions are met:
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software.
 2. Altered versions must be plainly marked as such, and must not be misrepresented as being the original software.
 

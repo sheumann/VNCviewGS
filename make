@@ -4,6 +4,7 @@ set link false
 set vncview false
 set vncsession false
 set vncdisplay false
+set colortables false
 set rezfork false
 
 clearmem
@@ -50,6 +51,12 @@ if {status} != 0
 	set link true
 end
 
+newer colortables.a colortables.cc
+if {status} != 0
+	set colortables true
+        set link true
+end
+
 newer vncview.rezfork vncview.rez
 if {status} != 0
 	set rezfork true
@@ -70,7 +77,10 @@ end
 if {vncdisplay} == true
 	compile +O vncdisplay.cc keep=vncdisplay
 end
+if {colortables} == true
+	compile +O colortables.cc keep=colortables
+end
 if {link} == true
-	link vncview vncsession vncdisplay keep=VNCview.GS
+	link vncview vncsession vncdisplay colortables keep=VNCview.GS
 	filetype VNCview.GS S16 $DB03
 end
