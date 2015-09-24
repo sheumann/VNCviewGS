@@ -95,7 +95,7 @@ void DoPointerEvent (void) {
         /* If no modifiers, just send a normal left click. */
         if (pointerEventStruct.buttonMask == 0x00)
             pointerEventStruct.buttonMask = 0x01;
-}
+    }
     if ((myEvent.modifiers & btn1State) == 0x00)    /* If 2nd (right)    */
         pointerEventStruct.buttonMask |= 0x04;      /* button is pressed */
 
@@ -168,13 +168,20 @@ void DoCursor (void) {
     else /* hRez == 320 */
         lineWords = (rectWidth + 3) / 4 + 1;
 
+    /* Don't overflow loop indices, and don't use ridiculously large cursors.
+     * (Is there a limit to the cursor sizes QuickDraw II can handle?)     */
+    if ((lineWords > 16) || (rectHeight > 128)) {
+        InitCursor();
+        goto done;
+    }
+
     cursor = malloc(8 + 4 * lineWords * rectHeight);
     /* Sub-optimal error handling */
-    if (cursor == NULL)
-        return;
-    /* Don't overflow loop indices */
-    if ((lineWords > UINT_MAX) || (rectHeight > UINT_MAX))  
-        return;
+    if (cursor == NULL) {
+        InitCursor();
+        goto done;
+    }
+
     cursorHeightPtr = (unsigned int *)(void *)cursor;
     cursorWidthPtr  = cursorHeightPtr + 1;
     cursorImage     = cursor + 4;
@@ -253,7 +260,7 @@ void DoCursor (void) {
         }
         *((unsigned int *)maskLine + lineWords - 1) = 0;
      
-        for (n = 0; n < lineWords * 2 - 4; n++) {
+        for (n = 0; n < rectWidth / 4; n++) {
           *(imageLine + n)  = coltab640[*(dataPtr++)] & 0xC0;
           *(imageLine + n) += coltab640[*(dataPtr++)] & 0x30;
           *(imageLine + n) += coltab640[*(dataPtr++)] & 0x0C;
@@ -261,23 +268,20 @@ void DoCursor (void) {
           *(imageLine + n) ^= 0xFF;     /* Reverse color */
           *(imageLine + n) &= *(maskLine + n);
         }
-        *(imageLine + n) = 0;
-        j = cursorPixels + rectWidth * (line + 1) - dataPtr;
-        if (j-- > 0) {
-          *(imageLine + n) += coltab640[*(dataPtr++)] & 0xC0;
-          if (j-- > 0) {
-            *(imageLine + n) += coltab640[*(dataPtr++)] & 0x30;
-            if (j-- > 0) {
-              *(imageLine + n) += coltab640[*(dataPtr++)] & 0x0C;
-              if (j-- > 0) {
-                *(imageLine + n) += coltab640[*(dataPtr++)] & 0x03;
-              }
+        
+        if (rectWidth % 4) {
+            *(imageLine + n) = 0;
+            switch (rectWidth - n * 4) {
+            case 3: *(imageLine + n) += coltab640[*(dataPtr++)] & 0x0C;
+            case 2: *(imageLine + n) += coltab640[*(dataPtr++)] & 0x30;
+            case 1: *(imageLine + n) += coltab640[*(dataPtr++)] & 0xC0;
             }
-          }
+            *(imageLine + n) ^= 0xFF;       /* Reverse color */
+            *(imageLine + n) &= *(maskLine + n);
+            n++;
         }
-        *(imageLine + n) ^= 0xFF;       /* Reverse color */
-        *(imageLine + n) &= *(maskLine + n);
-        *(unsigned int *)(imageLine + n + 1) = 0;
+        *(unsigned int *)(imageLine + n) = 0;
+        *((unsigned int *)imageLine + lineWords - 1) = 0;
       }
     }
 
@@ -298,6 +302,7 @@ void DoCursor (void) {
     fprintf(foo, "\n");
     for (k = cursor; k < cursorImage; k++)
         fprintf(foo, "%02X ", *k);
+    fprintf(foo, "\n");
     for (j = 0; j < lineWords * rectHeight * 4; j++) {
         fprintf(foo, "%02X", *(cursorImage + j));
         if ((j+1) % (lineWords * 2) == 0)
@@ -312,10 +317,11 @@ void DoCursor (void) {
     //}
     fprintf(foo, "\n");
     fclose(foo);
-}
+    }
     /***************/
 #endif
 
+done:
     displayInProgress = FALSE;
     NextRect();             /* Prepare for next rect */
 }

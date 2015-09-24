@@ -146,6 +146,7 @@ void DoClose (GrafPortPtr wPtr) {
         if (cursor) {
             InitCursor();
             free(cursor);
+            cursor = NULL;
         }
     };
 }
