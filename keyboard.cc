@@ -134,16 +134,18 @@ void SendModifiers (void) {
     if (modifiers == oldModifiers)
         return;
 
-    /* Apple key is sent as "meta" */
+    /* Apple key is sent as "alt" */
+    /* The opposite mapping of OA (Command) and Option might seem more logical,
+     * but this matches the de facto standard of Mac VNC implementations. */
     if ((modifiers & appleKey) != (oldModifiers & appleKey))
-        SendKeyEvent(modifiers & appleKey, 0xFFE7);
+        SendKeyEvent(modifiers & appleKey, 0xFFE9);
 
     if ((modifiers & shiftKey) != (oldModifiers & shiftKey))
         SendKeyEvent(modifiers & shiftKey, 0xFFE1);
 
-    /* Option key is sent as "alt," as per its labelling on some keyboards */
+    /* Option key is sent as "meta" */
     if ((modifiers & optionKey) != (oldModifiers & optionKey))
-        SendKeyEvent(modifiers & optionKey, 0xFFE9);
+        SendKeyEvent(modifiers & optionKey, 0xFFE7);
 
     if ((modifiers & controlKey) != (oldModifiers & controlKey))
         SendKeyEvent(modifiers & controlKey, 0xFFE3);
