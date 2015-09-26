@@ -283,6 +283,7 @@ BOOLEAN GetIpid (void)
     #undef baseDisplayNum
 }                   
 
+unsigned int tcperr;
 
 /* Read data, waiting for up to 15 seconds for the data to be ready */
 BOOLEAN DoWaitingReadTCP(unsigned long dataLength) {
@@ -292,7 +293,7 @@ BOOLEAN DoWaitingReadTCP(unsigned long dataLength) {
     stopTime = TickCount() + 15 * 60;
     do {
         result = DoReadTCP(dataLength);
-    } while (result == FALSE && TickCount() < stopTime);
+    } while (result == FALSE && tcperr == tcperrOK && TickCount() < stopTime);
 
     return result;
 }
@@ -308,8 +309,8 @@ BOOLEAN ReadFixup (unsigned long requested, unsigned long returned) {
 
     do {
         TCPIPPoll();
-        if (TCPIPReadTCP(hostIpid, buffTypeNewHandle, NULL,
-                    requested-returned, &theRRBuff) != tcperrOK)
+        if ((tcperr = TCPIPReadTCP(hostIpid, buffTypeNewHandle, NULL,
+                    requested-returned, &theRRBuff)) != tcperrOK)
             return FALSE;
         if (toolerror())
             return FALSE;
@@ -337,7 +338,7 @@ BOOLEAN DoReadTCP (unsigned long dataLength) {
 
     TCPIPPoll();
 
-    if (TCPIPStatusTCP(hostIpid, &theSRBuff) != tcperrOK)
+    if ((tcperr = TCPIPStatusTCP(hostIpid, &theSRBuff)) != tcperrOK)
         return FALSE;
     if (toolerror())
         return FALSE;
@@ -345,8 +346,8 @@ BOOLEAN DoReadTCP (unsigned long dataLength) {
     if (theSRBuff.srRcvQueued < dataLength)
         return FALSE;
 
-    if (TCPIPReadTCP(hostIpid, buffTypeHandle, (Ref) readBufferHndl,
-                        dataLength, &theRRBuff) != tcperrOK)
+    if ((tcperr = TCPIPReadTCP(hostIpid, buffTypeHandle, (Ref) readBufferHndl,
+                        dataLength, &theRRBuff)) != tcperrOK)
         return FALSE;
     if (toolerror())
         return FALSE;
