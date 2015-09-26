@@ -208,14 +208,14 @@ void DoCursor (void) {
         for (j = 0; j < bitmaskLineBytes; j++) {
           bitmaskByte = *(bitmask + line*bitmaskLineBytes + j);
           outBytes320 =
-                ((bitmaskByte & 0x80)      ) + ((bitmaskByte & 0x80) >>  1) +
-                ((bitmaskByte & 0x80) >>  2) + ((bitmaskByte & 0x80) >>  3) +
-                ((bitmaskByte & 0x40) >>  3) + ((bitmaskByte & 0x40) >>  4) +
-                ((bitmaskByte & 0x40) >>  5) + ((bitmaskByte & 0x40) >>  6) +
-                ((bitmaskByte & 0x20) << 10) + ((bitmaskByte & 0x20) <<  9) +
-                ((bitmaskByte & 0x20) <<  8) + ((bitmaskByte & 0x20) <<  7) +
-                ((bitmaskByte & 0x10) <<  7) + ((bitmaskByte & 0x10) <<  6) +
-                ((bitmaskByte & 0x10) <<  5) + ((bitmaskByte & 0x10) <<  4) +
+                (((unsigned)bitmaskByte & 0x80)      ) + (((unsigned)bitmaskByte & 0x80) >>  1) +
+                (((unsigned)bitmaskByte & 0x80) >>  2) + (((unsigned)bitmaskByte & 0x80) >>  3) +
+                (((unsigned)bitmaskByte & 0x40) >>  3) + (((unsigned)bitmaskByte & 0x40) >>  4) +
+                (((unsigned)bitmaskByte & 0x40) >>  5) + (((unsigned)bitmaskByte & 0x40) >>  6) +
+                (((unsigned)bitmaskByte & 0x20) << 10) + (((unsigned)bitmaskByte & 0x20) <<  9) +
+                (((unsigned)bitmaskByte & 0x20) <<  8) + (((unsigned)bitmaskByte & 0x20) <<  7) +
+                (((unsigned)bitmaskByte & 0x10) <<  7) + (((unsigned)bitmaskByte & 0x10) <<  6) +
+                (((unsigned)bitmaskByte & 0x10) <<  5) + (((unsigned)bitmaskByte & 0x10) <<  4) +
                 ((bitmaskByte & 0x08) << 20) + ((bitmaskByte & 0x08) << 19) +
                 ((bitmaskByte & 0x08) << 18) + ((bitmaskByte & 0x08) << 17) +
                 ((bitmaskByte & 0x04) << 17) + ((bitmaskByte & 0x04) << 16) +
@@ -252,11 +252,11 @@ void DoCursor (void) {
         for (j = 0; j < bitmaskLineBytes; j++) {      
           bitmaskByte = *(bitmask + line*bitmaskLineBytes + j);
           outBytes640 =
-                ((bitmaskByte & 0x80)      ) + ((bitmaskByte & 0xC0) >>  1) + 
-                ((bitmaskByte & 0x60) >>  2) + ((bitmaskByte & 0x30) >>  3) +  
-                ((bitmaskByte & 0x10) >>  4) + ((bitmaskByte & 0x08) << 12) +
-                ((bitmaskByte & 0x0C) << 11) + ((bitmaskByte & 0x06) << 10) +
-                ((bitmaskByte & 0x03) <<  9) + ((bitmaskByte & 0x01) <<  8);
+                (((unsigned)bitmaskByte & 0x80)      ) + (((unsigned)bitmaskByte & 0xC0) >>  1) + 
+                (((unsigned)bitmaskByte & 0x60) >>  2) + (((unsigned)bitmaskByte & 0x30) >>  3) +  
+                (((unsigned)bitmaskByte & 0x10) >>  4) + (((unsigned)bitmaskByte & 0x08) << 12) +
+                (((unsigned)bitmaskByte & 0x0C) << 11) + (((unsigned)bitmaskByte & 0x06) << 10) +
+                (((unsigned)bitmaskByte & 0x03) <<  9) + (((unsigned)bitmaskByte & 0x01) <<  8);
           *((unsigned int *)maskLine + j) = outBytes640;
         }
         *((unsigned int *)maskLine + lineWords - 1) = 0;
