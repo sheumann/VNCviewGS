@@ -234,7 +234,7 @@ void DoCursor (void) {
           *(imageLine + n) ^= 0xFF;     /* Reverse color */
           *(imageLine + n) &= *(maskLine + n);
         }
-        if (rectWidth % 2) {
+        if (rectWidth & 0x01) {
           *(imageLine + n)  = coltab320[*(dataPtr++)] & 0xF0;
           *(imageLine + n) ^= 0xFF;     /* Reverse color */
           *(imageLine + n) &= *(maskLine + n);
@@ -270,9 +270,9 @@ void DoCursor (void) {
           *(imageLine + n) &= *(maskLine + n);
         }
         
-        if (rectWidth % 4) {
+        if (rectWidth & 0x03) {
             *(imageLine + n) = 0;
-            for (j = 0; j < rectWidth % 4; j++) {
+            for (j = 0; j < (rectWidth & 0x03); j++) {
                 *(imageLine + n) += coltab640[*(dataPtr++)] & (0xC0 >> j*2);
             }
             *(imageLine + n) ^= 0xFF;       /* Reverse color */
