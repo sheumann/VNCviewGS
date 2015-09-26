@@ -64,6 +64,7 @@ First open source release
 Can display the mouse cursor from the server locally on the IIgs
 Detects some errors more quickly, avoiding long periods of unresponsiveness
 Mapping of OA and Option keys reversed to match Mac VNC implementations
+Raw pixel decoding performance improved slightly
 
 1.0b1
 Faster display updates when using Raw encoding
