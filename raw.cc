@@ -108,28 +108,37 @@ void RawDraw (void) {
         if (hRez == 640) {
             initialLineDataPtr = lineDataPtr;
             while (destPtr + 7 < finalDestPtr) {    /* Unrolled loop */
-                *destPtr   = bigcoltab640a[*(unsigned int*)lineDataPtr]
-                           + bigcoltab640b[((unsigned int*)lineDataPtr)[1]];
-                destPtr[1] = bigcoltab640a[((unsigned int*)lineDataPtr)[2]]
-                           + bigcoltab640b[((unsigned int*)lineDataPtr)[3]];
-                destPtr[2] = bigcoltab640a[((unsigned int*)lineDataPtr)[4]]
-                           + bigcoltab640b[((unsigned int*)lineDataPtr)[5]];
-                destPtr[3] = bigcoltab640a[((unsigned int*)lineDataPtr)[6]]
-                           + bigcoltab640b[((unsigned int*)lineDataPtr)[7]];
-                destPtr[4] = bigcoltab640a[((unsigned int*)lineDataPtr)[8]]
-                           + bigcoltab640b[((unsigned int*)lineDataPtr)[9]];
-                destPtr[5] = bigcoltab640a[((unsigned int*)lineDataPtr)[10]]
-                           + bigcoltab640b[((unsigned int*)lineDataPtr)[11]];
-                destPtr[6] = bigcoltab640a[((unsigned int*)lineDataPtr)[12]]
-                           + bigcoltab640b[((unsigned int*)lineDataPtr)[13]];
-                destPtr[7] = bigcoltab640a[((unsigned int*)lineDataPtr)[14]]
-                           + bigcoltab640b[((unsigned int*)lineDataPtr)[15]];
+                *(unsigned*)destPtr     = 
+                        *(unsigned*)(bigcoltab640a + *(unsigned*)lineDataPtr)
+                      + *(unsigned*)(bigcoltab640b + ((unsigned*)lineDataPtr)[1]);
+                *(unsigned*)(destPtr+1) = 
+                        *(unsigned*)(bigcoltab640a + ((unsigned*)lineDataPtr)[2])
+                      + *(unsigned*)(bigcoltab640b + ((unsigned*)lineDataPtr)[3]);
+                *(unsigned*)(destPtr+2) = 
+                        *(unsigned*)(bigcoltab640a + ((unsigned*)lineDataPtr)[4])
+                      + *(unsigned*)(bigcoltab640b + ((unsigned*)lineDataPtr)[5]);
+                *(unsigned*)(destPtr+3) = 
+                        *(unsigned*)(bigcoltab640a + ((unsigned*)lineDataPtr)[6])
+                      + *(unsigned*)(bigcoltab640b + ((unsigned*)lineDataPtr)[7]);
+                *(unsigned*)(destPtr+4) = 
+                        *(unsigned*)(bigcoltab640a + ((unsigned*)lineDataPtr)[8])
+                      + *(unsigned*)(bigcoltab640b + ((unsigned*)lineDataPtr)[9]);
+                *(unsigned*)(destPtr+5) = 
+                        *(unsigned*)(bigcoltab640a + ((unsigned*)lineDataPtr)[10])
+                      + *(unsigned*)(bigcoltab640b + ((unsigned*)lineDataPtr)[11]);
+                *(unsigned*)(destPtr+6) = 
+                        *(unsigned*)(bigcoltab640a + ((unsigned*)lineDataPtr)[12])
+                      + *(unsigned*)(bigcoltab640b + ((unsigned*)lineDataPtr)[13]);
+                *           (destPtr+7) = 
+                        *(unsigned*)(bigcoltab640a + ((unsigned*)lineDataPtr)[14])
+                      + *(unsigned*)(bigcoltab640b + ((unsigned*)lineDataPtr)[15]);
                 destPtr += 8;
                 lineDataPtr += 32;
             }
             while (destPtr < finalDestPtr) {
-                *(destPtr++) = bigcoltab640a[*(unsigned int*)lineDataPtr]
-                             + bigcoltab640b[((unsigned int*)lineDataPtr)[1]];
+                *(destPtr++) = 
+                        *(unsigned*)(bigcoltab640a + *(unsigned*)lineDataPtr)
+                      + *(unsigned*)(bigcoltab640b + ((unsigned*)lineDataPtr)[1]);
                 lineDataPtr += 4;
             }
             /* Final byte to produce */
@@ -149,19 +158,28 @@ void RawDraw (void) {
         }
         else {          /* 320 mode */
             while (destPtr + 7 < finalDestPtr) {    /* Unrolled loop */
-                *destPtr   = bigcoltab320[*(unsigned int*)lineDataPtr];
-                destPtr[1] = bigcoltab320[((unsigned int*)lineDataPtr)[1]];
-                destPtr[2] = bigcoltab320[((unsigned int*)lineDataPtr)[2]];
-                destPtr[3] = bigcoltab320[((unsigned int*)lineDataPtr)[3]];
-                destPtr[4] = bigcoltab320[((unsigned int*)lineDataPtr)[4]];
-                destPtr[5] = bigcoltab320[((unsigned int*)lineDataPtr)[5]];
-                destPtr[6] = bigcoltab320[((unsigned int*)lineDataPtr)[6]];
-                destPtr[7] = bigcoltab320[((unsigned int*)lineDataPtr)[7]];
+                *(unsigned*)destPtr     = 
+                        *(unsigned*)(bigcoltab320 + *(unsigned*)lineDataPtr);
+                *(unsigned*)(destPtr+1) = 
+                        *(unsigned*)(bigcoltab320 + ((unsigned*)lineDataPtr)[1]);
+                *(unsigned*)(destPtr+2) = 
+                        *(unsigned*)(bigcoltab320 + ((unsigned*)lineDataPtr)[2]);
+                *(unsigned*)(destPtr+3) = 
+                        *(unsigned*)(bigcoltab320 + ((unsigned*)lineDataPtr)[3]);
+                *(unsigned*)(destPtr+4) = 
+                        *(unsigned*)(bigcoltab320 + ((unsigned*)lineDataPtr)[4]);
+                *(unsigned*)(destPtr+5) = 
+                        *(unsigned*)(bigcoltab320 + ((unsigned*)lineDataPtr)[5]);
+                *(unsigned*)(destPtr+6) = 
+                        *(unsigned*)(bigcoltab320 + ((unsigned*)lineDataPtr)[6]);
+                *           (destPtr+7) = 
+                        *(unsigned*)(bigcoltab320 + ((unsigned*)lineDataPtr)[7]);
                 destPtr += 8;
                 lineDataPtr += 16;
             }
             while (destPtr < finalDestPtr) {
-                *(destPtr++) = bigcoltab320[*(unsigned int*)lineDataPtr];
+                *(destPtr++) = 
+                        *(unsigned*)(bigcoltab320 + *(unsigned*)lineDataPtr);
                 lineDataPtr += 2;
             }
             /* Final byte to produce */
