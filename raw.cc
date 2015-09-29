@@ -103,35 +103,50 @@ void RawDraw (void) {
     lineDataPtr = dataPtr + (unsigned long) drawingLine * rectWidth;
             
     do {    /* We short-circuit back to here if there are no events pending */
+        unsigned inPixelsA, inPixelsB, inPixelsA2, inPixelsB2, outPixels;
 
         finalDestPtr = destPtr + lineBytes - 1;
         if (hRez == 640) {
             initialLineDataPtr = lineDataPtr;
             while (destPtr + 7 < finalDestPtr) {    /* Unrolled loop */
                 *(unsigned*)destPtr     = 
-                        *(unsigned*)(bigcoltab640a + *(unsigned*)lineDataPtr)
-                      + *(unsigned*)(bigcoltab640b + ((unsigned*)lineDataPtr)[1]);
+                        outPixels = (*(unsigned*)(bigcoltab640a + (inPixelsA = *(unsigned*)lineDataPtr))
+                                   ^ *(unsigned*)(bigcoltab640b + (inPixelsB = ((unsigned*)lineDataPtr)[1])));
                 *(unsigned*)(destPtr+1) = 
-                        *(unsigned*)(bigcoltab640a + ((unsigned*)lineDataPtr)[2])
-                      + *(unsigned*)(bigcoltab640b + ((unsigned*)lineDataPtr)[3]);
+                        ((inPixelsA ^ (inPixelsA2 = ((unsigned*)lineDataPtr)[2])) |
+                         (inPixelsB ^ (inPixelsB2 = ((unsigned*)lineDataPtr)[3]))) == 0 ? outPixels : 
+                        (outPixels = (*(unsigned*)(bigcoltab640a + inPixelsA2)
+                                    ^ *(unsigned*)(bigcoltab640b + inPixelsB2)));
                 *(unsigned*)(destPtr+2) = 
-                        *(unsigned*)(bigcoltab640a + ((unsigned*)lineDataPtr)[4])
-                      + *(unsigned*)(bigcoltab640b + ((unsigned*)lineDataPtr)[5]);
+                        ((inPixelsA2 ^ (inPixelsA = ((unsigned*)lineDataPtr)[4])) |
+                         (inPixelsB2 ^ (inPixelsB = ((unsigned*)lineDataPtr)[5]))) == 0 ? outPixels : 
+                        (outPixels = (*(unsigned*)(bigcoltab640a + inPixelsA)
+                                    ^ *(unsigned*)(bigcoltab640b + inPixelsB)));
                 *(unsigned*)(destPtr+3) = 
-                        *(unsigned*)(bigcoltab640a + ((unsigned*)lineDataPtr)[6])
-                      + *(unsigned*)(bigcoltab640b + ((unsigned*)lineDataPtr)[7]);
+                        ((inPixelsA ^ (inPixelsA2 = ((unsigned*)lineDataPtr)[6])) |
+                         (inPixelsB ^ (inPixelsB2 = ((unsigned*)lineDataPtr)[7]))) == 0 ? outPixels : 
+                        (outPixels = (*(unsigned*)(bigcoltab640a + inPixelsA2)
+                                    ^ *(unsigned*)(bigcoltab640b + inPixelsB2)));
                 *(unsigned*)(destPtr+4) = 
-                        *(unsigned*)(bigcoltab640a + ((unsigned*)lineDataPtr)[8])
-                      + *(unsigned*)(bigcoltab640b + ((unsigned*)lineDataPtr)[9]);
+                        ((inPixelsA2 ^ (inPixelsA = ((unsigned*)lineDataPtr)[8])) |
+                         (inPixelsB2 ^ (inPixelsB = ((unsigned*)lineDataPtr)[9]))) == 0 ? outPixels : 
+                        (outPixels = (*(unsigned*)(bigcoltab640a + inPixelsA)
+                                    ^ *(unsigned*)(bigcoltab640b + inPixelsB)));
                 *(unsigned*)(destPtr+5) = 
-                        *(unsigned*)(bigcoltab640a + ((unsigned*)lineDataPtr)[10])
-                      + *(unsigned*)(bigcoltab640b + ((unsigned*)lineDataPtr)[11]);
+                        ((inPixelsA ^ (inPixelsA2 = ((unsigned*)lineDataPtr)[10])) |
+                         (inPixelsB ^ (inPixelsB2 = ((unsigned*)lineDataPtr)[11]))) == 0 ? outPixels : 
+                        (outPixels = (*(unsigned*)(bigcoltab640a + inPixelsA2)
+                                    ^ *(unsigned*)(bigcoltab640b + inPixelsB2)));
                 *(unsigned*)(destPtr+6) = 
-                        *(unsigned*)(bigcoltab640a + ((unsigned*)lineDataPtr)[12])
-                      + *(unsigned*)(bigcoltab640b + ((unsigned*)lineDataPtr)[13]);
-                *           (destPtr+7) = 
-                        *(unsigned*)(bigcoltab640a + ((unsigned*)lineDataPtr)[14])
-                      + *(unsigned*)(bigcoltab640b + ((unsigned*)lineDataPtr)[15]);
+                        ((inPixelsA2 ^ (inPixelsA = ((unsigned*)lineDataPtr)[12])) |
+                         (inPixelsB2 ^ (inPixelsB = ((unsigned*)lineDataPtr)[13]))) == 0 ? outPixels : 
+                        (outPixels = (*(unsigned*)(bigcoltab640a + inPixelsA)
+                                    ^ *(unsigned*)(bigcoltab640b + inPixelsB)));
+                *(destPtr+7) = 
+                        ((inPixelsA ^ (inPixelsA2 = ((unsigned*)lineDataPtr)[14])) |
+                         (inPixelsB ^ (inPixelsB2 = ((unsigned*)lineDataPtr)[15]))) == 0 ? outPixels : 
+                        ((*(unsigned*)(bigcoltab640a + inPixelsA2)
+                        ^ *(unsigned*)(bigcoltab640b + inPixelsB2)));
                 destPtr += 8;
                 lineDataPtr += 32;
             }
@@ -158,7 +173,6 @@ void RawDraw (void) {
         }
         else {          /* 320 mode */
             while (destPtr + 7 < finalDestPtr) {    /* Unrolled loop */
-            	unsigned inPixelsA, inPixelsB, outPixels;
                 *(unsigned*)destPtr     = 
                         outPixels = *(unsigned*)(bigcoltab320 + (inPixelsA = *(unsigned*)lineDataPtr));
                 *(unsigned*)(destPtr+1) = 
