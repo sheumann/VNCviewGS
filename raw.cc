@@ -158,22 +158,30 @@ void RawDraw (void) {
         }
         else {          /* 320 mode */
             while (destPtr + 7 < finalDestPtr) {    /* Unrolled loop */
+            	unsigned inPixelsA, inPixelsB, outPixels;
                 *(unsigned*)destPtr     = 
-                        *(unsigned*)(bigcoltab320 + *(unsigned*)lineDataPtr);
+                        outPixels = *(unsigned*)(bigcoltab320 + (inPixelsA = *(unsigned*)lineDataPtr));
                 *(unsigned*)(destPtr+1) = 
-                        *(unsigned*)(bigcoltab320 + ((unsigned*)lineDataPtr)[1]);
+                        (inPixelsA ^ (inPixelsB = ((unsigned*)lineDataPtr)[1])) == 0 ? outPixels :
+                        (outPixels = *(unsigned*)(bigcoltab320 + inPixelsB));
                 *(unsigned*)(destPtr+2) = 
-                        *(unsigned*)(bigcoltab320 + ((unsigned*)lineDataPtr)[2]);
+                        (inPixelsB ^ (inPixelsA = ((unsigned*)lineDataPtr)[2])) == 0 ? outPixels :
+                        (outPixels = *(unsigned*)(bigcoltab320 + inPixelsA));
                 *(unsigned*)(destPtr+3) = 
-                        *(unsigned*)(bigcoltab320 + ((unsigned*)lineDataPtr)[3]);
+                        (inPixelsA ^ (inPixelsB = ((unsigned*)lineDataPtr)[3])) == 0 ? outPixels :
+                        (outPixels = *(unsigned*)(bigcoltab320 + inPixelsB));
                 *(unsigned*)(destPtr+4) = 
-                        *(unsigned*)(bigcoltab320 + ((unsigned*)lineDataPtr)[4]);
+                        (inPixelsB ^ (inPixelsA = ((unsigned*)lineDataPtr)[4])) == 0 ? outPixels :
+                        (outPixels = *(unsigned*)(bigcoltab320 + inPixelsA));
                 *(unsigned*)(destPtr+5) = 
-                        *(unsigned*)(bigcoltab320 + ((unsigned*)lineDataPtr)[5]);
+                        (inPixelsA ^ (inPixelsB = ((unsigned*)lineDataPtr)[5])) == 0 ? outPixels :
+                        (outPixels = *(unsigned*)(bigcoltab320 + inPixelsB));
                 *(unsigned*)(destPtr+6) = 
-                        *(unsigned*)(bigcoltab320 + ((unsigned*)lineDataPtr)[6]);
-                *           (destPtr+7) = 
-                        *(unsigned*)(bigcoltab320 + ((unsigned*)lineDataPtr)[7]);
+                        (inPixelsB ^ (inPixelsA = ((unsigned*)lineDataPtr)[6])) == 0 ? outPixels :
+                        (outPixels = *(unsigned*)(bigcoltab320 + inPixelsA));
+                *(destPtr+7) = 
+                        (inPixelsA ^ (inPixelsB = ((unsigned*)lineDataPtr)[7])) == 0 ? outPixels :
+                        *(unsigned*)(bigcoltab320 + inPixelsB);
                 destPtr += 8;
                 lineDataPtr += 16;
             }
