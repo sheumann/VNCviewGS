@@ -2,10 +2,7 @@
 
 #include <types.h>
 #include <stdlib.h>
-
-unsigned char *bigcoltab640a = NULL;
-unsigned char *bigcoltab640b = NULL;
-unsigned char *bigcoltab320 = NULL;
+#include "colortables.h"
 
 const unsigned char coltab320[] = {
         /* bbgggrrr - incoming pixel data */
@@ -80,18 +77,6 @@ const unsigned char coltab640[] = {
         /* 11110 */ 0xAA,0xAA,0xAA,0xAA,0xAA,0xAA,0xFF,0xFF,
         /* 11111 */ 0xAA,0xAA,0xAA,0xAA,0xFF,0xFF,0xFF,0xFF
 };
-
-BOOLEAN AllocateBigColorTables (void)
-{
-    bigcoltab640a = malloc(65536);
-    bigcoltab640b = malloc(65536);
-    bigcoltab320 = malloc(65536);
-
-    if (bigcoltab640a==NULL || bigcoltab640b==NULL || bigcoltab320==NULL)
-        return FALSE;
-
-    return TRUE;
-}
 
 /* iters = number of iterations to do (must be > 0) */
 BOOLEAN MakeBigColorTables (unsigned int iters)

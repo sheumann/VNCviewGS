@@ -5,5 +5,4 @@ extern unsigned char *bigcoltab640a;
 extern unsigned char *bigcoltab640b;
 extern unsigned char *bigcoltab320;
 
-BOOLEAN AllocateBigColorTables(void);
 BOOLEAN MakeBigColorTables(unsigned int);

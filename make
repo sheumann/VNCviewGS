@@ -26,6 +26,16 @@ for file in vncview vncsession vncdisplay colortables \
         end
 end
 
+for file in tables
+        unset exit
+        newer {file}.a {file}.asm
+        if {status} != 0
+                set exit on
+                assemble {file}.asm keep={file}
+                set link true
+        end
+end
+
 unset exit
 newer vncview.rezfork vncview.rez
 if {status} != 0
@@ -35,7 +45,7 @@ if {status} != 0
 end
 
 if {link} == true
-        link vncview vncsession vncdisplay colortables \
+        link vncview vncsession vncdisplay colortables tables \
              desktopsize mouse keyboard copyrect raw hextile clipboard \
              keep=VNCview.GS
         filetype VNCview.GS S16 $DB03

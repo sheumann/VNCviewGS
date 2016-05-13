@@ -355,12 +355,6 @@ void Quit (void) {
     if (readBufferHndl)
         DisposeHandle(readBufferHndl);  /* Get rid of TCPIP read buffer hndl */
 
-    if (bigcoltab320)
-        free(bigcoltab320);
-    if (bigcoltab640a)
-        free(bigcoltab640a);
-    if (bigcoltab640b)
-        free(bigcoltab640b);
     if (cursor)
         free(cursor);
 
@@ -415,13 +409,6 @@ int main (void) {
         TCPIPStartUp();                 /* ... so activate it now */
 
     if (toolerror()) {                  /* Get handle for TCPIP read buffer */
-        SysBeep();
-        InitCursor();
-        AlertWindow(awResource, NULL, outOfMemoryError);
-        Quit();
-    }
-
-    if (!AllocateBigColorTables()) {
         SysBeep();
         InitCursor();
         AlertWindow(awResource, NULL, outOfMemoryError);
