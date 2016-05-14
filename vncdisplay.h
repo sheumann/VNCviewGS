@@ -17,6 +17,10 @@ extern unsigned int rectHeight;
 #define encodingCursor      0xffffff11
 #define encodingDesktopSize 0xffffff21
 
+#define WIN_WIDTH_320 302
+#define WIN_WIDTH_640 613
+#define WIN_HEIGHT 174
+
 extern GrafPortPtr vncWindow;
 
 /* VNC session window dimensions */

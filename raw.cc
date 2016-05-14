@@ -1,6 +1,7 @@
 #if __ORCAC__
 #pragma lint -1
 #pragma noroot
+segment "VNCview GS";
 #endif
 
 #include <window.h>
@@ -39,6 +40,11 @@ static unsigned long pixels;
 static unsigned int drawingLine; /* Line to be drawn while displaying */
 static BOOLEAN extraByteAdvance;
 
+/* Buffer to hold all SHR pixel data from one update (defined in tables.asm).
+ * Must be big enough: at least (WIN_WIDTH_640/4 + 1) * WIN_HEIGHT. */
+#define DESTBUF_SIZE 0x8001
+extern unsigned char destBuf[];
+
 static unsigned char *destPtr;
 
 /* Ends drawing of a raw rectangle when it is complete or aborted
@@ -46,7 +52,6 @@ static unsigned char *destPtr;
  */
 static void StopRawDrawing (void) {
     HUnlock(readBufferHndl);
-    free(srcLocInfo.ptrToPixImage);     /* Allocated as destPtr */
 
     displayInProgress = FALSE;
 
@@ -274,11 +279,7 @@ static void RawDrawLine (void) {
             lineBytes = rectWidth/2;
     }
 
-    destPtr = calloc(lineBytes, 1);
-    if (!destPtr) {                     /* Couldn't allocate memory */
-        DoClose(vncWindow);
-        return;
-    }
+    destPtr = destBuf;
 
     srcLocInfo.ptrToPixImage = destPtr;
     srcLocInfo.width = lineBytes;
@@ -350,8 +351,6 @@ static void RawDrawLine (void) {
 /* Process rectangle data in raw encoding and write it to screen.
  */
 void DoRawRect (void) {
-    unsigned long bufferLength;
-
     pixels = (unsigned long) rectWidth * rectHeight;
 
     /* Try to read data */
@@ -370,11 +369,9 @@ void DoRawRect (void) {
     if (hRez == 640) {
         if (rectWidth & 0x03) {         /* Width not an exact multiple of 4 */
             lineBytes = rectWidth/4 + 1;
-            extraByteAdvance = TRUE;
         }
         else {                          /* Width is a multiple of 4 */
             lineBytes = rectWidth/4;
-            extraByteAdvance = FALSE;
         }
     }
     else {  /* 320 mode */
@@ -388,12 +385,21 @@ void DoRawRect (void) {
         }
     }
 
-    bufferLength = lineBytes * rectHeight;
-    destPtr = calloc(bufferLength, 1);
-    if (!destPtr) {                     /* Couldn't allocate memory */
-        DoClose(vncWindow);
+    /* If we get an oversized update, ignore it and ask for another one.
+     * Shouldn't normally happen, except possibly if there are outstanding
+     * update requests for multiple screen regions due to scrolling.
+     */
+    if (lineBytes * rectHeight >= DESTBUF_SIZE) {
+        unsigned long contentOrigin;
+        Point * contentOriginPtr = (void *) &contentOrigin;
+
+        contentOrigin = GetContentOrigin(vncWindow);
+        SendFBUpdateRequest(FALSE, contentOriginPtr->h, contentOriginPtr->v,
+                            winWidth, winHeight);
+        StopRawDrawing();
         return;
     }
+    destPtr = destBuf;
 
     srcLocInfo.ptrToPixImage = destPtr;
     srcLocInfo.width = lineBytes;

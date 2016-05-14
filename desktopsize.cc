@@ -1,6 +1,7 @@
 #if __ORCAC__
 #pragma lint -1
 #pragma noroot
+segment "VNCview GS";
 #endif
 
 #include <window.h>
@@ -53,8 +54,8 @@ void DoDesktopSize (void) {
 
     oldWinHeight = winHeight;
     oldWinWidth = winWidth;
-    winHeight = 174;
-    winWidth = (hRez == 640) ? 613 : 302;
+    winHeight = WIN_HEIGHT;
+    winWidth = (hRez == 640) ? WIN_WIDTH_640 : WIN_WIDTH_320;
     if (fbWidth < winWidth)
         winWidth = fbWidth;
     if (fbHeight < winHeight)

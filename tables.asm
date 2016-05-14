@@ -30,3 +30,10 @@ bigcoltab640b	data
 bigcoltab320	data
 	dc	i4'BCT320'
 	end
+
+* Buffer for SHR pixel data generated during raw decoding
+* Must be big enough to hold at least the full window area full of pixels.
+
+destBuf	data
+	ds	$8001
+	end

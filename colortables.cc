@@ -1,6 +1,7 @@
 #if __ORCAC__
 #pragma lint -1
 #pragma noroot
+segment "VNCview GS";
 #endif
 
 #include <types.h>

@@ -4,6 +4,7 @@
 
 #if __ORCAC__
 #pragma lint -1
+segment "VNCview GS";
 #endif
 
 #if DEBUG

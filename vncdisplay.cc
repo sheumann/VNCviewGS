@@ -1,6 +1,7 @@
 #if __ORCAC__
 #pragma lint -1
 #pragma noroot
+segment "VNCview GS";
 #endif
 
 #include <window.h>
@@ -95,8 +96,8 @@ static void ChangeResolution(int rez) {
 
     hRez = rez;
 
-    winHeight = 174;
-    winWidth = (rez == 640) ? 613 : 302;
+    winHeight = WIN_HEIGHT;
+    winWidth = (rez == 640) ? WIN_WIDTH_640 : WIN_WIDTH_320;
 
     /* Set up pixel translation table for correct graphics mode */
     if (rez == 320)
