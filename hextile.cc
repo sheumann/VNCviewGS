@@ -1,4 +1,7 @@
+#if __ORCAC__
+#pragma lint -1
 #pragma noroot
+#endif
 
 #include <window.h>
 #include <quickdraw.h>
@@ -29,10 +32,10 @@
 #include "raw.h"
 #include "hextile.h"
 
-unsigned int hexXTiles, hexYTiles;  /* For in-process hextile processing */
-unsigned int hexXTileNum, hexYTileNum;
-unsigned int hexTileWidth, hexTileHeight;
-unsigned char hexBackground, hexForeground;
+static unsigned int hexXTiles, hexYTiles;  /* For in-process hextile processing */
+static unsigned int hexXTileNum, hexYTileNum;
+static unsigned int hexTileWidth, hexTileHeight;
+static unsigned char hexBackground, hexForeground;
 
 static BOOLEAN extraByteAdvance;
 
@@ -48,7 +51,7 @@ static BOOLEAN extraByteAdvance;
 #define hexWaitingForSubrect            4
 #define hexWaitingForRawData            8
 
-void HexNextTile (void) {
+static void HexNextTile (void) {
     hexXTileNum++;
     if (hexXTileNum == hexXTiles) {
         hexYTileNum++;
@@ -67,7 +70,7 @@ void HexNextTile (void) {
 
 }
 
-void HexRawDraw (Point *contentOriginPtr, int rectWidth, int rectHeight) {      
+static void HexRawDraw (Point *contentOriginPtr, int rectWidth, int rectHeight) {      
     unsigned int i, j;          /* Loop indices */
     unsigned int n = 0;
     unsigned char *dataPtr;

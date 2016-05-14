@@ -1,4 +1,7 @@
+#if __ORCAC__
+#pragma lint -1
 #pragma noroot
+#endif
 
 #include <window.h>
 #include <quickdraw.h>
@@ -15,6 +18,7 @@
 #include <stdlib.h>
 #include <event.h>
 #include <limits.h>
+#include <orca.h>
 
 #include "vncsession.h"
 #include "vncview.h"
@@ -34,12 +38,12 @@ unsigned int fbWidth;
 
 BOOLEAN displayInProgress;
 
-unsigned int numRects;
+static unsigned int numRects;
 unsigned int rectX;
 unsigned int rectY;
 unsigned int rectWidth;
 unsigned int rectHeight;
-unsigned long rectEncoding;
+static unsigned long rectEncoding;
 
 GrafPortPtr vncWindow;
 
@@ -67,7 +71,7 @@ BOOLEAN checkBounds = FALSE;    /* Adjust drawing to stay in bounds */
  * is an unavoidable penalty of opening other windows over the main VNC window.
  */
 #pragma databank 1
-void VNCRedraw (void) {
+static void VNCRedraw (void) {
     RegionHndl updateRgnHndl;
 
     updateRgnHndl = vncWindow->visRgn;
@@ -85,7 +89,7 @@ void VNCRedraw (void) {
 /* Change Super Hi-Res display to the specified resolution (640 or 320).
  * Uses the procedure described in IIgs Tech Note #4.
  */
-void ChangeResolution(int rez) {
+static void ChangeResolution(int rez) {
     static Handle dpSpace;
     unsigned int masterSCB;
 
@@ -213,7 +217,7 @@ void SendFBUpdateRequest (BOOLEAN incremental, unsigned int x, unsigned int y,
 
 /* Start responding to a FramebufferUpdate from the server
  */
-void DoFBUpdate (void) {
+static void DoFBUpdate (void) {
     unsigned int *dataPtr;          /* Pointer to header data */
 
     if (!DoWaitingReadTCP(15)) {
@@ -239,7 +243,7 @@ void DoFBUpdate (void) {
  * would be bad but for the fact that it will never be called if the server
  * is actually working correctly.
  */
-void DoSetColourMapEntries (void) {
+static void DoSetColourMapEntries (void) {
     unsigned int numColors;
 
     DoWaitingReadTCP(3);

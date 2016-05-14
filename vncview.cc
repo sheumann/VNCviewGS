@@ -68,12 +68,12 @@
 #define radHextile          26
 
 
-BOOLEAN done = FALSE;           /* are we done, yet? */
+static BOOLEAN done = FALSE;    /* are we done, yet? */
 EventRecord myEvent;            /* event record for menu mode */
 GrafPortPtr newConnWindow;      /* pointer to new connection window */
 BOOLEAN vncConnected = FALSE;   /* are we connected to a VNC host */
 int menuOffset;                 /* Indicates which menu bar is active */
-Ref startStopParm;              /* tool start/shutdown parameter */
+static Ref startStopParm;       /* tool start/shutdown parameter */
 BOOLEAN colorTablesComplete = FALSE;    /* Are the big color tables complete */
 
 
@@ -87,6 +87,8 @@ BOOLEAN useHextile = FALSE;
 char vncServer[257];
 char vncPassword[10];
 
+static void Quit (void);
+
 
 /***************************************************************
 * DrawContents - Draw the contents of the active port
@@ -94,7 +96,7 @@ char vncPassword[10];
 
 #pragma databank 1
 
-void DrawContents (void) {
+static void DrawContents (void) {
     PenNormal();                    /* use a "normal" pen */
     DrawControls(GetPort());        /* draw controls in window */
 }
@@ -105,7 +107,7 @@ void DrawContents (void) {
 * DoAbout - Draw our about box
 ***************************************************************/
 
-void DoAbout (void) {
+static void DoAbout (void) {
     #define alertID 1                       /* alert string resource ID */
 
     AlertWindow(awCString+awResource, NULL, alertID);
@@ -117,7 +119,7 @@ void DoAbout (void) {
 * DoNewConnection - Show the New Connection window
 ***************************************************************/
 
-void DoNewConnection (void) {
+static void DoNewConnection (void) {
     unsigned int masterSCB;
     
     masterSCB = GetMasterSCB();
@@ -157,7 +159,7 @@ void DoClose (GrafPortPtr wPtr) {
 *   editAction: Action selected from edit menu
 ***************************************************************/
 
-void DoLEEdit (int editAction) {
+static void DoLEEdit (int editAction) {
     CtlRecHndl ctl;         /* target control handle */
     unsigned long id;       /* control ID */
     GrafPortPtr port;       /* caller's GrafPort */
@@ -192,7 +194,7 @@ void DoLEEdit (int editAction) {
 * HandleMenu - Initialize the menu bar.
 ***************************************************************/
 
-void HandleMenu (void) {
+static void HandleMenu (void) {
     int menuNum, menuItemNum;               /* menu number & menu item number */
 
     menuNum = myEvent.wmTaskData >> 16;
@@ -218,7 +220,7 @@ void HandleMenu (void) {
 * HandleControl - Handle a control press in the New Conn. window
 ***************************************************************/
 
-void HandleControl (void) {
+static void HandleControl (void) {
     switch (myEvent.wmTaskData4) {
         case btnConnect:    DoConnect();                                break;
         case btnCancel:     DoClose(newConnWindow);                     break;
@@ -274,7 +276,7 @@ void InitMenus (int offset) {
 * CheckMenus - Check the menus to see if they should be dimmed
 ***************************************************************/
 
-void CheckMenus (void) {
+static void CheckMenus (void) {
     GrafPortPtr activeWindow;       /* Front visible window */
     static GrafPortPtr lastActiveWindow;
 
@@ -335,7 +337,7 @@ void CheckMenus (void) {
 
 /* InitScreen - Set up color tables and SCBs to appropriate values
  */
-void InitScreen (void) {
+static void InitScreen (void) {
     static ColorTable gray640Colors = {
         0x0000, 0x0555, 0x0AAA, 0x0FFF, 0x0000, 0x0555, 0x0AAA, 0x0FFF,
         0x0000, 0x0555, 0x0AAA, 0x0FFF, 0x0000, 0x0555, 0x0AAA, 0x0FFF
@@ -347,7 +349,7 @@ void InitScreen (void) {
         InitPalette();                      /* Restore Apple Menu colors */
 }
 
-void Quit (void) {
+static void Quit (void) {
     /* Done with event loop - now quitting */
     if (vncConnected)                   /* Disconnect if still connected */
         CloseTCPConnection();

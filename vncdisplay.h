@@ -3,12 +3,10 @@ extern unsigned int fbWidth;
 
 extern BOOLEAN displayInProgress;
 
-extern unsigned int numRects;
 extern unsigned int rectX;
 extern unsigned int rectY;
 extern unsigned int rectWidth;
 extern unsigned int rectHeight;
-extern unsigned long rectEncoding;
 
 #define encodingRaw         0
 #define encodingCopyRect    1
@@ -43,3 +41,4 @@ void SendFBUpdateRequest (BOOLEAN /*incremental*/, unsigned int /*x*/,
 
 void ConnectedEventLoop (void);
 
+void NextRect (void);

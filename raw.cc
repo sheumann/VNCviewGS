@@ -1,4 +1,7 @@
+#if __ORCAC__
+#pragma lint -1
 #pragma noroot
+#endif
 
 #include <window.h>
 #include <quickdraw.h>
@@ -30,18 +33,18 @@
 #include "hextile.h"
 
 /* Data on state of raw rectangle drawing routines */
-unsigned int lineBytes;         /* Number of bytes in a line of GS pixels */
-unsigned long pixels;
+static unsigned int lineBytes;   /* Number of bytes in a line of GS pixels */
+static unsigned long pixels;
 
-unsigned int drawingLine;       /* Line to be drawn while displaying */
+static unsigned int drawingLine; /* Line to be drawn while displaying */
 static BOOLEAN extraByteAdvance;
 
-unsigned char *destPtr;
+static unsigned char *destPtr;
 
 /* Ends drawing of a raw rectangle when it is complete or aborted
  * because the rectangle is not visible.
  */
-void StopRawDrawing (void) {
+static void StopRawDrawing (void) {
     HUnlock(readBufferHndl);
     free(srcLocInfo.ptrToPixImage);     /* Allocated as destPtr */
 
@@ -252,7 +255,7 @@ void RawDraw (void) {
 #pragma optimize -1
 
 /* Draw one line of Raw data - used if the complete rect isn't yet available */
-void RawDrawLine (void) {
+static void RawDrawLine (void) {
     unsigned int i;
     unsigned char *dataPtr;
     unsigned long contentOrigin;

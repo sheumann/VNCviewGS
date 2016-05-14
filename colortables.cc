@@ -1,4 +1,7 @@
+#if __ORCAC__
+#pragma lint -1
 #pragma noroot
+#endif
 
 #include <types.h>
 #include <stdlib.h>

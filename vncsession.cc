@@ -57,8 +57,14 @@ void ** readBufferHndl;     /* Handle to the data read by the last
                              * DoReadTCP call.  Copy this elsewhere if more
                              * data may be read while it is still in use.
                              */
-BOOLEAN readError;
-BOOLEAN alerted = FALSE;
+static BOOLEAN alerted = FALSE;
+
+static void CloseConnectStatusWindow (void);
+static BOOLEAN ConnectTCPIP (void);
+static BOOLEAN GetIpid (void);
+static BOOLEAN DoVNCHandshaking (void);
+static BOOLEAN DoDES (void);
+static BOOLEAN FinishVNCHandshaking (void);
 
 #define buffTypePointer 0x0000      /* For TCPIPReadTCP() */
 #define buffTypeHandle 0x0001
@@ -178,7 +184,7 @@ void DisplayConnectStatus(char *statusString, BOOLEAN cancelMessage) {
 ***********************************************************************/
 #pragma databank    1   /* Set data bank register to access globals. */
 #pragma toolparms   1   /* Use tool-style stack model */
-void DisplayConnectStatusFromTool (char *statusString) {
+static void DisplayConnectStatusFromTool (char *statusString) {
     DisplayConnectStatus(statusString, TRUE);
 }
 #pragma toolparms   0   /* Use ORCA stack model */
@@ -187,7 +193,7 @@ void DisplayConnectStatusFromTool (char *statusString) {
 /***********************************************************************
 * CloseConnectStatusWindow - Close connect status window (if open)
 ***********************************************************************/
-void CloseConnectStatusWindow (void) {
+static void CloseConnectStatusWindow (void) {
     if (connectStatusWindowPtr != NULL) {
         CloseWindow(connectStatusWindowPtr);
         connectStatusWindowPtr = NULL;
@@ -197,7 +203,7 @@ void CloseConnectStatusWindow (void) {
 /***********************************************************************
 * ConnectTCPIP - Try to establish a TCP/IP connection through Marinetti
 ***********************************************************************/
-BOOLEAN ConnectTCPIP (void)
+static BOOLEAN ConnectTCPIP (void)
 {
     BOOLEAN connected = FALSE;      /* Are we connected to the network now? */
 
@@ -220,7 +226,7 @@ BOOLEAN ConnectTCPIP (void)
 /***********************************************************************
 * GetIpid() - parse the server name and attempt to get an ipid for it
 ***********************************************************************/
-BOOLEAN GetIpid (void)
+static BOOLEAN GetIpid (void)
 {
     #define baseDisplayNum  5900
 
@@ -283,7 +289,7 @@ BOOLEAN GetIpid (void)
     #undef baseDisplayNum
 }                   
 
-unsigned int tcperr;
+static unsigned int tcperr;
 
 /* Read data, waiting for up to 15 seconds for the data to be ready */
 BOOLEAN DoWaitingReadTCP(unsigned long dataLength) {
@@ -300,7 +306,7 @@ BOOLEAN DoWaitingReadTCP(unsigned long dataLength) {
 
 
 /* Fix things when TCPIPReadTCP returns less data than it's supposed to */
-BOOLEAN ReadFixup (unsigned long requested, unsigned long returned) {
+static BOOLEAN ReadFixup (unsigned long requested, unsigned long returned) {
     static rrBuff theRRBuff;
     static void **fixupBufferHndl = NULL;
 
@@ -369,7 +375,7 @@ BOOLEAN DoReadTCP (unsigned long dataLength) {
 /**********************************************************************
 * DoVNCHandshaking() - Establish connection to VNC server
 **********************************************************************/
-BOOLEAN DoVNCHandshaking (void) {
+static BOOLEAN DoVNCHandshaking (void) {
     #define connectionFailedAlert 2004
     #define badRFBVersionAlert 2008
     #define badAuthTypeAlert 2009
@@ -459,7 +465,7 @@ BOOLEAN DoVNCHandshaking (void) {
 /**********************************************************************
 * DoDES() - Try to do DES (aka VNC) authentication
 **********************************************************************/
-BOOLEAN DoDES (void) {
+static BOOLEAN DoDES (void) {
     /* This reverses the order of the low 7 bits of a byte. */
     /* Uses the high bit (7) as scratch space. */
     #define SwitchBits(x) do {  x &= 0x7f;              /* Clear 7 */   \
@@ -599,7 +605,7 @@ BOOLEAN DoDES (void) {
 /**********************************************************************
 * FinishVNCHandshaking() - Complete VNC protocol initialization
 **********************************************************************/
-BOOLEAN FinishVNCHandshaking (void) {
+static BOOLEAN FinishVNCHandshaking (void) {
 #define screenTooBigError   2010
     unsigned char sharedFlag;
     unsigned long serverNameLen;
