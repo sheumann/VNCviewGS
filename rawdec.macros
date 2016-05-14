@@ -1,0 +1,13 @@
+	macro
+	loopBody640 &iters
+	lcla	&n
+.top
+	ldx	|4*&n,Y
+	lda	>BCT640A,X
+	ldx	|4*&n+2,Y
+	ora	>BCT640B,X
+	LDX	destOfst
+	STA	>destBuf+&n,X
+&n	seta	&n+1
+	aif	&n<&iters,.top
+	mend

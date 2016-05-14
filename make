@@ -26,7 +26,7 @@ for file in vncview vncsession vncdisplay colortables \
         end
 end
 
-for file in tables
+for file in tables rawdec
         unset exit
         newer {file}.a {file}.asm
         if {status} != 0
@@ -45,7 +45,7 @@ if {status} != 0
 end
 
 if {link} == true
-        link vncview vncsession vncdisplay colortables tables \
+        link vncview vncsession vncdisplay colortables tables rawdec \
              desktopsize mouse keyboard copyrect raw hextile clipboard \
              keep=VNCview.GS
         filetype VNCview.GS S16 $DB03

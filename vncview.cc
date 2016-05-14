@@ -76,7 +76,8 @@ BOOLEAN vncConnected = FALSE;   /* are we connected to a VNC host */
 int menuOffset;                 /* Indicates which menu bar is active */
 static Ref startStopParm;       /* tool start/shutdown parameter */
 BOOLEAN colorTablesComplete = FALSE;    /* Are the big color tables complete */
-
+static Handle dpHndl;           /* direct page space for assembly routines */
+extern void *dpPtr;		/* pointer to DP for assembly routines */
 
 /* Connection options */
 int hRez = 320;
@@ -357,6 +358,8 @@ static void Quit (void) {
 
     if (readBufferHndl)
         DisposeHandle(readBufferHndl);  /* Get rid of TCPIP read buffer hndl */
+    if (dpHndl)
+        DisposeHandle(dpHndl);
 
     if (cursor)
         free(cursor);
@@ -400,6 +403,12 @@ int main (void) {
     }
 
     readBufferHndl = NewHandle(1, userid(), 0, NULL);
+    if (toolerror()) goto oomQuit;
+    
+    dpHndl = NewHandle(0x0100, userid(),
+        attrLocked|attrFixed|attrPage|attrNoCross|attrBank, 0x00000000);
+    if (toolerror()) goto oomQuit;
+    dpPtr = *dpHndl;
     
     LoadOneTool(54, 0x200);             /* load Marinetti 2.0+ */
     if (toolerror()) {                  /* Check that Marinetti is available */
@@ -412,6 +421,7 @@ int main (void) {
         TCPIPStartUp();                 /* ... so activate it now */
 
     if (toolerror()) {                  /* Get handle for TCPIP read buffer */
+oomQuit:
         SysBeep();
         InitCursor();
         AlertWindow(awResource, NULL, outOfMemoryError);
