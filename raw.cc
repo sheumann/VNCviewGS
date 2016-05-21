@@ -49,6 +49,9 @@ static unsigned char *destPtr;
 
 unsigned char * rawDecode640(unsigned startOffset, unsigned endOffset,
                              unsigned char *lineDataPtr);
+unsigned char * rawDecode320(unsigned startOffset, unsigned endOffset,
+                             unsigned char *lineDataPtr);
+
 
 /* Ends drawing of a raw rectangle when it is complete or aborted
  * because the rectangle is not visible.
@@ -136,38 +139,8 @@ void RawDraw (void) {
             destPtr++;
         }
         else {          /* 320 mode */
-            while (destPtr + 7 < finalDestPtr) {    /* Unrolled loop */
-                *(unsigned*)destPtr     = 
-                        outPixels = *(unsigned*)(bigcoltab320 + (inPixelsA = *(unsigned*)lineDataPtr));
-                *(unsigned*)(destPtr+1) = 
-                        (inPixelsA ^ (inPixelsB = ((unsigned*)lineDataPtr)[1])) == 0 ? outPixels :
-                        (outPixels = *(unsigned*)(bigcoltab320 + inPixelsB));
-                *(unsigned*)(destPtr+2) = 
-                        (inPixelsB ^ (inPixelsA = ((unsigned*)lineDataPtr)[2])) == 0 ? outPixels :
-                        (outPixels = *(unsigned*)(bigcoltab320 + inPixelsA));
-                *(unsigned*)(destPtr+3) = 
-                        (inPixelsA ^ (inPixelsB = ((unsigned*)lineDataPtr)[3])) == 0 ? outPixels :
-                        (outPixels = *(unsigned*)(bigcoltab320 + inPixelsB));
-                *(unsigned*)(destPtr+4) = 
-                        (inPixelsB ^ (inPixelsA = ((unsigned*)lineDataPtr)[4])) == 0 ? outPixels :
-                        (outPixels = *(unsigned*)(bigcoltab320 + inPixelsA));
-                *(unsigned*)(destPtr+5) = 
-                        (inPixelsA ^ (inPixelsB = ((unsigned*)lineDataPtr)[5])) == 0 ? outPixels :
-                        (outPixels = *(unsigned*)(bigcoltab320 + inPixelsB));
-                *(unsigned*)(destPtr+6) = 
-                        (inPixelsB ^ (inPixelsA = ((unsigned*)lineDataPtr)[6])) == 0 ? outPixels :
-                        (outPixels = *(unsigned*)(bigcoltab320 + inPixelsA));
-                *(destPtr+7) = 
-                        (inPixelsA ^ (inPixelsB = ((unsigned*)lineDataPtr)[7])) == 0 ? outPixels :
-                        *(unsigned*)(bigcoltab320 + inPixelsB);
-                destPtr += 8;
-                lineDataPtr += 16;
-            }
-            while (destPtr < finalDestPtr) {
-                *(destPtr++) = 
-                        *(unsigned*)(bigcoltab320 + *(unsigned*)lineDataPtr);
-                lineDataPtr += 2;
-            }
+            lineDataPtr = rawDecode320(destPtr-destBuf, finalDestPtr-destBuf, lineDataPtr);
+            destPtr = finalDestPtr;
             /* Final byte to produce */
             *destPtr      = pixTransTbl[*(lineDataPtr++)] & 0xF0;
             if (extraByteAdvance)
