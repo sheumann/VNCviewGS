@@ -177,10 +177,11 @@ void RawDraw (void) {
          * instead processing the minimum necessary periodic tasks and then
          * going straight to the next line of data.
          */
-        if (EventAvail(0xFFFF, &unusedEventRec))
-            return;
-
-        SystemTask();   /* Let periodic Desk Accesories do their things */
+        if (!(drawingLine & 15)) {
+            if (EventAvail(0xFFFF, &unusedEventRec))
+                return;
+            SystemTask();   /* Let periodic Desk Accesories do their things */
+        }
         TCPIPPoll();    /* Let Marinetti keep processing data */
 
     } while (1);
