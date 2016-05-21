@@ -84,7 +84,7 @@ void DoConnect (void) {
 
     if (colorTablesComplete == FALSE) {
         DisplayConnectStatus("\pGenerating color tables...", FALSE);
-        MakeBigColorTables(65536);
+        MakeBigColorTables(0);
         colorTablesComplete = TRUE;
         CloseConnectStatusWindow();
     }

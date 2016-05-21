@@ -82,12 +82,12 @@ const unsigned char coltab640[] = {
         /* 11111 */ 0xAA,0xAA,0xAA,0xAA,0xFF,0xFF,0xFF,0xFF
 };
 
-/* iters = number of iterations to do (must be > 0) */
+/* iters = number of iterations to do (0 means run to completion) */
 BOOLEAN MakeBigColorTables (unsigned int iters)
 {
     static unsigned int i = 0;
     unsigned int iMax = i + iters;
-    if (iMax < i)       /* Deal with wraparound */
+    if (iMax <= i)       /* Deal with wraparound */
         iMax = 0;
 
     /* The addressing scheme here depends on the IIgs's little-endianness */
