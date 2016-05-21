@@ -121,7 +121,7 @@ static void ChangeResolution(int rez) {
     if (dpSpace == NULL)
         dpSpace = NewHandle(0x0300, userid(),
                         attrLocked|attrFixed|attrNoCross|attrBank, 0x00000000);
-    QDStartUp((Word) *dpSpace, (rez == 640) ? 0x87 : 0x00, 0, userid());
+    QDStartUp((Word) *dpSpace, (rez == 640) ? 0xC087 : 0xC000, 0, userid());
                     /* SCB 0x87 gives 640 mode with our custom gray palette */
     GrafOff();
     QDAuxStartUp();
@@ -359,5 +359,3 @@ void ConnectedEventLoop (void) {
         }
     }
 }
-
-

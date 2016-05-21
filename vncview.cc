@@ -122,9 +122,6 @@ static void DoAbout (void) {
 ***************************************************************/
 
 static void DoNewConnection (void) {
-    unsigned int masterSCB;
-    
-    masterSCB = GetMasterSCB();
     MakeThisCtlTarget(GetCtlHandleFromID(newConnWindow, linServer));
     ShowWindow(newConnWindow);
     SelectWindow(newConnWindow);
@@ -345,10 +342,9 @@ static void InitScreen (void) {
         0x0000, 0x0555, 0x0AAA, 0x0FFF, 0x0000, 0x0555, 0x0AAA, 0x0FFF
     };  
 
-        /* Apple menu uses color tables 1 through 6 */
-        SetColorTable(7, &gray640Colors);
-        SetAllSCBs(0x87);                   /* 640 mode with gray640Colors */
-        InitPalette();                      /* Restore Apple Menu colors */
+    /* Apple menu uses color tables 1 through 6.
+     * We set SCBs for color table 7 in StartUpTools or QDStartUp. */
+    SetColorTable(7, &gray640Colors);
 }
 
 static void Quit (void) {
