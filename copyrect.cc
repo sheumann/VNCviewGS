@@ -62,8 +62,7 @@ void DoCopyRect (void) {
      */
     if (!RectInRgn(&srcRect, GetVisHandle())) {
         SendFBUpdateRequest(FALSE, rectX, rectY, rectWidth, rectHeight);
-        displayInProgress = FALSE;
-        return;
+        goto done;
     }
 
     /* We can use the window pointer as a LocInfo pointer because it starts
@@ -72,6 +71,7 @@ void DoCopyRect (void) {
     PPToPort((struct LocInfo *) vncWindow, &srcRect,
             rectX - contentOriginPtr->h, rectY - contentOriginPtr->v, modeCopy);
 
+done:
     displayInProgress = FALSE;
 
     NextRect();                                     /* Prepare for next rect */
