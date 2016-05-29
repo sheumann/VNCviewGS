@@ -46,8 +46,7 @@ void DoPointerEvent (void) {
     } pointerEventStruct = { 5 /* message type */ };
 
     Point mouseCoords;
-    unsigned long contentOrigin;
-    Point * contentOriginPtr = (void *) &contentOrigin;
+    Origin contentOrigin;
     RegionHndl contentRgnHndl;
     unsigned int oldButtonMask;
     GrafPortPtr winPtr;
@@ -73,9 +72,9 @@ void DoPointerEvent (void) {
 
     GlobalToLocal(&mouseCoords);
 
-    contentOrigin = GetContentOrigin(vncWindow);
-    mouseCoords.h += contentOriginPtr->h;
-    mouseCoords.v += contentOriginPtr->v;
+    contentOrigin.l = GetContentOrigin(vncWindow);
+    mouseCoords.h += contentOrigin.pt.h;
+    mouseCoords.v += contentOrigin.pt.v;
 
     mouseCoords.h = SwapBytes2(mouseCoords.h);
     mouseCoords.v = SwapBytes2(mouseCoords.v);

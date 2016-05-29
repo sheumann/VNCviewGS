@@ -1,3 +1,8 @@
+typedef union Origin {
+    unsigned long l;
+    Point pt;
+} Origin;
+
 extern unsigned int fbHeight;
 extern unsigned int fbWidth;
 

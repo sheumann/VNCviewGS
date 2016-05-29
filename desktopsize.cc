@@ -38,8 +38,7 @@ extern pascal void SetContentOrigin2(Word, Word, Word, GrafPortPtr) inline(0x570
 
 void DoDesktopSize (void) {
     #define screenTooBigError   2010
-    unsigned long contentOrigin;
-    Point * contentOriginPtr = (void *) &contentOrigin;
+    Origin contentOrigin;
     unsigned int newX, newY;
     Boolean changeOrigin = FALSE;
     unsigned int oldWinHeight, oldWinWidth;
@@ -64,15 +63,15 @@ void DoDesktopSize (void) {
         SizeWindow(winWidth, winHeight, vncWindow);
     
     /* Scroll if area displayed is going away */
-    contentOrigin = GetContentOrigin(vncWindow);
-    newX = contentOriginPtr->h;
-    newY = contentOriginPtr->v;
+    contentOrigin.l = GetContentOrigin(vncWindow);
+    newX = contentOrigin.pt.h;
+    newY = contentOrigin.pt.v;
 
-    if (contentOriginPtr->h + winWidth > fbWidth) {
+    if (contentOrigin.pt.h + winWidth > fbWidth) {
         newX = fbWidth - winWidth;
         changeOrigin = TRUE;
     }
-    if (contentOriginPtr->v + winHeight > fbHeight) {
+    if (contentOrigin.pt.v + winHeight > fbHeight) {
         newY = fbHeight - winHeight;
         changeOrigin = TRUE;
     }

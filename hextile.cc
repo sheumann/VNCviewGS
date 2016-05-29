@@ -70,7 +70,7 @@ static void HexNextTile (void) {
 
 }
 
-static void HexRawDraw (Point *contentOriginPtr, int rectWidth, int rectHeight) {      
+static void HexRawDraw (Origin contentOrigin, int rectWidth, int rectHeight) {      
     unsigned int i, j;          /* Loop indices */
     unsigned int n = 0;
     unsigned char *dataPtr;
@@ -164,8 +164,8 @@ static void HexRawDraw (Point *contentOriginPtr, int rectWidth, int rectHeight) 
     srcRect.h2 = hexTileWidth;                                      
 
     PPToPort(&srcLocInfo, &srcRect,                             
-        rectX + hexXTileNum * 16 - contentOriginPtr->h,             
-        rectY + hexYTileNum * 16 - contentOriginPtr->v, modeCopy);
+        rectX + hexXTileNum * 16 - contentOrigin.pt.h,             
+        rectY + hexYTileNum * 16 - contentOrigin.pt.v, modeCopy);
 }
 
 /* The macros below are used in HexDispatch() */
@@ -180,10 +180,10 @@ static void HexRawDraw (Point *contentOriginPtr, int rectWidth, int rectHeight) 
 
 #define HexDispatch_DrawRect(color, X, Y, width, height)    do {        \
     SetSolidPenPat((color));   \
-    drawingRect.h1 = rectX + hexXTileNum * 16 + (X) - contentOriginPtr->h;   \
-    drawingRect.v1 = rectY + hexYTileNum * 16 + (Y) - contentOriginPtr->v;    \
-    drawingRect.h2 = rectX + hexXTileNum * 16 + (X) + (width) - contentOriginPtr->h; \
-    drawingRect.v2 = rectY + hexYTileNum * 16 + (Y) + (height) - contentOriginPtr->v; \
+    drawingRect.h1 = rectX + hexXTileNum * 16 + (X) - contentOrigin.pt.h;   \
+    drawingRect.v1 = rectY + hexYTileNum * 16 + (Y) - contentOrigin.pt.v;    \
+    drawingRect.h2 = rectX + hexXTileNum * 16 + (X) + (width) - contentOrigin.pt.h; \
+    drawingRect.v2 = rectY + hexYTileNum * 16 + (Y) + (height) - contentOrigin.pt.v; \
     PaintRect(&drawingRect);                                          \
 } while (0)
 
@@ -197,15 +197,14 @@ void HexDispatch (void) {
     static unsigned int numSubrects;
     int i;
     /* For use with GetContentOrigin() */
-    unsigned long contentOrigin;
-    Point * contentOriginPtr = (void *) &contentOrigin;
+    Origin contentOrigin;
     int tileBytes;
     unsigned int srX, srY, srWidth, srHeight;
     Rect drawingRect;
     static unsigned char pixels[128];
     unsigned char *dataPtr;
 
-    contentOrigin = GetContentOrigin(vncWindow);
+    contentOrigin.l = GetContentOrigin(vncWindow);
     SetPort(vncWindow);
 
     /* If we don't have the next bit of needed data yet, return. */
@@ -237,7 +236,7 @@ void HexDispatch (void) {
                 break;
 
             case hexWaitingForRawData:
-                HexRawDraw(contentOriginPtr, hexTileWidth, hexTileHeight);
+                HexRawDraw(contentOrigin, hexTileWidth, hexTileHeight);
                 HexDispatch_NextTile();
                 break;
 

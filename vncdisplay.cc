@@ -279,13 +279,12 @@ void NextRect (void) {
         //printf("New Rect: X = %u, Y = %u, Width = %u, Height = %u\n", rectX, rectY, rectWidth, rectHeight);
     }
     else {                          /* No more rectangles from last update */
-        unsigned long contentOrigin;
-        Point * contentOriginPtr = (void *) &contentOrigin;
+        Origin contentOrigin;
 
         DoneWithReadBuffer();
 
-        contentOrigin = GetContentOrigin(vncWindow);
-        SendFBUpdateRequest(TRUE, contentOriginPtr->h, contentOriginPtr->v,
+        contentOrigin.l = GetContentOrigin(vncWindow);
+        SendFBUpdateRequest(TRUE, contentOrigin.pt.h, contentOrigin.pt.v,
                             winWidth, winHeight);
     }
 }                         

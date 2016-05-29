@@ -72,8 +72,7 @@ void RawDraw (void) {
     static EventRecord unusedEventRec;
 
     /* For use with GetContentOrigin() */
-    unsigned long contentOrigin;
-    Point * contentOriginPtr = (void *) &contentOrigin;
+    Origin contentOrigin;
 
     SetPort(vncWindow);                         /* Drawing in VNC window */
     dataPtr = (unsigned char *) *readBufferHndl;
@@ -84,28 +83,28 @@ void RawDraw (void) {
     if (checkBounds) {
         Rect drawingRect;
 
-        contentOrigin = GetContentOrigin(vncWindow);
-        drawingRect.h1 = rectX - contentOriginPtr->h;
-        drawingRect.h2 = rectX - contentOriginPtr->h + rectWidth;
-        drawingRect.v1 = rectY - contentOriginPtr->v + drawingLine;
-        drawingRect.v2 = rectY - contentOriginPtr->v + rectHeight;
+        contentOrigin.l = GetContentOrigin(vncWindow);
+        drawingRect.h1 = rectX - contentOrigin.pt.h;
+        drawingRect.h2 = rectX - contentOrigin.pt.h + rectWidth;
+        drawingRect.v1 = rectY - contentOrigin.pt.v + drawingLine;
+        drawingRect.v2 = rectY - contentOrigin.pt.v + rectHeight;
 
         if (!RectInRgn(&drawingRect, GetVisHandle())) {
             StopRawDrawing();
             return;
         }
-        else if (rectY + drawingLine < contentOriginPtr->v) {
+        else if (rectY + drawingLine < contentOrigin.pt.v) {
             destPtr += (unsigned long)lineBytes *
-                 (contentOriginPtr->v - rectY - drawingLine);
-            drawingLine = contentOriginPtr->v - rectY;
+                 (contentOrigin.pt.v - rectY - drawingLine);
+            drawingLine = contentOrigin.pt.v - rectY;
     
             if (drawingLine >= rectHeight) {    /* Sanity check */
                 StopRawDrawing();
                 return;
             }
         }
-        else if (rectY + rectHeight - 1 > contentOriginPtr->v + winHeight)
-            rectHeight = contentOriginPtr->v + winHeight - rectY + 1;
+        else if (rectY + rectHeight - 1 > contentOrigin.pt.v + winHeight)
+            rectHeight = contentOrigin.pt.v + winHeight - rectY + 1;
 
         checkBounds = FALSE;
     }
@@ -149,9 +148,9 @@ void RawDraw (void) {
 
         if (pixels > 613 && !(drawingLine & 0x03)) {  /* Draw every 4th line */
             srcRect.v2 = drawingLine;
-            contentOrigin = GetContentOrigin(vncWindow);
-            PPToPort(&srcLocInfo, &srcRect, rectX - contentOriginPtr->h,
-                rectY + srcRect.v1 - contentOriginPtr->v, modeCopy);
+            contentOrigin.l = GetContentOrigin(vncWindow);
+            PPToPort(&srcLocInfo, &srcRect, rectX - contentOrigin.pt.h,
+                rectY + srcRect.v1 - contentOrigin.pt.v, modeCopy);
             srcRect.v1 = drawingLine;
         }
 
@@ -160,9 +159,9 @@ void RawDraw (void) {
             /* Draw final rect, if necessary */
             if (drawingLine > srcRect.v1) {
                 srcRect.v2 = drawingLine;
-                contentOrigin = GetContentOrigin(vncWindow);
-                PPToPort(&srcLocInfo, &srcRect, rectX - contentOriginPtr->h,
-                    rectY + srcRect.v1 - contentOriginPtr->v, modeCopy);
+                contentOrigin.l = GetContentOrigin(vncWindow);
+                PPToPort(&srcLocInfo, &srcRect, rectX - contentOrigin.pt.h,
+                    rectY + srcRect.v1 - contentOrigin.pt.v, modeCopy);
             }
             StopRawDrawing();
             return;
@@ -189,8 +188,7 @@ void RawDraw (void) {
 static void RawDrawLine (void) {
     unsigned int i;
     unsigned char *dataPtr;
-    unsigned long contentOrigin;
-    Point * contentOriginPtr = (void *) &contentOrigin;
+    Origin contentOrigin;
 
     if (hRez == 640) {
         if (rectWidth & 0x03)           /* Width not an exact multiple of 4 */
@@ -262,9 +260,9 @@ static void RawDrawLine (void) {
         }
 
     DoneWithReadBuffer();
-    contentOrigin = GetContentOrigin(vncWindow);
-    PPToPort(&srcLocInfo, &srcRect, rectX - contentOriginPtr->h,
-            rectY - contentOriginPtr->v, modeCopy);
+    contentOrigin.l = GetContentOrigin(vncWindow);
+    PPToPort(&srcLocInfo, &srcRect, rectX - contentOrigin.pt.h,
+            rectY - contentOrigin.pt.v, modeCopy);
     free(srcLocInfo.ptrToPixImage);     /* Allocated as destPtr */
 
     TCPIPPoll();
@@ -315,11 +313,10 @@ void DoRawRect (void) {
      * update requests for multiple screen regions due to scrolling.
      */
     if (lineBytes * rectHeight >= DESTBUF_SIZE) {
-        unsigned long contentOrigin;
-        Point * contentOriginPtr = (void *) &contentOrigin;
+        Origin contentOrigin;
 
-        contentOrigin = GetContentOrigin(vncWindow);
-        SendFBUpdateRequest(FALSE, contentOriginPtr->h, contentOriginPtr->v,
+        contentOrigin.l = GetContentOrigin(vncWindow);
+        SendFBUpdateRequest(FALSE, contentOrigin.pt.h, contentOrigin.pt.v,
                             winWidth, winHeight);
         StopRawDrawing();
         return;

@@ -35,8 +35,7 @@ segment "VNCview GS";
 
 void DoCopyRect (void) {
     /* For use with GetContentOrigin() */
-    unsigned long contentOrigin;
-    Point * contentOriginPtr = (void *) &contentOrigin;
+    Origin contentOrigin;
     
     Rect srcRect;
     unsigned int *dataPtr;              /* Pointer to TCP data that was read */
@@ -46,11 +45,11 @@ void DoCopyRect (void) {
     if (! DoReadTCP ((unsigned long) 4))
         return;                                     /* Not ready yet; wait */
 
-    contentOrigin = GetContentOrigin(vncWindow);
+    contentOrigin.l = GetContentOrigin(vncWindow);
 
     dataPtr = (unsigned int *) ((char *) (*readBufferHndl));
-    srcRect.h1 = SwapBytes2(dataPtr[0]) - contentOriginPtr->h;
-    srcRect.v1 = SwapBytes2(dataPtr[1]) - contentOriginPtr->v;
+    srcRect.h1 = SwapBytes2(dataPtr[0]) - contentOrigin.pt.h;
+    srcRect.v1 = SwapBytes2(dataPtr[1]) - contentOrigin.pt.v;
 
     srcRect.h2 = srcRect.h1 + rectWidth;
     srcRect.v2 = srcRect.v1 + rectHeight;
@@ -67,7 +66,7 @@ void DoCopyRect (void) {
      * with a grafPort structure, which in turn starts with a LocInfo structure.
      */
     PPToPort((struct LocInfo *) vncWindow, &srcRect,
-            rectX - contentOriginPtr->h, rectY - contentOriginPtr->v, modeCopy);
+            rectX - contentOrigin.pt.h, rectY - contentOrigin.pt.v, modeCopy);
 
 done:
     NextRect();                                     /* Prepare for next rect */
