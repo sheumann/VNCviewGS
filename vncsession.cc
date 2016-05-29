@@ -307,13 +307,6 @@ BOOLEAN DoWaitingReadTCP(unsigned long dataLength) {
 /* Fix things when TCPIPReadTCP returns less data than it's supposed to */
 static BOOLEAN ReadFixup (unsigned long requested, unsigned long returned) {
     static rrBuff theRRBuff;
-    static void **fixupBufferHndl = NULL;
-
-    if (fixupBufferHndl == NULL) {
-    	fixupBufferHndl = NewHandle(requested-returned, userid(), 0, NULL);
-    	if (toolerror())
-    		return FALSE;
-    }
 
     SetHandleSize(requested, readBufferHndl);
     if (toolerror())
@@ -322,7 +315,7 @@ static BOOLEAN ReadFixup (unsigned long requested, unsigned long returned) {
 
     do {
         TCPIPPoll();
-        if ((tcperr = TCPIPReadTCP(hostIpid, buffTypeHandle, (Ref)fixupBufferHndl,
+        if ((tcperr = TCPIPReadTCP(hostIpid, buffTypeNewHandle, NULL,
                     requested-returned, &theRRBuff)) != tcperrOK)
             return FALSE;
         if (toolerror())
@@ -331,11 +324,11 @@ static BOOLEAN ReadFixup (unsigned long requested, unsigned long returned) {
         if (theRRBuff.rrBuffCount == 0)     /* To avoid infinite loops */
             return FALSE;
 
-        HandToPtr(fixupBufferHndl, (char *)*readBufferHndl + returned,
+        HandToPtr(theRRBuff.rrBuffHandle, (char *)*readBufferHndl + returned,
                     theRRBuff.rrBuffCount);
-
         returned += theRRBuff.rrBuffCount;
 
+        DisposeHandle(theRRBuff.rrBuffHandle);
     } while (returned < requested);
 
     return TRUE;
@@ -365,6 +358,9 @@ BOOLEAN DoReadTCP (unsigned long dataLength) {
         return FALSE;
     if (toolerror())
         return FALSE;
+    if (theRRBuff.rrBuffCount == 0)
+        return FALSE;
+
     readBufferHndl = theRRBuff.rrBuffHandle;
 
     if (theRRBuff.rrBuffCount != dataLength)
