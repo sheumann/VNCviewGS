@@ -360,11 +360,13 @@ BOOLEAN DoReadTCP (unsigned long dataLength) {
     if (theSRBuff.srRcvQueued < dataLength)
         return FALSE;
 
-    if ((tcperr = TCPIPReadTCP(hostIpid, buffTypeHandle, (Ref) readBufferHndl,
+    DisposeHandle(readBufferHndl);
+    if ((tcperr = TCPIPReadTCP(hostIpid, buffTypeNewHandle, NULL,
                         dataLength, &theRRBuff)) != tcperrOK)
         return FALSE;
     if (toolerror())
         return FALSE;
+    readBufferHndl = theRRBuff.rrBuffHandle;
 
     if (theRRBuff.rrBuffCount != dataLength)
         return ReadFixup(dataLength, theRRBuff.rrBuffCount);
