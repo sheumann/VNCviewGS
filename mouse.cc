@@ -162,8 +162,6 @@ void DoCursor (void) {
     if (!DoReadTCP((unsigned long)rectWidth * rectHeight + bitmaskLineBytes * rectHeight))
         return; /* Try again later */
 
-    HLock(readBufferHndl);
-
     cursorPixels = (unsigned char *)(*readBufferHndl);
     bitmask = (unsigned char *)(*readBufferHndl) + (unsigned long)rectWidth * rectHeight;
 
@@ -316,8 +314,6 @@ void DoCursor (void) {
 #endif
 
 done:
-    HUnlock(readBufferHndl);
     free(oldCursor);
-    displayInProgress = FALSE;
     NextRect();             /* Prepare for next rect */
 }

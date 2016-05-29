@@ -108,7 +108,6 @@ void DoConnect (void) {
     }
 
     if (DoVNCHandshaking() == FALSE) {
-        SetHandleSize(1,readBufferHndl);
         CloseConnectStatusWindow();
         InitCursor();
         SysBeep();
@@ -119,7 +118,6 @@ void DoConnect (void) {
         return;
     }
     if (FinishVNCHandshaking() == FALSE) {
-        SetHandleSize(1,readBufferHndl);
         CloseConnectStatusWindow();
         InitCursor();
         AlertWindow(awResource, NULL, badOptionNegotiationError);
@@ -320,6 +318,7 @@ static BOOLEAN ReadFixup (unsigned long requested, unsigned long returned) {
     SetHandleSize(requested, readBufferHndl);
     if (toolerror())
         return FALSE;
+    HLock(readBufferHndl);
 
     do {
         TCPIPPoll();
@@ -350,6 +349,7 @@ BOOLEAN DoReadTCP (unsigned long dataLength) {
     static srBuff theSRBuff;
     static rrBuff theRRBuff;
 
+    DoneWithReadBuffer();
     TCPIPPoll();
 
     if ((tcperr = TCPIPStatusTCP(hostIpid, &theSRBuff)) != tcperrOK)
@@ -360,7 +360,6 @@ BOOLEAN DoReadTCP (unsigned long dataLength) {
     if (theSRBuff.srRcvQueued < dataLength)
         return FALSE;
 
-    DisposeHandle(readBufferHndl);
     if ((tcperr = TCPIPReadTCP(hostIpid, buffTypeNewHandle, NULL,
                         dataLength, &theRRBuff)) != tcperrOK)
         return FALSE;
@@ -371,6 +370,7 @@ BOOLEAN DoReadTCP (unsigned long dataLength) {
     if (theRRBuff.rrBuffCount != dataLength)
         return ReadFixup(dataLength, theRRBuff.rrBuffCount);
 
+    HLock(readBufferHndl);
     return TRUE;
 }
 
@@ -393,18 +393,15 @@ static BOOLEAN DoVNCHandshaking (void) {
     strcpy(versionString, "");
     if (! DoWaitingReadTCP(12))
         return FALSE;
-    HLock(readBufferHndl);
     if ( ! ((strncmp((char *)*readBufferHndl, "RFB ", 4) == 0) &&
             (strncmp((char *)*readBufferHndl+4, RFBMAJORVERSIONSTR, 3) >= 0) &&
             (strncmp((char *)*readBufferHndl+7, ".", 1) == 0) &&
             (strncmp((char *)*readBufferHndl+11, "\n", 1) == 0))) {
-        HUnlock(readBufferHndl);
         InitCursor();
         AlertWindow(awResource, NULL, badRFBVersionAlert);
         alerted = TRUE;
         return FALSE;
     }
-    HUnlock(readBufferHndl);
 
     strcpy(versionString, RFBVERSIONSTR);
     if (TCPIPWriteTCP(hostIpid, versionString, 12, TRUE, FALSE)) {
@@ -417,20 +414,17 @@ static BOOLEAN DoVNCHandshaking (void) {
     if (! DoWaitingReadTCP(4)) {                /* Read authentication type */
         return FALSE;
     }
-    HLock(readBufferHndl);
     switch ((unsigned long) (**readBufferHndl)) {
-        case vncConnectionFailed:   HUnlock(readBufferHndl);
-                                    if (! DoWaitingReadTCP(4))
+        case vncConnectionFailed:   if (! DoWaitingReadTCP(4))
                                         return FALSE; 
                                     if (toolerror())
                                         return FALSE;
-                                    HLock(readBufferHndl);
                                     reasonLength = SwapBytes4(**readBufferHndl);
-                                    HUnlock(readBufferHndl);
                                     if (! DoWaitingReadTCP(reasonLength))
                                         return FALSE;
                                     if (toolerror())
                                         return FALSE;  
+                                    HUnlock(readBufferHndl);
                                     SetHandleSize(
                                             GetHandleSize(readBufferHndl)+1,
                                             readBufferHndl);
@@ -443,22 +437,18 @@ static BOOLEAN DoVNCHandshaking (void) {
                                                 (Pointer) readBufferHndl,
                                                 connectionFailedAlert);
                                         alerted = TRUE;
-                                        HUnlock(readBufferHndl);
                                     }
                                     return FALSE;
         case vncNoAuthentication:   break;
         case vncVNCAuthentication:  if (DoDES())
                                         break;
-                                    HUnlock(readBufferHndl);
                                     return FALSE;
-        default:                    HUnlock(readBufferHndl);
-                                    AlertWindow(awResource, NULL,
+        default:                    AlertWindow(awResource, NULL,
                                             badAuthTypeAlert);
                                     alerted = TRUE;
                                     return FALSE;
     }
 
-    HUnlock(readBufferHndl);
     return TRUE;
     #undef connectionFailedAlert
     #undef badRFBVersionAlert
@@ -547,10 +537,8 @@ static BOOLEAN DoDES (void) {
 
     DESAddParity(theKey, &vncPassword[1]);
 
-    HLock(readBufferHndl);
     DESCipher(theResponse, theKey, *(char **)readBufferHndl, modeEncrypt);
     DESCipher(&theResponse[8], theKey, *(char **)readBufferHndl+8, modeEncrypt);
-    HUnlock(readBufferHndl);
 
     if (TCPIPWriteTCP(hostIpid, theResponse, sizeof(theResponse), TRUE, FALSE))
         {
@@ -566,7 +554,6 @@ static BOOLEAN DoDES (void) {
         goto UnloadCrypto;
     }
 
-    HLock(readBufferHndl);
     if ((**readBufferHndl) == statusOK) {
         success = TRUE;
         goto UnloadCrypto;
@@ -589,8 +576,6 @@ static BOOLEAN DoDES (void) {
         success = FALSE;
 
     UnloadCrypto:
-
-    HUnlock(readBufferHndl);
 
     if (startedCrypto) {
         CryptoShutDown();                       /* Shut down Crypto tool set */
@@ -678,14 +663,10 @@ static BOOLEAN FinishVNCHandshaking (void) {
     /* ServerInitialisation */
     if (! DoWaitingReadTCP(2))
         return FALSE;
-    HLock(readBufferHndl);
     fbWidth = SwapBytes2(**(unsigned **)readBufferHndl);
-    HUnlock(readBufferHndl);
     if (! DoWaitingReadTCP(2))
         return FALSE;
-    HLock(readBufferHndl);
     fbHeight = SwapBytes2(**(unsigned **)readBufferHndl);
-    HUnlock(readBufferHndl);
 
     if ((fbWidth > 16384) || (fbHeight > 16384)) {
         AlertWindow(awResource, NULL, screenTooBigError);
@@ -697,9 +678,7 @@ static BOOLEAN FinishVNCHandshaking (void) {
         return FALSE;
     if (! DoWaitingReadTCP(4))
         return FALSE;
-    HLock(readBufferHndl);
     serverNameLen = SwapBytes4(**(unsigned long **)readBufferHndl);
-    HUnlock(readBufferHndl);
     if (! DoWaitingReadTCP(serverNameLen))
         return FALSE;
 

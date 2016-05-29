@@ -81,8 +81,6 @@ void DoDesktopSize (void) {
     SetDataSize(fbWidth, fbHeight, vncWindow);
     DrawControls(vncWindow);
 
-    displayInProgress = FALSE;
-
     NextRect();             /* Prepare for next rect */
 }
 

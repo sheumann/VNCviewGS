@@ -226,7 +226,6 @@ static void DoFBUpdate (void) {
         //printf("Closing in DoFBUpdate\n");
         return;
     }
-    HLock(readBufferHndl);
     dataPtr = (unsigned int *) (((char *) (*readBufferHndl)) + 1);
     numRects = SwapBytes2(dataPtr[0]);                  /* Get data */
     rectX = SwapBytes2(dataPtr[1]);
@@ -234,7 +233,6 @@ static void DoFBUpdate (void) {
     rectWidth  = SwapBytes2(dataPtr[3]);
     rectHeight = SwapBytes2(dataPtr[4]);
     rectEncoding = SwapBytes4(*(unsigned long *)(dataPtr + 5));
-    HUnlock(readBufferHndl);
 }
 
 /* The server should never send a color map, since we don't use a mapped
@@ -249,9 +247,7 @@ static void DoSetColourMapEntries (void) {
 
     DoWaitingReadTCP(3);
     DoWaitingReadTCP(2);
-    HLock(readBufferHndl);
     numColors = SwapBytes2((unsigned int) **readBufferHndl);
-    HUnlock(readBufferHndl);
     for (; numColors > 0; numColors--) {
         DoWaitingReadTCP(6);
     }
@@ -265,6 +261,8 @@ static void DoSetColourMapEntries (void) {
 void NextRect (void) {
     unsigned int *dataPtr;
 
+    displayInProgress = FALSE;
+    
     numRects--;
     if (numRects) {                 /* Process next rectangle */
         if (!DoWaitingReadTCP(12)) {
@@ -272,19 +270,19 @@ void NextRect (void) {
             DoClose(vncWindow);
             return;
         }
-        HLock(readBufferHndl);
         dataPtr = (unsigned int *) ((char *) (*readBufferHndl));
         rectX = SwapBytes2(dataPtr[0]);
         rectY = SwapBytes2(dataPtr[1]);
         rectWidth  = SwapBytes2(dataPtr[2]);
         rectHeight = SwapBytes2(dataPtr[3]);
         rectEncoding = SwapBytes4(*(unsigned long *)(dataPtr + 4));
-        HUnlock(readBufferHndl);
         //printf("New Rect: X = %u, Y = %u, Width = %u, Height = %u\n", rectX, rectY, rectWidth, rectHeight);
     }
     else {                          /* No more rectangles from last update */
         unsigned long contentOrigin;
         Point * contentOriginPtr = (void *) &contentOrigin;
+
+        DoneWithReadBuffer();
 
         contentOrigin = GetContentOrigin(vncWindow);
         SendFBUpdateRequest(TRUE, contentOriginPtr->h, contentOriginPtr->v,
@@ -339,9 +337,7 @@ void ConnectedEventLoop (void) {
         }
     }
     else if (DoReadTCP(1)) {            /* Read message type byte */
-        HLock(readBufferHndl);
         messageType = ((unsigned char) **readBufferHndl);
-        HUnlock(readBufferHndl);
         switch (messageType) {
             case FBUpdate:              DoFBUpdate();
                                         break;

@@ -57,7 +57,6 @@ static void HexNextTile (void) {
     if (hexXTileNum == hexXTiles) {
         hexYTileNum++;
         if (hexYTileNum == hexYTiles) {     /* Done with this Hextile rect */
-            displayInProgress = FALSE;
             NextRect();
             return;
         }                      
@@ -172,7 +171,7 @@ static void HexRawDraw (Point *contentOriginPtr, int rectWidth, int rectHeight) 
 /* The macros below are used in HexDispatch() */
 #define HexDispatch_NextTile()  do {                                \
     HexNextTile();                                                  \
-    HUnlock(readBufferHndl);                                        \
+    DoneWithReadBuffer();                                           \
     /* Set up for next time */                                      \
     status = hexWaitingForSubencoding;                              \
     bytesNeeded = 1;                                                \
@@ -211,7 +210,6 @@ void HexDispatch (void) {
 
     /* If we don't have the next bit of needed data yet, return. */
     while (DoReadTCP(bytesNeeded)) {
-        HLock(readBufferHndl);
         dataPtr = *(unsigned char **) readBufferHndl;
         /* If we're here, readBufferHndl contains bytesNeeded bytes of data. */
         switch (status) {
@@ -280,7 +278,6 @@ void HexDispatch (void) {
                 HexDispatch_NextTile();
             }
         }
-            HUnlock(readBufferHndl);
     }
 }
 

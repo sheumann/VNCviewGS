@@ -23,6 +23,13 @@ extern unsigned int hostIpid;
 extern void DisplayConnectStatus(char *, BOOLEAN);
 
 extern void DoConnect (void);
+
+#define DoneWithReadBuffer() do         \
+    if (readBufferHndl) {               \
+        DisposeHandle(readBufferHndl);  \
+        readBufferHndl = NULL;          \
+    } while (0)                         \
+
 extern BOOLEAN DoReadTCP (unsigned long);
 extern BOOLEAN DoWaitingReadTCP(unsigned long);
 extern void CloseTCPConnection (void);

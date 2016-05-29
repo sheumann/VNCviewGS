@@ -57,10 +57,6 @@ unsigned char * rawDecode320(unsigned startOffset, unsigned endOffset,
  * because the rectangle is not visible.
  */
 static void StopRawDrawing (void) {
-    HUnlock(readBufferHndl);
-
-    displayInProgress = FALSE;
-
     NextRect();                                     /* Prepare for next rect */
 }
 
@@ -237,7 +233,6 @@ static void RawDrawLine (void) {
     srcRect.v1 = 0;
     srcRect.v2 = 1;
 
-    HLock(readBufferHndl);
     dataPtr = (unsigned char *) *readBufferHndl;
     SetPort(vncWindow);                         /* Drawing in VNC window */
 
@@ -266,7 +261,7 @@ static void RawDrawLine (void) {
             }
         }
 
-    HUnlock(readBufferHndl);
+    DoneWithReadBuffer();
     contentOrigin = GetContentOrigin(vncWindow);
     PPToPort(&srcLocInfo, &srcRect, rectX - contentOriginPtr->h,
             rectY - contentOriginPtr->v, modeCopy);
@@ -359,5 +354,4 @@ void DoRawRect (void) {
     displayInProgress = TRUE;
     drawingLine = 0;            /* Drawing first line of rect */
     checkBounds = TRUE;         /* Flag to check bounds when drawing 1st line */
-    HLock(readBufferHndl);      /* Lock handle just once for efficiency */
 }

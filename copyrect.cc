@@ -48,11 +48,9 @@ void DoCopyRect (void) {
 
     contentOrigin = GetContentOrigin(vncWindow);
 
-    HLock(readBufferHndl);
     dataPtr = (unsigned int *) ((char *) (*readBufferHndl));
     srcRect.h1 = SwapBytes2(dataPtr[0]) - contentOriginPtr->h;
     srcRect.v1 = SwapBytes2(dataPtr[1]) - contentOriginPtr->v;
-    HUnlock(readBufferHndl);
 
     srcRect.h2 = srcRect.h1 + rectWidth;
     srcRect.v2 = srcRect.v1 + rectHeight;
@@ -72,8 +70,6 @@ void DoCopyRect (void) {
             rectX - contentOriginPtr->h, rectY - contentOriginPtr->v, modeCopy);
 
 done:
-    displayInProgress = FALSE;
-
     NextRect();                                     /* Prepare for next rect */
 }
 
