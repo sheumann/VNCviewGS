@@ -64,6 +64,7 @@ segment "VNCview GS";
 #define txtTransfers        23
 #define chkEmul3Btn         18
 #define chkViewOnly         19
+#define chkTuneMarinetti	20
 #define txtPreferredEncoding    24
 #define radRaw              25
 #define radHextile          26

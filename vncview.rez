@@ -66,6 +66,7 @@
 #define txtTransfers            23
 #define chkEmul3Btn             18
 #define chkViewOnly             19
+#define chkTuneMarinetti		20
 #define txtPreferredEncoding    24
 #define radRaw                  25
 #define radHextile              26
@@ -604,7 +605,7 @@ resource rWindParam1 (NCWindow+winNewConnection) {
         {0,0},                          /* page vertical, horizontal */
         0,                              /* wInfoRefCon */
         0,                              /* wInfoHeight */
-        {40,162,181,478},               /* wPosition */
+        {35,162,189,478},               /* wPosition */
         infront,                        /* wPlane */
         NCWindow+winNewConnection,      /* wStorage */
         $0009                           /* wInVerb */
@@ -629,6 +630,7 @@ resource rControlList (NCWindow+winNewConnection) {{
                 NCWindow+txtTransfers,
                 NCWindow+chkEmul3Btn,
                 NCWindow+chkViewOnly,
+                NCWindow+chkTuneMarinetti,
                 NCWindow+txtPreferredEncoding,
                 NCWindow+radRaw,
                 NCWindow+radHextile,
@@ -636,7 +638,7 @@ resource rControlList (NCWindow+winNewConnection) {{
 
 resource rControlTemplate (NCWindow+btnConnect) {
         btnConnect,                     /* Control ID */
-        {121,217,0,0},                  /* Control Rect */
+        {134,217,0,0},                  /* Control Rect */
         SimpleButtonControl {{
                 $0001,                  /* flags */
                 $3002,                  /* more flags */
@@ -650,7 +652,7 @@ resource rPString (NCWindow+btnConnect) {"Connect"};
                   
 resource rControlTemplate (NCWindow+btnCancel) {
         btnCancel,                      /* Control ID */
-        {121,128,0,0},                  /* Control Rect */
+        {134,128,0,0},                  /* Control Rect */
         SimpleButtonControl {{
                 $0000,                  /* flags */
                 $3002,                  /* more flags */
@@ -873,6 +875,20 @@ resource rControlTemplate (NCWindow+txtPreferredEncoding) {
         }};
 };
 resource rTextForLETextBox2 (NCWindow+txtPreferredEncoding) {"Preferred Encoding:"};
+
+resource rControlTemplate (NCWindow+chkTuneMarinetti) {
+        chkTuneMarinetti,
+        {117,3,0,0},
+        CheckControl {{
+                $0000,
+                $1002,
+                0,
+                NCWindow+chkTuneMarinetti,  /* Title ref */
+                1                       /* initial value */
+        }};
+};
+resource rPString (NCWindow+chkTuneMarinetti) {"Tune Marinetti for high throughput"};
+
 
 resource rControlTemplate (NCWindow+radRaw) {
         radRaw,

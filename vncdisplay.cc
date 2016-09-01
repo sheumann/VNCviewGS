@@ -140,13 +140,13 @@ static void ChangeResolution(int rez) {
         MoveControl(25, 64, GetCtlHandleFromID(newConnWindow, txtColor));
         MoveControl(25, 87, GetCtlHandleFromID(newConnWindow, txtGray));
         MoveControl(134, 91, GetCtlHandleFromID(newConnWindow, txtTransfers));
-        MoveWindow(2, 42, newConnWindow);
+        MoveWindow(2, 35, newConnWindow);
     }
     else {
         MoveControl(35, 64, GetCtlHandleFromID(newConnWindow, txtColor));
         MoveControl(35, 87, GetCtlHandleFromID(newConnWindow, txtGray));
         MoveControl(144, 91, GetCtlHandleFromID(newConnWindow, txtTransfers));
-        MoveWindow(162, 42, newConnWindow);
+        MoveWindow(162, 35, newConnWindow);
     }
 }
 
