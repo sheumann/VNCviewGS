@@ -15,6 +15,7 @@ extern BOOLEAN allowClipboardTransfers;
 extern BOOLEAN emulate3ButtonMouse;
 extern BOOLEAN viewOnlyMode;
 extern BOOLEAN useHextile;
+extern BOOLEAN tuneMarinetti;
 extern char vncServer[257];
 extern char vncPassword[10];
 

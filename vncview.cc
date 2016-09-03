@@ -87,6 +87,7 @@ BOOLEAN allowClipboardTransfers = TRUE;
 BOOLEAN emulate3ButtonMouse = TRUE;
 BOOLEAN viewOnlyMode = FALSE;
 BOOLEAN useHextile = FALSE;
+BOOLEAN tuneMarinetti = TRUE;
 char vncServer[257];
 char vncPassword[10];
 
@@ -238,6 +239,8 @@ static void HandleControl (void) {
                                                                         break;
         case chkEmul3Btn:   emulate3ButtonMouse = !emulate3ButtonMouse; break;
         case chkViewOnly:   viewOnlyMode = !viewOnlyMode;               break;
+        case chkTuneMarinetti:
+                            tuneMarinetti = !tuneMarinetti;             break;
         case txtTransfers:  allowClipboardTransfers = !allowClipboardTransfers;
                             SetCtlValueByID(allowClipboardTransfers,
                                 newConnWindow, chkClipboard);           break;

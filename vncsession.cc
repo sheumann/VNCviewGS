@@ -66,6 +66,8 @@ static BOOLEAN GetIpid (void);
 static BOOLEAN DoVNCHandshaking (void);
 static BOOLEAN DoDES (void);
 static BOOLEAN FinishVNCHandshaking (void);
+static void TuneMarinetti (void);
+static void UnTuneMarinetti (void);
 
 #define buffTypePointer 0x0000      /* For TCPIPReadTCP() */
 #define buffTypeHandle 0x0001
@@ -88,6 +90,8 @@ void DoConnect (void) {
         colorTablesComplete = TRUE;
         CloseConnectStatusWindow();
     }
+    
+    TuneMarinetti();
 
     /* Get server & password */
     
@@ -98,13 +102,13 @@ void DoConnect (void) {
     if (ConnectTCPIP() == FALSE) {
         SysBeep();
         AlertWindow(awResource, NULL, noTCPIPConnectionError);
-        return;
+        goto errorReturn;
     }
 
     if (GetIpid() == FALSE) {
         SysBeep();
         AlertWindow(awResource, NULL, badGetIpidError);
-        return;
+        goto errorReturn;
     }
 
     if (DoVNCHandshaking() == FALSE) {
@@ -115,14 +119,14 @@ void DoConnect (void) {
             AlertWindow(awResource, NULL, badHandshakingError);
         else
             alerted = FALSE;
-        return;
+        goto errorReturn;
     }
     if (FinishVNCHandshaking() == FALSE) {
         CloseConnectStatusWindow();
         InitCursor();
         AlertWindow(awResource, NULL, badOptionNegotiationError);
         SysBeep();
-        return;
+        goto errorReturn;
     }
 
     InitVNCWindow();
@@ -136,6 +140,11 @@ void DoConnect (void) {
     myEvent.wmTaskMask = 0x001D79FE;  /* don't let TaskMaster process keys */
     InitMenus(noKB);
     vncConnected = TRUE;
+    return;
+
+errorReturn:
+    UnTuneMarinetti();
+    return;
 }
 
 /*******************************************************************
@@ -704,6 +713,49 @@ static BOOLEAN FinishVNCHandshaking (void) {
 }   
 
 
+/* Marinetti tuning structures */
+static tuneStruct oldTune;
+static tuneStruct newTune;
+
+/**********************************************************************
+* TuneMarinetti() - Set Marinetti tuning options for max throughput
+**********************************************************************/
+void TuneMarinetti (void) {
+    if (tuneMarinetti) {
+        TCPIPGetTuningTable(&oldTune);
+    
+        /* Tune to process max number of datagrams each time polled */
+        newTune.tcpTUNECOUNT        = 10;
+        newTune.tcpTUNEIPUSERPOLLCT = 10;
+        newTune.tcpTUNEIPRUNQFREQ   = oldTune.tcpTUNEIPRUNQFREQ;
+        newTune.tcpTUNEIPRUNQCT     = 10;
+        newTune.tcpTUNETCPUSERPOLL  = oldTune.tcpTUNETCPUSERPOLL;
+        TCPIPSetTuningTable(&newTune);
+	}
+}
+
+/**********************************************************************
+* UnTuneMarinetti() - Set Marinetti tuning options back to old values
+**********************************************************************/
+void UnTuneMarinetti (void) {
+    tuneStruct currentTune;
+    
+    if (tuneMarinetti) {
+        TCPIPGetTuningTable(&currentTune);
+    
+        /* Restore original tuning table unless something else seems to have
+         * modified it in the meantime.
+         */
+        if (   currentTune.tcpTUNEIPUSERPOLLCT == newTune.tcpTUNEIPUSERPOLLCT
+            && currentTune.tcpTUNEIPRUNQFREQ   == newTune.tcpTUNEIPRUNQFREQ
+            && currentTune.tcpTUNEIPRUNQCT     == newTune.tcpTUNEIPRUNQCT
+            && currentTune.tcpTUNETCPUSERPOLL  == newTune.tcpTUNETCPUSERPOLL)
+        {
+            TCPIPSetTuningTable(&oldTune);
+        }
+    }
+}
+
 /**********************************************************************
 * CloseTCPConnection() - Close the TCP connection to the host
 **********************************************************************/
@@ -716,5 +768,6 @@ void CloseTCPConnection (void) {
         TCPIPLogout(hostIpid);
     } while (toolerror() == terrSOCKETOPEN);
     CloseConnectStatusWindow();
+    UnTuneMarinetti();
     InitCursor();
 }
