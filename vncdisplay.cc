@@ -63,6 +63,8 @@ unsigned char *pixTransTbl;
 
 BOOLEAN checkBounds = FALSE;    /* Adjust drawing to stay in bounds */
 
+unsigned long skipBytes = 0;
+
 #define txtColor        10
 #define txtGray         11
 #define txtTransfers    23
@@ -237,10 +239,7 @@ static void DoFBUpdate (void) {
 
 /* The server should never send a color map, since we don't use a mapped
  * representation for pixel values.  If a malfunctioning server tries to
- * send us one, though, we read and ignore it.  This procedure could lock
- * up the system for several seconds or longer while reading data, which
- * would be bad but for the fact that it will never be called if the server
- * is actually working correctly.
+ * send us one, though, we read and ignore it.
  */
 static void DoSetColourMapEntries (void) {
     unsigned int numColors;
@@ -248,11 +247,17 @@ static void DoSetColourMapEntries (void) {
     DoWaitingReadTCP(3);
     DoWaitingReadTCP(2);
     numColors = SwapBytes2((unsigned int) **readBufferHndl);
-    for (; numColors > 0; numColors--) {
-        DoWaitingReadTCP(6);
-    }
+    skipBytes = 6UL * numColors;
 }
 
+/* Skip a specified number of bytes.
+ */
+static void DoSkipBytes (void) {
+    if (DoReadTCP(skipBytes)) {
+        DoneWithReadBuffer();
+        skipBytes = 0;
+    }
+}
 
 /* Here when we're done processing one rectangle and ready to start the next.
  * If last FramebufferUpdate had multiple rectangles, we set up for next one.
@@ -301,7 +306,10 @@ void ConnectedEventLoop (void) {
     else if (FrontWindow() == vncWindow && menuOffset != noKB)
         InitMenus(noKB);
 
-    if (displayInProgress) {
+    if (skipBytes) {
+        DoSkipBytes();
+        return;
+    } else if (displayInProgress) {
         switch (rectEncoding) {
             case encodingRaw:   RawDraw();
                                 return;

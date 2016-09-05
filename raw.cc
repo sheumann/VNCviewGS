@@ -40,6 +40,11 @@ static unsigned long pixels;
 static unsigned int drawingLine; /* Line to be drawn while displaying */
 static BOOLEAN extraByteAdvance;
 
+static unsigned linesAvailable;
+
+/* Bytes to skip before or after doing raw drawing */
+static unsigned long preSkip, postSkip;
+
 /* Buffer to hold all SHR pixel data from one update (defined in tables.asm).
  * Must be big enough: at least (WIN_WIDTH_640/4 + 1) * WIN_HEIGHT. */
 #define DESTBUF_SIZE 0x8001
@@ -64,10 +69,10 @@ static void StopRawDrawing (void) {
 
 /* Draw one or more lines from a raw rectangle
  */
-void RawDraw (void) {      
+void RawDraw (void) {
+    static unsigned char *lineDataPtr;
     unsigned int i;         /* Loop indices */
-    unsigned char *dataPtr;
-    unsigned char *lineDataPtr, *initialLineDataPtr;
+    unsigned char *initialLineDataPtr;
     unsigned char *finalDestPtr;
     static EventRecord unusedEventRec;
 
@@ -75,8 +80,8 @@ void RawDraw (void) {
     Origin contentOrigin;
 
     SetPort(vncWindow);                         /* Drawing in VNC window */
-    dataPtr = (unsigned char *) *readBufferHndl;
 
+#if 0
     /* Check if what we're drawing is visible, and skip any invisible part
      * by skipping some lines or completely aborting drawing the rectangle.
      */
@@ -94,8 +99,9 @@ void RawDraw (void) {
             return;
         }
         else if (rectY + drawingLine < contentOrigin.pt.v) {
-            destPtr += (unsigned long)lineBytes *
-                 (contentOrigin.pt.v - rectY - drawingLine);
+            unsigned linesToSkip = contentOrigin.pt.v - rectY - drawingLine;
+            preSkip = linesToSkip * rectWidth;
+            destPtr += (unsigned long)lineBytes * linesToSkip;
             drawingLine = contentOrigin.pt.v - rectY;
     
             if (drawingLine >= rectHeight) {    /* Sanity check */
@@ -108,11 +114,19 @@ void RawDraw (void) {
 
         checkBounds = FALSE;
     }
+#endif
 
-    lineDataPtr = dataPtr + (unsigned long) drawingLine * rectWidth;
-            
     do {    /* We short-circuit back to here if there are no events pending */
-        unsigned inPixelsA, inPixelsB, inPixelsA2, inPixelsB2, outPixels;
+        unsigned inPixelsA, inPixelsB, outPixels;
+
+        if (linesAvailable == 0) {
+            linesAvailable = DoReadMultipleTCP(rectWidth, rectHeight - drawingLine);
+            if (linesAvailable) {
+                lineDataPtr = (unsigned char *) *readBufferHndl;
+            } else {
+                return;
+            }
+        }
 
         finalDestPtr = destPtr + lineBytes - 1;
         if (hRez == 640) {
@@ -167,6 +181,8 @@ void RawDraw (void) {
             return;
         }
 
+        linesAvailable--;
+
         /* Check if there are actually any events that need to be processed.
          * If not, save time by not going through the whole event loop, but
          * instead processing the minimum necessary periodic tasks and then
@@ -178,116 +194,15 @@ void RawDraw (void) {
             SystemTask();   /* Let periodic Desk Accesories do their things */
         }
         TCPIPPoll();    /* Let Marinetti keep processing data */
-
     } while (1);
 }
 
 #pragma optimize -1
 
-/* Draw one line of Raw data - used if the complete rect isn't yet available */
-static void RawDrawLine (void) {
-    unsigned int i;
-    unsigned char *dataPtr;
-    Origin contentOrigin;
-
-    if (hRez == 640) {
-        if (rectWidth & 0x03)           /* Width not an exact multiple of 4 */
-            lineBytes = rectWidth/4 + 1;
-        else                            /* Width is a multiple of 4 */
-            lineBytes = rectWidth/4;
-    }
-    else {  /* 320 mode */
-        if (rectWidth & 0x01)           /* Width not an exact multiple of 2 */
-            lineBytes = rectWidth/2 + 1;
-        else                            /* Width is a multiple of 2 */
-            lineBytes = rectWidth/2;
-    }
-
-    destPtr = destBuf;
-
-    srcLocInfo.ptrToPixImage = destPtr;
-    srcLocInfo.width = lineBytes;
-    srcLocInfo.boundsRect.v2 = 1;
-    /* Since the lines are rounded up to integral numbers of bytes, this
-     * padding must be accounted for here.
-     */
-    if (hRez == 640) {
-        switch (rectWidth & 0x03) {
-            case 0x00:  srcLocInfo.boundsRect.h2 = rectWidth;       break;
-            case 0x01:  srcLocInfo.boundsRect.h2 = rectWidth+3;     break;
-            case 0x02:  srcLocInfo.boundsRect.h2 = rectWidth+2;     break;
-            case 0x03:  srcLocInfo.boundsRect.h2 = rectWidth+1;
-        }
-    }
-    else {
-        switch (rectWidth & 0x01) {
-            case 0x00:  srcLocInfo.boundsRect.h2 = rectWidth;       break;
-            case 0x01:  srcLocInfo.boundsRect.h2 = rectWidth+1;
-        }
-    }   
-
-    /* Don't include padding in the area we will actually copy over */
-    srcRect.h2 = rectWidth;
-    srcRect.v1 = 0;
-    srcRect.v2 = 1;
-
-    dataPtr = (unsigned char *) *readBufferHndl;
-    SetPort(vncWindow);                         /* Drawing in VNC window */
-
-    if (hRez == 640)
-        for (i = 0; i < rectWidth; /* i is incremented in loop */) {
-            switch (i & 0x03) {
-                case 0x00:          /* pixels 0, 4, 8, ... */
-                    *destPtr      = pixTransTbl[dataPtr[i++]] & 0xC0;
-                    break;
-                case 0x01:          /* pixels 1, 5, 9, ... */
-                    *destPtr     += pixTransTbl[dataPtr[i++]] & 0x30;
-                    break;
-                case 0x02:          /* pixels 2, 6, 10, ... */
-                    *destPtr     += pixTransTbl[dataPtr[i++]] & 0x0C;
-                    break;
-                case 0x03:          /* pixels 3, 7, 11, ... */
-                    *(destPtr++) += pixTransTbl[dataPtr[i++]] & 0x03;
-            }
-        }
-    else            /* 320 mode */
-        for (i = 0; i < rectWidth; /* i is incremented in loop */) {
-            if ((i & 0x01) == 0)            /* pixels 0, 2, 4, ... */
-                *destPtr      = pixTransTbl[dataPtr[i++]] & 0xF0;
-            else {                  /* pixels 1, 3, 5, ... */
-                *(destPtr++) += pixTransTbl[dataPtr[i++]] & 0x0F;
-            }
-        }
-
-    DoneWithReadBuffer();
-    contentOrigin.l = GetContentOrigin(vncWindow);
-    PPToPort(&srcLocInfo, &srcRect, rectX - contentOrigin.pt.h,
-            rectY - contentOrigin.pt.v, modeCopy);
-    free(srcLocInfo.ptrToPixImage);     /* Allocated as destPtr */
-
-    TCPIPPoll();
-
-    rectHeight--;   /* One less line left to draw */
-    rectY++;        /* Rest of rect starts one line below this */
-}
-
 /* Process rectangle data in raw encoding and write it to screen.
  */
 void DoRawRect (void) {
     pixels = (unsigned long) rectWidth * rectHeight;
-
-    /* Try to read data */
-    if (! DoReadTCP (pixels)) {
-        /* Only support line-by-line drawing if the connection is quite slow;
-         * otherwise it's actually detrimental to overall speed.  The Hextile
-         * setting is used as a hint at the connection speed.
-         */
-        if (useHextile && rectHeight > 1 && DoReadTCP ((unsigned long) rectWidth))
-            RawDrawLine();          /* Some data ready - draw first line */
-        return;                         /* Not ready yet; wait */
-    }
-
-    /* Here if data is ready to be processed */
 
     if (hRez == 640) {
         if (rectWidth & 0x03) {         /* Width not an exact multiple of 4 */
@@ -318,6 +233,7 @@ void DoRawRect (void) {
         contentOrigin.l = GetContentOrigin(vncWindow);
         SendFBUpdateRequest(FALSE, contentOrigin.pt.h, contentOrigin.pt.v,
                             winWidth, winHeight);
+        skipBytes = pixels;
         StopRawDrawing();
         return;
     }
@@ -350,5 +266,6 @@ void DoRawRect (void) {
 
     displayInProgress = TRUE;
     drawingLine = 0;            /* Drawing first line of rect */
+    linesAvailable = 0;         /* No line data read yet */
     checkBounds = TRUE;         /* Flag to check bounds when drawing 1st line */
 }

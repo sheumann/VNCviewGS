@@ -32,4 +32,5 @@ extern void DoConnect (void);
 
 extern BOOLEAN DoReadTCP (unsigned long);
 extern BOOLEAN DoWaitingReadTCP(unsigned long);
+extern unsigned DoReadMultipleTCP(unsigned recLen, unsigned maxN);
 extern void CloseTCPConnection (void);

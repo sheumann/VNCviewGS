@@ -43,6 +43,8 @@ extern unsigned char *pixTransTbl;
 
 extern BOOLEAN checkBounds; /* Adjust drawing to stay in bounds */
 
+extern unsigned long skipBytes;
+
 void InitVNCWindow (void);
 
 void SendFBUpdateRequest (BOOLEAN /*incremental*/, unsigned int /*x*/,

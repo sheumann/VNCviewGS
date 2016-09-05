@@ -379,6 +379,31 @@ BOOLEAN DoReadTCP (unsigned long dataLength) {
     return TRUE;
 }
 
+/**********************************************************************
+* DoReadMultipleTCP() - Read the largest available multiple of recLen bytes,
+*   up to a maximum multiple of maxN.
+*   Return value = the multiple n (meaning n * len bytes have been read)
+**********************************************************************/
+unsigned DoReadMultipleTCP(unsigned recLen, unsigned maxN) {
+    static srBuff theSRBuff;
+    unsigned long n, totalSize;
+    
+    TCPIPPoll();
+
+    if ((tcperr = TCPIPStatusTCP(hostIpid, &theSRBuff)) != tcperrOK)
+        return 0;
+    if (toolerror())
+        return 0;
+
+    n = theSRBuff.srRcvQueued / recLen;
+    if (n > maxN)
+        n = maxN;
+    
+    if (n && DoReadTCP(recLen * n))
+        return n;
+
+    return 0;
+}
 
 /**********************************************************************
 * DoVNCHandshaking() - Establish connection to VNC server
