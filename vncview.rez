@@ -360,8 +360,8 @@ resource rMenuItem (fileQuit+noKB) {    /* Quit menu item */
 
 resource rAlertString (1) {
    "93:"
-   "VNCview GS 1.0b2\n"
-   "Copyright \$A9 2002\$D12015 by Stephen Heumann\n"
+   "VNCview GS 1.0\n"
+   "Copyright \$A9 2002\$D12016 by Stephen Heumann\n"
    "\n"
    "This program contains material from the ORCA/C Run-Time Libraries, "
    "Copyright 1987-1996 by Byte Works Inc.  Used with permission.\n"
@@ -373,11 +373,11 @@ resource rAlertString (1) {
 resource rVersion (1) {
         {
                 1,0,0,          /* Version number */
-                beta, 2,        /* Release version */
+                release, 0,     /* Release version */
         },
         verUS,                  /* Region code */
         "VNCview GS",           /* Title */
-        "Copyright \$A9 2002\$D12015\n"
+        "Copyright \$A9 2002\$D12016\n"
         "by Stephen Heumann"
 };
 
