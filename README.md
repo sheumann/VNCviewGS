@@ -11,7 +11,7 @@ __Binary downloads are on the [releases page][releases].__
 System Requirements
 -------------------
 * An Apple IIgs running System Software 6.0.1 or later
-* [Marinetti][1] 2.0 or later (latest version recommended)
+* [Marinetti][1] (latest version recommended)
 * Andrew Roughan's [Crypto Tool Set][2] (needed for password functionality)
 * A computer running a VNC server to which you have access  
 
@@ -21,6 +21,8 @@ Strongly recommended:
 * A high-bandwidth, low-latency network connection from the IIgs to the server
 
 A IIgs connected to the network via an Ethernet connection and a server connected to your LAN will probably provide the best performance.
+
+Under Sweet16, there is a known issue where the networking code within Sweet16 may drop the connection to the VNC server.  This generally occurs at relatively low emulated speeds; you can usually avoid it by using high or unlimited speed.
 
 [1]: http://www.apple2.org/marinetti/
 [2]: http://members.iinet.net.au/~kalandi/apple/crypto.html
@@ -40,7 +42,9 @@ Other options are also available.
 * __View Only Mode__ allows you to see the server's display but not to send any keyboard, mouse, or clipboard input to the server.
 * __Allow Clipboard Transfers from Server__ indicates that the server is allowed to send its clipboard contents, which will be transferred to the IIgs clipboard.
 
-The __Preferred Encoding__ is the method that will be used to represent pixels on the server's display when sending them to the IIgs; the available options are Raw and Hextile.  The Raw encoding sends lines of pixel values to the IIgs, while Hextile represents the display as a collection of small rectangular areas.  Raw is generally faster than Hextile in the current version of VNCview GS, but Hextile may be faster on slow network links.  Some servers may not support Hextile encoding, in which case Raw will be used regardless of this setting.
+The __Preferred Encoding__ is the method that will be used to represent pixels on the server's display when sending them to the IIgs; the available options are Raw and Hextile.  The Raw encoding sends lines of pixel values to the IIgs, while Hextile represents the display as a collection of small rectangular areas.  Raw is generally faster than Hextile in the current version of VNCview GS, but Hextile may be faster on very slow network links.  Some servers may not support Hextile encoding, in which case Raw will be used regardless of this setting.
+
+The __Tune Marinetti for high throughput__ option configures Marinetti to process a larger amount of incoming data at once than it does by default.  This generally improves performance.
 
 When you have configured your new VNC connection, simply click __Connect__, and if all goes well you will be connected to the VNC server.  You can interact with it with the mouse and keyboard and scroll your view of its display.  The option and Open-Apple keys are sent as "meta" and "alt," respectively; their exact interpretation depends on the server.  Keyboard shortcuts for menu items are disabled when connected so that these key combinations can be sent to the server.  Select _Close_ or _Quit_ in the File menu when you are done with the connection.
 
@@ -57,7 +61,7 @@ __Edit->Send Clipboard__: Transfers the contents of the IIgs clipboard to the se
 
 VNC Server Interoperability
 ---------------------------
-VNCview GS should be able to connect with any VNC server that fully implements the RFB protocol as published by RealVNC Ltd. or its predecessors.  Here is a list of some VNC servers; many others are also available.
+VNCview GS should be able to connect with any VNC server that fully implements the RFB protocol as defined in RFC 6143 or earlier compatible specifications.  Here is a list of some VNC servers; many others are also available.
 
 * Microsoft Windows, *nix (X11), and OS X: __RealVNC__, http://www.realvnc.com/
 * OS X: __Vine Server (OSXvnc)__, http://www.testplant.com/dlds/vine/
@@ -69,6 +73,11 @@ VNCview GS does not work with the Screen Sharing functionality in OS X, because 
 
 Version History
 ---------------
+##### 1.0
+* Optimized raw pixel decoding routines
+* Raw pixels can be decoded and displayed incrementally while receiving data
+* Added option to tune Marinetti for high throughput
+
 ##### 1.0b2
 * First open source release
 * Can display the mouse cursor from the server locally on the IIgs
@@ -91,7 +100,7 @@ Version History
 
 License
 -------
-Copyright (c) 2002-2015 Stephen Heumann  
+Copyright (c) 2002-2016 Stephen Heumann  
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
