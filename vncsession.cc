@@ -351,6 +351,8 @@ BOOLEAN DoReadTCP (unsigned long dataLength) {
     static srBuff theSRBuff;
     static rrBuff theRRBuff;
 
+    if (dataLength == 0)
+        return TRUE;
     DoneWithReadBuffer();
     TCPIPPoll();
 
