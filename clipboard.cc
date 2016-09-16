@@ -48,7 +48,7 @@ void DoServerCutText (void) {
         DoClose(vncWindow);
         return;
     }
-    textLen = SwapBytes4((unsigned long) **readBufferHndl);
+    textLen = SwapBytes4(*(unsigned long *)readBufferPtr);
 
     if (! DoWaitingReadTCP(textLen)) {
         DoClose(vncWindow);
@@ -59,11 +59,11 @@ void DoServerCutText (void) {
                     
         /* Convert lf->cr; Use pointer arithmetic so we can go over 64k */
         for (i = 0; i < textLen; i++)
-            if (*((*(char **)readBufferHndl)+i) == '\n')
-                *((*(char **)readBufferHndl)+i) = '\r';
+            if (*(readBufferPtr+i) == '\n')
+                *(readBufferPtr+i) = '\r';
 
                     /* Below function call requires <scrap.h> to be fixed */
-        PutScrap(textLen, textScrap, (Pointer) *readBufferHndl);
+        PutScrap(textLen, textScrap, (Pointer) readBufferPtr);
         /* Potential errors (e.g. out of memory) ignored */
         DoneWithReadBuffer();
     }

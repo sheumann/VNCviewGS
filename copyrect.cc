@@ -47,7 +47,7 @@ void DoCopyRect (void) {
 
     contentOrigin.l = GetContentOrigin(vncWindow);
 
-    dataPtr = (unsigned int *) ((char *) (*readBufferHndl));
+    dataPtr = (unsigned int *) readBufferPtr;
     srcRect.h1 = SwapBytes2(dataPtr[0]) - contentOrigin.pt.h;
     srcRect.v1 = SwapBytes2(dataPtr[1]) - contentOrigin.pt.v;
 

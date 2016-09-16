@@ -161,8 +161,8 @@ void DoCursor (void) {
     if (!DoReadTCP((unsigned long)rectWidth * rectHeight + bitmaskLineBytes * rectHeight))
         return; /* Try again later */
 
-    cursorPixels = (unsigned char *)(*readBufferHndl);
-    bitmask = (unsigned char *)(*readBufferHndl) + (unsigned long)rectWidth * rectHeight;
+    cursorPixels = readBufferPtr;
+    bitmask = readBufferPtr + (unsigned long)rectWidth * rectHeight;
 
     if (hRez == 640)
         lineWords = ((unsigned long)rectWidth + 7) / 8 + 1;

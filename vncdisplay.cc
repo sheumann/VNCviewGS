@@ -228,7 +228,7 @@ static void DoFBUpdate (void) {
         //printf("Closing in DoFBUpdate\n");
         return;
     }
-    dataPtr = (unsigned int *) (((char *) (*readBufferHndl)) + 1);
+    dataPtr = (unsigned int *) (readBufferPtr + 1);
     numRects = SwapBytes2(dataPtr[0]);                  /* Get data */
     rectX = SwapBytes2(dataPtr[1]);
     rectY = SwapBytes2(dataPtr[2]);
@@ -246,7 +246,7 @@ static void DoSetColourMapEntries (void) {
 
     DoWaitingReadTCP(3);
     DoWaitingReadTCP(2);
-    numColors = SwapBytes2((unsigned int) **readBufferHndl);
+    numColors = SwapBytes2(*(unsigned int *)readBufferPtr);
     skipBytes = 6UL * numColors;
 }
 
@@ -275,7 +275,7 @@ void NextRect (void) {
             DoClose(vncWindow);
             return;
         }
-        dataPtr = (unsigned int *) ((char *) (*readBufferHndl));
+        dataPtr = (unsigned int *)readBufferPtr;
         rectX = SwapBytes2(dataPtr[0]);
         rectY = SwapBytes2(dataPtr[1]);
         rectWidth  = SwapBytes2(dataPtr[2]);
@@ -344,7 +344,7 @@ void ConnectedEventLoop (void) {
         }
     }
     else if (DoReadTCP(1)) {            /* Read message type byte */
-        messageType = ((unsigned char) **readBufferHndl);
+        messageType = *readBufferPtr;
         switch (messageType) {
             case FBUpdate:              DoFBUpdate();
                                         break;

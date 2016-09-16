@@ -78,7 +78,7 @@ static void HexRawDraw (Origin contentOrigin, int rectWidth, int rectHeight) {
 
     static Rect srcRect = {0,0,0,0};
 
-    dataPtr = (unsigned char *) *readBufferHndl;
+    dataPtr = readBufferPtr;
 
     if ((hRez==640 && (rectWidth & 0x03)) || (hRez==320 && (rectWidth & 0x01)))
             extraByteAdvance = TRUE;
@@ -209,8 +209,8 @@ void HexDispatch (void) {
 
     /* If we don't have the next bit of needed data yet, return. */
     while (DoReadTCP(bytesNeeded)) {
-        dataPtr = *(unsigned char **) readBufferHndl;
-        /* If we're here, readBufferHndl contains bytesNeeded bytes of data. */
+        dataPtr = readBufferPtr;
+        /* If we're here, readBufferPtr contains bytesNeeded bytes of data. */
         switch (status) {
             case hexWaitingForSubencoding:
                 subencoding = *dataPtr;

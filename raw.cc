@@ -122,7 +122,7 @@ void RawDraw (void) {
         if (linesAvailable == 0) {
             linesAvailable = DoReadMultipleTCP(rectWidth, rectHeight - drawingLine);
             if (linesAvailable) {
-                lineDataPtr = (unsigned char *) *readBufferHndl;
+                lineDataPtr = readBufferPtr;
             } else {
                 return;
             }

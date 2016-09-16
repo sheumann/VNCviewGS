@@ -16,7 +16,8 @@
 
 extern GrafPortPtr connectStatusWindowPtr;
 
-extern void ** readBufferHndl;
+extern void ** readBufferHndl;       /* User internally by TCP read routines. */
+extern unsigned char *readBufferPtr; /* Ptr to data read by last DoReadTCP call. */
 
 extern unsigned int hostIpid;
 
