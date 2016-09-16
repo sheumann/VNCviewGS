@@ -29,9 +29,11 @@ segment "VNCview GS";
 #include <LineEdit.h>
 #include <TCPIP.h>
 #include <Scrap.h>
+
 #include "vncview.h"
-#include "VNCsession.h"
+#include "vncsession.h"
 #include "vncdisplay.h"
+#include "readtcp.h"
 #include "menus.h"
 #include "colortables.h"
 #include "mouse.h"

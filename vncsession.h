@@ -16,22 +16,10 @@
 
 extern GrafPortPtr connectStatusWindowPtr;
 
-extern void ** readBufferHndl;       /* User internally by TCP read routines. */
-extern unsigned char *readBufferPtr; /* Ptr to data read by last DoReadTCP call. */
-
 extern unsigned int hostIpid;
 
 extern void DisplayConnectStatus(char *, BOOLEAN);
 
 extern void DoConnect (void);
 
-#define DoneWithReadBuffer() do         \
-    if (readBufferHndl) {               \
-        DisposeHandle(readBufferHndl);  \
-        readBufferHndl = NULL;          \
-    } while (0)                         \
-
-extern BOOLEAN DoReadTCP (unsigned long);
-extern BOOLEAN DoWaitingReadTCP(unsigned long);
-extern unsigned DoReadMultipleTCP(unsigned recLen, unsigned maxN);
 extern void CloseTCPConnection (void);

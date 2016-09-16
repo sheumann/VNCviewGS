@@ -25,6 +25,7 @@ segment "VNCview GS";
 #include "vncview.h"
 #include "vncdisplay.h"
 #include "colortables.h"
+#include "readtcp.h"
 #include "menus.h"
 #include "clipboard.h"
 #include "desktopsize.h"

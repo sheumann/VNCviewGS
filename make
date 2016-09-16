@@ -5,7 +5,7 @@ set rezfork false
 
 clearmem
 
-for {header} in vncview vncsession vncdisplay colortables menus \
+for {header} in vncview vncsession vncdisplay colortables readtcp menus \
                 desktopsize mouse keyboard copyrect raw hextile clipboard
         unset exit
         newer VNCview.GS {header}.h
@@ -15,7 +15,7 @@ for {header} in vncview vncsession vncdisplay colortables menus \
         end
 end
 
-for file in vncview vncsession vncdisplay colortables \
+for file in vncview vncsession vncdisplay colortables readtcp \
             desktopsize mouse keyboard copyrect raw hextile clipboard
         unset exit
         newer {file}.a {file}.cc
@@ -45,7 +45,7 @@ if {status} != 0
 end
 
 if {link} == true
-        link vncview vncsession vncdisplay colortables tables rawdec \
+        link vncview vncsession vncdisplay colortables readtcp tables rawdec \
              desktopsize mouse keyboard copyrect raw hextile clipboard \
              keep=VNCview.GS
         filetype VNCview.GS S16 $DB03

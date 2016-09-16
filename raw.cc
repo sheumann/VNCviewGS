@@ -24,14 +24,8 @@ segment "VNCview GS";
 #include "vncview.h"
 #include "vncdisplay.h"
 #include "colortables.h"
-#include "menus.h"
-#include "clipboard.h"
-#include "desktopsize.h"
-#include "mouse.h"
-#include "keyboard.h"
-#include "copyrect.h"
+#include "readtcp.h"
 #include "raw.h"
-#include "hextile.h"
 
 /* Data on state of raw rectangle drawing routines */
 static unsigned int lineBytes;   /* Number of bytes in a line of GS pixels */

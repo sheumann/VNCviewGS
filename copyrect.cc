@@ -23,15 +23,8 @@ segment "VNCview GS";
 #include "vncsession.h"
 #include "vncview.h"
 #include "vncdisplay.h"
-#include "colortables.h"
-#include "menus.h"
-#include "clipboard.h"
-#include "desktopsize.h"
-#include "mouse.h"
-#include "keyboard.h"
+#include "readtcp.h"
 #include "copyrect.h"
-#include "raw.h"
-#include "hextile.h"
 
 void DoCopyRect (void) {
     /* For use with GetContentOrigin() */
