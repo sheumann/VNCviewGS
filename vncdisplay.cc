@@ -316,6 +316,8 @@ void ConnectedEventLoop (void) {
                                 return;
             case encodingHextile: HexDispatch();
                                 return;
+            case nonEncodingClipboard: GetClipboard();
+                                return;
             default:            DoClose(vncWindow);
                                 return;
         }
@@ -353,7 +355,8 @@ void ConnectedEventLoop (void) {
                                         break;
             case Bell:                  SysBeep();
                                         break;
-            case ServerCutText:         DoServerCutText();
+            case ServerCutText:         rectEncoding = nonEncodingClipboard;
+                                        DoServerCutText();
                                         break;
             default:                    DisplayConnectStatus (
                                             "\pInvalid message from server.",

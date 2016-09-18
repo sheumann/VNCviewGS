@@ -18,9 +18,15 @@ extern unsigned int rectHeight;
 #define encodingRRE         2
 #define encodingCoRRE       4
 #define encodingHextile     5
+#define encodingZlib        6
+#define encodingTight       7
+#define encodingZlibhex     8
+#define encodingTRLE        15
 #define encodingZRLE        16
 #define encodingCursor      0xffffff11
 #define encodingDesktopSize 0xffffff21
+
+#define nonEncodingClipboard 3 /* should be different from any encoding */
 
 #define WIN_WIDTH_320 302
 #define WIN_WIDTH_640 613

@@ -77,12 +77,11 @@ static unsigned char windows1252ToMacRoman[128] = {
 };
 
 
+static unsigned long textLen;
+
 /* Update the Scrap Manager clipboard with new data sent from server.
  */
 void DoServerCutText (void) {
-    unsigned long textLen;
-    unsigned long i;
-
     if (! DoWaitingReadTCP (3)) {   /* Read & ignore padding */
         DoClose(vncWindow);
         return;
@@ -92,9 +91,17 @@ void DoServerCutText (void) {
         return;
     }
     textLen = SwapBytes4(*(unsigned long *)readBufferPtr);
+    
+    /* Set up to wait for clipboard data.  Treat this like a 
+     * "display in progress," although it's really not. */
+    displayInProgress = TRUE;
+    GetClipboard();
+}
 
-    if (! DoWaitingReadTCP(textLen)) {
-        DoClose(vncWindow);
+void GetClipboard (void) {
+    unsigned long i;
+
+    if (! DoReadTCP(textLen)) {
         return;
     };
     if (allowClipboardTransfers) {
@@ -116,6 +123,8 @@ void DoServerCutText (void) {
         /* Potential errors (e.g. out of memory) ignored */
         DoneWithReadBuffer();
     }
+    
+    displayInProgress = FALSE;
 }
     
 void DoSendClipboard (void) {
