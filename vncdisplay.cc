@@ -39,6 +39,7 @@ unsigned int fbHeight;
 unsigned int fbWidth;
 
 BOOLEAN displayInProgress;
+static BOOLEAN peekedNextMsg;
 
 static unsigned int numRects;
 unsigned int rectX;
@@ -65,6 +66,12 @@ unsigned char *pixTransTbl;
 BOOLEAN checkBounds = FALSE;    /* Adjust drawing to stay in bounds */
 
 unsigned long skipBytes = 0;
+
+/* Server-to-client message types */
+#define FBUpdate            0
+#define SetColourMapEntries 1
+#define Bell                2
+#define ServerCutText       3
 
 #define txtColor        10
 #define txtGray         11
@@ -187,6 +194,7 @@ void InitVNCWindow(void) {
     /* We also take the opportunity here to initialize the rectangle info. */
     numRects = 0;
     displayInProgress = FALSE;
+    peekedNextMsg = FALSE;
 
 #undef wrNum320
 #undef wrNum640
@@ -288,6 +296,16 @@ void NextRect (void) {
         Origin contentOrigin;
 
         DoneWithReadBuffer();
+        
+        if (DoReadTCP(1)) {
+            peekedNextMsg = TRUE;
+            if (*readBufferPtr == FBUpdate) {
+                /* Don't request another FBUpdate if one is already coming.
+                 * This helps avoid a condition where the GS may be unable
+                 * to "catch up" with a stream of frequent updates. */
+                return;
+            }
+        }
 
         contentOrigin.l = GetContentOrigin(vncWindow);
         SendFBUpdateRequest(TRUE, contentOrigin.pt.h, contentOrigin.pt.v,
@@ -297,10 +315,6 @@ void NextRect (void) {
     
 void ConnectedEventLoop (void) {
     unsigned char messageType;
-#define FBUpdate            0
-#define SetColourMapEntries 1
-#define Bell                2
-#define ServerCutText       3
 
     if (FrontWindow() != vncWindow && menuOffset == noKB)
         InitMenus(0);
@@ -346,7 +360,8 @@ void ConnectedEventLoop (void) {
                                 return;
         }
     }
-    else if (DoReadTCP(1)) {            /* Read message type byte */
+    else if (peekedNextMsg || DoReadTCP(1)) {   /* Read message type byte */
+        peekedNextMsg = FALSE;
         messageType = *readBufferPtr;
         switch (messageType) {
             case FBUpdate:              DoFBUpdate();
