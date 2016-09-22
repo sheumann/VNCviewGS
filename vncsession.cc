@@ -56,6 +56,7 @@ GrafPortPtr connectStatusWindowPtr = NULL;
 
 unsigned int hostIpid;
 static BOOLEAN alerted = FALSE;
+static enum {notConnected, loggedIn, tcpConnected} connectionState;
 
 static void CloseConnectStatusWindow (void);
 static BOOLEAN ConnectTCPIP (void);
@@ -76,6 +77,8 @@ static void UnTuneMarinetti (void);
 
 void DoConnect (void) {
     int i;          /* loop counter */
+    
+    connectionState = notConnected;
 
     if (colorTablesComplete == FALSE) {
         DisplayConnectStatus("\pGenerating color tables...", FALSE);
@@ -136,6 +139,13 @@ void DoConnect (void) {
     return;
 
 errorReturn:
+    if (connectionState >= loggedIn) {
+        if (connectionState >= tcpConnected) {
+            TCPIPAbortTCP(hostIpid);
+        }
+        TCPIPLogout(hostIpid);
+        connectionState = notConnected;
+    }
     UnTuneMarinetti();
     return;
 }
@@ -281,9 +291,12 @@ static BOOLEAN GetIpid (void)
     if (toolerror())
         return FALSE;
 
-    if (TCPIPOpenTCP(hostIpid) == tcperrOK)
-        if (!toolerror())    
-            return TRUE;
+    connectionState = loggedIn;
+
+    if (TCPIPOpenTCP(hostIpid) == tcperrOK && !toolerror()) {
+        connectionState = tcpConnected;
+        return TRUE;
+    }
             
     return FALSE;      
 
@@ -682,6 +695,7 @@ void CloseTCPConnection (void) {
         TCPIPPoll();
         TCPIPLogout(hostIpid);
     } while (toolerror() == terrSOCKETOPEN);
+    connectionState = notConnected;
     CloseConnectStatusWindow();
     UnTuneMarinetti();
     InitCursor();
