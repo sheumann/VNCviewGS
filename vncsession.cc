@@ -670,10 +670,15 @@ void UnTuneMarinetti (void) {
 * CloseTCPConnection() - Close the TCP connection to the host
 **********************************************************************/
 void CloseTCPConnection (void) {
+    long stopTime;
+
     TCPIPCloseTCP(hostIpid);
     WaitCursor();
     DisplayConnectStatus("\pClosing VNC session...", FALSE);
+    stopTime = TickCount() + 5 * 60;
     do {
+        if (TickCount() >= stopTime)
+            TCPIPAbortTCP(hostIpid);
         TCPIPPoll();
         TCPIPLogout(hostIpid);
     } while (toolerror() == terrSOCKETOPEN);
