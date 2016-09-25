@@ -12,8 +12,10 @@ Strongly recommended:
 An accelerator
 A high-bandwidth, low-latency network connection from the IIgs to the server
 
-Marinetti can be downloaded from:
+The Marinetti homepage is:
 http://www.apple2.org/marinetti/
+As of this writing, the latest version can be downloaded at:
+http://www.a2retrosystems.com/Marinetti.htm
 
 The Crypto Tool Set can be downloaded from:
 http://members.iinet.net.au/~kalandi/apple/crypto.html
@@ -63,6 +65,12 @@ x11vnc is a good option, because it supports server-side display scaling, which 
 VNCview GS does not work with the Screen Sharing functionality in OS X, because the Screen Sharing server does not support the pixel format that VNCview GS requires.  The above servers can be used instead.
 
 Version History
+1.0.1
+Improved clipboard transfer routines, with support for non-ASCII characters
+Improvements to help the display "catch up" when content is changing rapidly
+Fix to avoid long pauses or hangs when closing the connection in some cases
+Fix to ensure Marinetti resources are properly cleaned up in error cases
+
 1.0
 Optimized raw pixel decoding routines
 Raw pixels can be decoded and displayed incrementally while receiving data

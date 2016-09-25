@@ -11,8 +11,8 @@ __Binary downloads are on the [releases page][releases].__
 System Requirements
 -------------------
 * An Apple IIgs running System Software 6.0.1 or later
-* [Marinetti][1] (latest version recommended)
-* Andrew Roughan's [Crypto Tool Set][2] (needed for password functionality)
+* [Marinetti][1] ([latest version][2] recommended)
+* Andrew Roughan's [Crypto Tool Set][3] (needed for password functionality)
 * A computer running a VNC server to which you have access  
 
 Strongly recommended:
@@ -25,7 +25,8 @@ A IIgs connected to the network via an Ethernet connection and a server connecte
 Under Sweet16, there is a known issue where the networking code within Sweet16 may drop the connection to the VNC server.  This generally occurs at relatively low emulated speeds; you can usually avoid it by using high or unlimited speed.
 
 [1]: http://www.apple2.org/marinetti/
-[2]: http://members.iinet.net.au/~kalandi/apple/crypto.html
+[2]: http://www.a2retrosystems.com/Marinetti.htm
+[3]: http://members.iinet.net.au/~kalandi/apple/crypto.html
 
 
 Usage
@@ -73,6 +74,12 @@ VNCview GS does not work with the Screen Sharing functionality in OS X, because 
 
 Version History
 ---------------
+##### 1.0.1
+* Improved clipboard transfer routines, with support for non-ASCII characters
+* Improvements to help the display "catch up" when content is changing rapidly
+* Fix to avoid long pauses or hangs when closing the connection in some cases
+* Fix to ensure Marinetti resources are properly cleaned up in error cases
+
 ##### 1.0
 * Optimized raw pixel decoding routines
 * Raw pixels can be decoded and displayed incrementally while receiving data
