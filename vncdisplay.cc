@@ -124,16 +124,18 @@ static void ChangeResolution(int rez) {
         return; /* Already in right mode, so don't change things */
     }
 
-    /* Perform the basic procedure described in IIgs TN #4 */
+    /* Perform the basic procedure described in IIgs TN #4,
+     * with some adjustments to provide a smoother transition.
+     */
     CloseAllNDAs();
     QDAuxShutDown();
+    SetMasterSCB(masterSCB | 0x100);    /* To leave SHR screen active */
     QDShutDown();
     if (dpSpace == NULL)
         dpSpace = NewHandle(0x0300, userid(),
                         attrLocked|attrFixed|attrNoCross|attrBank, 0x00000000);
-    QDStartUp((Word) *dpSpace, (rez == 640) ? 0xC087 : 0xC000, 0, userid());
+    QDStartUp((Word) *dpSpace, (rez == 640) ? 0xC187 : 0xC100, 0, userid());
                     /* SCB 0x87 gives 640 mode with our custom gray palette */
-    GrafOff();
     QDAuxStartUp();
     ClampMouse(0, (rez == 640) ? 639 : 319, 0, 199);
     HomeMouse();
@@ -143,7 +145,6 @@ static void ChangeResolution(int rez) {
     MenuNewRes();
     CtlNewRes();
     RefreshDesktop(NULL);
-    GrafOn();
 
     /* Position new connection window at default location for new mode */
     if (rez == 320) {                                                  

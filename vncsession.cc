@@ -124,13 +124,14 @@ void DoConnect (void) {
         SysBeep();
         goto errorReturn;
     }
+    
+    CloseConnectStatusWindow();
+    DoClose(newConnWindow);
 
     InitVNCWindow();
 
-    CloseConnectStatusWindow();
     InitCursor();
 
-    DoClose(newConnWindow);
     DisableMItem(fileNewConnection);
 
     myEvent.wmTaskMask = 0x001D79FE;  /* don't let TaskMaster process keys */
