@@ -25,6 +25,25 @@ segment "VNCview GS";
 #include "vncdisplay.h"
 #include "keyboard.h"
 
+static unsigned long macRomanToKeysym[128] = {
+    /* 80 - 87 */  0xc4, 0xc5, 0xc7, 0xc9, 0xd1, 0xd6, 0xdc, 0xe1,
+    /* 88 - 8f */  0xe0, 0xe2, 0xe4, 0xe3, 0xe5, 0xe7, 0xe9, 0xe8,
+    /* 90 - 97 */  0xea, 0xeb, 0xed, 0xec, 0xee, 0xef, 0xf1, 0xf3,
+    /* 98 - 9f */  0xf2, 0xf4, 0xf6, 0xf5, 0xfa, 0xf9, 0xfb, 0xfc,
+    /* a0 - a7 */  0x0af1, 0xb0, 0xa2, 0xa3, 0xa7, 0x01002022, 0xb6, 0xdf,
+    /* a8 - af */  0xae, 0xa9, 0x0ac9, 0xb4, 0xa8, 0x08bd, 0xc6, 0xd8,
+    /* b0 - b7 */  0x08c2, 0xb1, 0x08bc, 0x08be, 0xa5, 0xb5, 0x08ef, 0x01002211,
+    /* b8 - bf */  0x0100220F, 0x07f0, 0x08bf, 0xaa, 0xba, 0x07d9, 0xe6, 0xf8,
+    /* c0 - c7 */  0xbf, 0xa1, 0xac, 0x08d6, 0x08f6, 0x01002248, 0x01002206, 0xab,
+    /* c8 - cf */  0xbb, 0x0aae, 0xa0, 0xc0, 0xc3, 0xd5, 0x13bc, 0x13bd,
+    /* d0 - d7 */  0x0aaa, 0x0aa9, 0x0ad2, 0x0ad3, 0x0ad0, 0x0ad1, 0xf7, 0x010025CA,
+    /* d8 - df */  0xff, 0x13be, 0x01002044, 0xa4, 0x01002039, 0x0100203A, 0x0100FB01, 0x0100FB02,
+    /* e0 - e7 */  0x0af2, 0xb7, 0x0afd, 0x0afe, 0x0ad5, 0xc2, 0xca, 0xc1,
+    /* e8 - ef */  0xcb, 0xc8, 0xcd, 0xce, 0xcf, 0xcc, 0xd3, 0xd4,
+    /* f0 - f7 */  0x0100F8FF, 0xd2, 0xda, 0xdb, 0xd9, 0x02b9, 0x010002C6, 0x010002DC,
+    /* f8 - ff */  0xaf, 0x01a2, 0x01ff, 0x010002DA, 0xb8, 0x01bd, 0x01b2, 0x01b7,
+};
+
 /* Send a KeyEvent message to the server
  */
 void SendKeyEvent (BOOLEAN keyDownFlag, unsigned long key)
@@ -50,7 +69,7 @@ void SendKeyEvent (BOOLEAN keyDownFlag, unsigned long key)
 /* Process a key down event and send it on to the server. */
 void ProcessKeyEvent (void)
 {
-    unsigned long key = myEvent.message & 0x0000007F;
+    unsigned long key = myEvent.message & 0x000000FF;
 
     if (viewOnlyMode)
         return;
@@ -82,10 +101,9 @@ void ProcessKeyEvent (void)
         }
     }
 
-    if (key == 0x7f)
+    if (key == 0x7f) {
         key = 0xFF08;   /* Delete -> BackSpace */
-
-    if (key < 0x20) {
+    } else if (key < 0x20) {
         if (myEvent.modifiers & controlKey) {
             if (((myEvent.modifiers & shiftKey) ||
                                             (myEvent.modifiers & capsLock))
@@ -105,15 +123,9 @@ void ProcessKeyEvent (void)
             case 0x0A:  key = 0xFF54;   break;  /* Down arrow */
             case 0x18:  key = 0xFF0B;   break;  /* Clear / NumLock -> Clear */
         }
+    } else if (key & 0x80) {
+        key = macRomanToKeysym[key & 0x7f];
     }
-
-    /* Test if we seem to have a valid character and return if we don't.
-       This should never return, unless there are bugs in this routine or
-       TaskMaster gives us bogus keycodes.  The test would need to be updated
-       if we ever start generating valid keycodes outside of these ranges.
-     */
-    if ((key & 0xFF80) != 0xFF00 && (key & 0xFF80) != 0x0000)
-        return;
 
     SendKeyEvent(TRUE, key);
     SendKeyEvent(FALSE, key);
