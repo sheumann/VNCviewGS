@@ -64,16 +64,21 @@ VNC Server Interoperability
 ---------------------------
 VNCview GS should be able to connect with any VNC server that fully implements the RFB protocol as defined in RFC 6143 or earlier compatible specifications.  Here is a list of some VNC servers; many others are also available.
 
-* Microsoft Windows, *nix (X11), and OS X: __RealVNC__, http://www.realvnc.com/
-* OS X: __Vine Server (OSXvnc)__, http://www.testplant.com/dlds/vine/
-* *nix (X11) and OS X: __x11vnc__, http://www.karlrunge.com/x11vnc/
+* Microsoft Windows, *nix (X11), and macOS: __RealVNC__, http://www.realvnc.com/
+* macOS: __Vine Server (OSXvnc)__, http://www.testplant.com/dlds/vine/
+* *nix (X11) and macOS: __x11vnc__, http://www.karlrunge.com/x11vnc/
 
 x11vnc is a good option, because it supports server-side display scaling, which is useful to fit more information on the IIgs screen.
 
-VNCview GS does not work with the Screen Sharing functionality in OS X, because the Screen Sharing server does not support the pixel format that VNCview GS requires.  The above servers can be used instead.
+VNCview GS does not work with the Screen Sharing functionality in macOS, because the Screen Sharing server does not support the pixel format that VNCview GS requires.  The above servers can be used instead.
 
 Version History
 ---------------
+##### 1.0.2
+* Support for typing non-ASCII characters
+* Smoother transitions between 640 mode and 320 mode
+* Improved UI responsiveness during raw pixel decoding
+
 ##### 1.0.1
 * Improved clipboard transfer routines, with support for non-ASCII characters
 * Improvements to help the display "catch up" when content is changing rapidly
