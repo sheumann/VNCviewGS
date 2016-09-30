@@ -27,6 +27,8 @@ segment "VNCview GS";
 #include "readtcp.h"
 #include "raw.h"
 
+#define EVENT_CHECK_INVERVAL 10  /* tick count between event checks */
+
 /* Data on state of raw rectangle drawing routines */
 static unsigned int lineBytes;   /* Number of bytes in a line of GS pixels */
 static unsigned long pixels;
@@ -68,11 +70,13 @@ void RawDraw (void) {
     unsigned int i;         /* Loop indices */
     unsigned char *initialLineDataPtr;
     unsigned char *finalDestPtr;
-    static EventRecord unusedEventRec;
+    static EventRecord eventRec;
+    unsigned long eventCheckTime;
 
     /* For use with GetContentOrigin() */
     Origin contentOrigin;
 
+    eventCheckTime = TickCount() + EVENT_CHECK_INVERVAL;
     SetPort(vncWindow);                         /* Drawing in VNC window */
 
 #if 0
@@ -182,10 +186,11 @@ void RawDraw (void) {
          * instead processing the minimum necessary periodic tasks and then
          * going straight to the next line of data.
          */
-        if (!(drawingLine & 15)) {
-            if (EventAvail(0xFFFF, &unusedEventRec))
+        if (TickCount() >= eventCheckTime) {
+            if (EventAvail(0xFFFF, &eventRec))
                 return;
             SystemTask();   /* Let periodic Desk Accesories do their things */
+            eventCheckTime = eventRec.when + EVENT_CHECK_INVERVAL;
         }
         TCPIPPoll();    /* Let Marinetti keep processing data */
     } while (1);
