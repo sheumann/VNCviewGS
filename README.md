@@ -6,6 +6,7 @@ VNCview GS is a [Virtual Network Computing][0] client (viewer) for the Apple IIg
 [0]: https://en.wikipedia.org/wiki/Virtual_Network_Computing
 
 __Binary downloads are on the [releases page][releases].__
+
 [releases]: https://github.com/sheumann/VNCviewGS/releases
 
 System Requirements
