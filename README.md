@@ -12,7 +12,7 @@ __Binary downloads are on the [releases page][releases].__
 System Requirements
 -------------------
 * An Apple IIgs running System Software 6.0.1 or later
-* [Marinetti][1] ([latest version][2] recommended)
+* [Marinetti][1] ([version 3.0b9 or later][2] recommended for best performance)
 * Andrew Roughan's [Crypto Tool Set][3] (needed for password functionality)
 * A computer running a VNC server to which you have access  
 
